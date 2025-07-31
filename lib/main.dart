@@ -8,13 +8,20 @@ import 'features/splash/splash_page.dart';
 import 'features/auth/presentation/login_page.dart';
 import 'features/home/home_page.dart';
 import 'features/report/presentation/report_form_page.dart';
+
 import 'package:device_preview/device_preview.dart';
 import 'features/settings/presentation/settings_page.dart';
 import 'features/settings/presentation/notification_setting_page.dart';
 import 'features/my_reports/domain/notification_page.dart';
 import 'features/profile/profile_page.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'features/report/data/offline_report.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(OfflineReportAdapter());
+  await Hive.openBox<OfflineReport>('offline_reports');
   runApp(
     DevicePreview(
       enabled: kDebugMode,
@@ -44,8 +51,8 @@ class DefectReporterApp extends StatelessWidget {
         '/notification-setting': (context) => const NotificationSettingPage(),
         '/settings': (context) => const SettingsPage(),
         '/notifications': (context) => const NotificationPage(),
-        '/support' : (context) => const SupportPage(),
-        '/profile' : (context) => const ProfilePage(),
+        '/support': (context) => const SupportPage(),
+        '/profile': (context) => const ProfilePage(),
       },
     );
   }

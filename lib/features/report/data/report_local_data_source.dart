@@ -1,37 +1,30 @@
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'report_model.dart';
+import 'package:hive/hive.dart';
+import 'offline_report.dart';
 
 abstract class ReportLocalDataSource {
-  Future<void> cacheReport(ReportModel report);
-  Future<List<ReportModel>> getCachedReports();
-  Future<void> clearCachedReports();
+  Future<void> cacheReport(OfflineReport report);
+  Future<List<OfflineReport>> getCachedReports();
+  Future<void> removeCachedReport(OfflineReport report);
 }
 
 class ReportLocalDataSourceImpl implements ReportLocalDataSource {
-  static const String _cacheKey = 'CACHED_REPORTS';
+  static const String _boxName = 'offline_reports';
 
   @override
-  Future<void> cacheReport(ReportModel report) async {
-    final prefs = await SharedPreferences.getInstance();
-    final reports = await getCachedReports();
-    reports.add(report);
-    final encoded = jsonEncode(reports.map((e) => e.toJson()).toList());
-    await prefs.setString(_cacheKey, encoded);
+  Future<void> cacheReport(OfflineReport report) async {
+    final box = Hive.box<OfflineReport>(_boxName);
+    await box.put(report.id, report);
   }
 
   @override
-  Future<List<ReportModel>> getCachedReports() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString(_cacheKey);
-    if (jsonString == null) return [];
-    final List<dynamic> decoded = jsonDecode(jsonString);
-    return decoded.map((e) => ReportModel.fromJson(e)).toList();
+  Future<List<OfflineReport>> getCachedReports() async {
+    final box = Hive.box<OfflineReport>(_boxName);
+    return box.values.toList();
   }
 
   @override
-  Future<void> clearCachedReports() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_cacheKey);
+  Future<void> removeCachedReport(OfflineReport report) async {
+    final box = Hive.box<OfflineReport>(_boxName);
+    await box.delete(report.id);
   }
 }

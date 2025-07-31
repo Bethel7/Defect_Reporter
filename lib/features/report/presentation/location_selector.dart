@@ -13,7 +13,7 @@ class LocationSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locations = ['HQ', 'Terminal A', 'Maintenance Facility'];
+    final locations = ['HQ', 'Terminal A', 'Maintenance Facility', 'IT'];
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
