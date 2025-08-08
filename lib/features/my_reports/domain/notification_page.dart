@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/common/profile_popup_menu.dart';
 import 'notification_repository.dart';
 import '../data/notification_model.dart';
+import 'notifications_detail_page.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -17,24 +17,38 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void initState() {
     super.initState();
-    // Use your repository here (replace DummyNotificationRepository with your actual implementation if needed)
     _notificationsFuture = DummyNotificationRepository().getNotifications();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        title: const Text(
-          'Notifications',
-          style: TextStyle(color: Colors.white),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Semantics(
+          label: 'Back',
+          button: true,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+            onPressed: () => Navigator.pop(context),
+            tooltip: 'Back',
+          ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+        title: Semantics(
+          label: 'Notifications Page',
+          header: true,
+          child: Text(
+            'Notifications',
+            style: TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+            ),
+          ),
         ),
-        actions: const [ProfilePopupMenu()],
+        
       ),
       body: FutureBuilder<List<NotificationModel>>(
         future: _notificationsFuture,
@@ -49,26 +63,35 @@ class _NotificationPageState extends State<NotificationPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Replace with your SVG or image asset if you have one
-                  Icon(
-                    Icons.notifications_none,
-                    size: 80,
-                    color: AppColors.primaryDark,
+                  Semantics(
+                    label: 'No notifications icon',
+                    child: Icon(
+                      Icons.notifications_none,
+                      size: 80,
+                      color: AppColors.primaryDark,
+                    ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'No notifications yet',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: AppColors.primaryDark,
-                      fontWeight: FontWeight.bold,
+                  Semantics(
+                    label: 'No notifications yet',
+                    child: Text(
+                      'No notifications yet',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: AppColors.primaryDark,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    "Your notifications will appear here once you've received them.",
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
-                    textAlign: TextAlign.center,
+                  Semantics(
+                    label:
+                        "Your notifications will appear here once you've received them.",
+                    child: Text(
+                      "Your notifications will appear here once you've received them.",
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ],
               ),
@@ -81,43 +104,53 @@ class _NotificationPageState extends State<NotificationPage> {
             separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final notif = notifications[index];
-              return Material(
-                color: AppColors.primary.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(16),
-                child: InkWell(
+              return Semantics(
+                label:
+                    '${notif.title}, ${notif.isRead ? "Read" : "Unread"} notification',
+                button: true,
+                child: Material(
+                  color: AppColors.primary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(16),
-                  onTap: () {
-                    // Optionally show notification details
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 18,
-                      horizontal: 16,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          notif.isRead
-                              ? Icons.notifications
-                              : Icons.notifications_active,
-                          color: AppColors.primary,
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Text(
-                            notif.title,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: AppColors.primaryDark,
-                              fontWeight: FontWeight.w500,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                   onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => NotificationDetailPage(notification: notif),
+                          ),
+                        );
+                      },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 18,
+                        horizontal: 16,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            notif.isRead
+                                ? Icons.notifications
+                                : Icons.notifications_active,
+                            color: AppColors.primary,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              notif.title,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: AppColors.primaryDark,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                        ),
-                        const Icon(
-                          Icons.chevron_right,
-                          color: AppColors.primary,
-                        ),
-                      ],
+                          const Icon(
+                            Icons.chevron_right,
+                            color: AppColors.primary,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

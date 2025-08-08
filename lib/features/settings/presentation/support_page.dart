@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/common/profile_popup_menu.dart';
 
 class SupportPage extends StatelessWidget {
   const SupportPage({super.key});
@@ -7,39 +8,94 @@ class SupportPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        title: const Text('Support', style: TextStyle(color: Colors.white)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Semantics(
+          label: 'Back',
+          button: true,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+            onPressed: () => Navigator. popAndPushNamed(context, '/settings'),
+            tooltip: 'Back',
+          ),
+        ),
+        title: Semantics(
+          label: 'Support Page',
+          header: true,
+          child: Text(
+            'Support',
+            style: TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+            ),
+          ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.account_circle, color: AppColors.accent),
-            onPressed: () {},
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Semantics(
+              label: 'Open profile menu',
+              button: true,
+              child: ProfilePopupMenu(),
+            ),
           ),
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Need Help?',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12),
+            Semantics(
+              label: 'Need Help?',
+              header: true,
+              child: Text(
+                'Need Help?',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              padding: const EdgeInsets.all(16),
-              child: const Text(
-                'For support, please contact the IT helpdesk at:\n\nEmail: support@ethiopianairlines.com\nPhone: +251 11 665 6666\n\nOr visit the HR office for in-person assistance.',
-                style: TextStyle(fontSize: 15),
+            ),
+            const SizedBox(height: 24),
+            Semantics(
+              label: 'Support contact information',
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 3,
+                color: AppColors.primary.withOpacity(0.08),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'For support, please contact the IT helpdesk at:',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      SelectableText(
+                        'Email: support@ethiopianairlines.com',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                      SizedBox(height: 8),
+                      SelectableText(
+                        'Phone: +251 11 665 6666',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Or visit the HR office for in-person assistance.',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],

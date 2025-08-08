@@ -109,6 +109,18 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                     focusedErrorBorder: redBorder,
                     errorStyle: const TextStyle(color: AppColors.error),
 ),
+         Align(
+           alignment: Alignment.centerRight,
+           child: TextButton(
+            onPressed: () {
+            Navigator.pushNamed(context, '/forgot-password');
+          },
+    child: const Text(
+      'Forgot Password?',
+      style: TextStyle(color: AppColors.primary),
+    ),
+  ),
+),
           const SizedBox(height: 24),
           CustomButton(
               label: 'Login',

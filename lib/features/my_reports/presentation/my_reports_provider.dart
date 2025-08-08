@@ -1,16 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../report/data/report_model.dart';
 
-// Dummy report model for demonstration
-class MyReport {
-  final String title;
-  final String date;
-  final String status;
-
-  MyReport({required this.title, required this.date, required this.status});
-}
-
+// State class using ReportModel
 class MyReportsState {
-  final List<MyReport> reports;
+  final List<ReportModel> reports;
   final bool isLoading;
   final String? error;
 
@@ -21,7 +14,7 @@ class MyReportsState {
   });
 
   MyReportsState copyWith({
-    List<MyReport>? reports,
+    List<ReportModel>? reports,
     bool? isLoading,
     String? error,
   }) {
@@ -33,8 +26,13 @@ class MyReportsState {
   }
 }
 
+// Notifier using ReportModel
 class MyReportsNotifier extends StateNotifier<MyReportsState> {
   MyReportsNotifier() : super(MyReportsState(reports: []));
+
+  void addReport(ReportModel report) {
+    state = state.copyWith(reports: [...state.reports, report]);
+  }
 
   Future<void> loadReports() async {
     state = state.copyWith(isLoading: true, error: null);
@@ -43,9 +41,39 @@ class MyReportsNotifier extends StateNotifier<MyReportsState> {
       await Future.delayed(const Duration(seconds: 1));
       state = state.copyWith(
         reports: [
-          MyReport(title: 'Broken seat', date: '10th oct 2023', status: 'Resolved'),
-          MyReport(title: 'Faulty air conditioner', date: '23th dec 2024', status: 'Resolved'),
-          MyReport(title: 'Delayed  Departure', date: '17th jan 2025', status: 'In progress'),
+          ReportModel(
+            id: '1',
+            title: 'Broken seat',
+            description: 'Seat 12A is broken.',
+            location: 'Terminal A',
+            status: ReportModel.statusResolved,
+            imageUrl: null,
+            aiDepartment: null,
+            aiSeverity: null,
+            timestamp: DateTime(2023, 10, 10, 14, 30),
+          ),
+          ReportModel(
+            id: '2',
+            title: 'Faulty air conditioner',
+            description: 'AC not working in waiting area.',
+            location: 'HQ',
+            status: ReportModel.statusResolved,
+            imageUrl: null,
+            aiDepartment: null,
+            aiSeverity: null,
+            timestamp: DateTime(2024, 12, 23, 10, 0),
+          ),
+          ReportModel(
+            id: '3',
+            title: 'Delayed Departure',
+            description: 'Flight ET123 delayed.',
+            location: 'Terminal B',
+            status: ReportModel.statusInProgress,
+            imageUrl: null,
+            aiDepartment: null,
+            aiSeverity: null,
+            timestamp: DateTime(2025, 1, 17, 18, 45),
+          ),
         ],
         isLoading: false,
       );

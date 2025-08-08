@@ -8,7 +8,8 @@ class AppRoutes {
   static const String settings = '/settings';
   static const String profile = '/profile';
   static const String notifications = '/notifications';
-  static const String generalSettings = '/general-settings';
+  static const String forgotPassword = '/forgot-password';
   static const String support = '/support';
-  static const String notificationSettings = '/notification-settings';
+  static const String changePassword = '/change-password';
+  
 }

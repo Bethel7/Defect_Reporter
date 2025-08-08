@@ -21,17 +21,19 @@ class Validators {
     if (value == null || value.isEmpty) {
       return 'Title is required';
     }
-    if ( value.length > 100) {
+    if (value.length > 100) {
       return 'Title is too long';
     }
     return null;
   }
+
   static String? validateLocation(String? value) {
     if (value == null || value.isEmpty) {
       return 'Location is required';
     }
     return null;
   }
+
   static String? validateImagePath(String? value) {
     if (value == null || value.isEmpty) {
       return 'Image is required';
@@ -45,6 +47,16 @@ class Validators {
     }
     if (value.length > 500) {
       return 'Description is too long';
+    }
+    return null;
+  }
+
+  static String? validateConfirmPassword(String? value, String newPassword) {
+    if (value == null || value.isEmpty) {
+      return 'please confirm your password';
+    }
+    if (value != newPassword) {
+      return 'passwords do not match';
     }
     return null;
   }

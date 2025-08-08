@@ -11,14 +11,14 @@ class SplashPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/images/et_logo.png',
-              height: 100,
+              'assets/images/logo.png',
+              height: 150,
             ),
             const SizedBox(height: 16),
             const Text(
               'Issue Reporter',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
             ),

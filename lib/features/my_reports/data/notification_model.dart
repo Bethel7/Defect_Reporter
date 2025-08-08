@@ -1,6 +1,7 @@
 class NotificationModel {
   final String id;
   final String title;
+  final String? body;
   final String message;
   final DateTime timestamp;
   final bool isRead;
@@ -10,6 +11,7 @@ class NotificationModel {
     required this.title,
     required this.message,
     required this.timestamp,
+    this.body,
     this.isRead = false,
   });
 

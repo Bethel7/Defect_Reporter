@@ -16,6 +16,8 @@ class LocationService {
     if (permission == LocationPermission.deniedForever) {
       return null;
     }
-    return await Geolocator.getCurrentPosition();
+    return await Geolocator.getCurrentPosition(
+  desiredAccuracy: LocationAccuracy.high,
+);
   }
 }

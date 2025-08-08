@@ -9,8 +9,9 @@ class ProfilePopupMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<int>(
-      icon: const Icon(Icons.account_circle, color: AppColors.accent),
+      tooltip: 'Profile menu',
       offset: const Offset(0, 40),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       onSelected: onSelected ??
           (value) {
             if (value == 0) {
@@ -53,6 +54,14 @@ class ProfilePopupMenu extends StatelessWidget {
           ),
         ),
       ],
+      child: Semantics(
+        label: 'Open profile menu',
+        button: true,
+        child: CircleAvatar(
+          backgroundColor: AppColors.primary,
+          child: Icon(Icons.person, color: AppColors.accent),
+        ),
+      ),
     );
   }
 }

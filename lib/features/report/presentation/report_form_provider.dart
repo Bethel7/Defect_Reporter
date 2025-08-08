@@ -12,6 +12,9 @@ class ReportFormNotifier extends StateNotifier<ReportFormState> {
   void setDescription(String desc) => state = state.copyWith(description: desc);
   void setLocation(String loc) => state = state.copyWith(location: loc);
   void setImagePath(String path) => state = state.copyWith(imagePath: path);
+void reset() {
+  state = ReportFormState.initial();
+}
 
   Future<Map<String, String>?> submit() async {
   state = state.copyWith(isSubmitting: true, error: null);
