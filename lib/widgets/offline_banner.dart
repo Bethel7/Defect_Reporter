@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class OfflineBanner extends StatelessWidget {
@@ -7,14 +6,24 @@ class OfflineBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: Colors.red, // Use a strong color for visibility
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: const Center(
-        child: Text(
-          'Offline Mode Active',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(Icons.wifi_off, color: Colors.white),
+          SizedBox(width: 8),
+          Text(
+            'No internet. Report saved offline and will sync when online',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              letterSpacing: 1.1,
+            ),
+          ),
+        ],
       ),
     );
   }

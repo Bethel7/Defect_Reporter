@@ -1,16 +1,29 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../features/report/data/report_model.dart';
 
 class OfflineStorageService {
+  static const String _offlineReportsKey = 'offline_reports';
+
   Future<void> saveReport(ReportModel report) async {
-    // Save report locally (e.g., SQLite, shared_preferences)
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> reportsJson =
+        prefs.getStringList(_offlineReportsKey) ?? [];
+    reportsJson.add(jsonEncode(report.toJson()));
+    await prefs.setStringList(_offlineReportsKey, reportsJson);
   }
 
   Future<List<ReportModel>> getOfflineReports() async {
-    // Retrieve locally saved reports
-    return [];
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> reportsJson =
+        prefs.getStringList(_offlineReportsKey) ?? [];
+    return reportsJson
+        .map((jsonStr) => ReportModel.fromJson(jsonDecode(jsonStr)))
+        .toList();
   }
 
   Future<void> clearOfflineReports() async {
-    // Clear local storage
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_offlineReportsKey);
   }
 }

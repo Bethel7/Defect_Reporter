@@ -3,8 +3,8 @@ import 'profile_model.dart';
 
 final profileProvider = StateProvider<ProfileModel>((ref) {
   return ProfileModel(
-    name: 'John Doe',
+    name: 'Berhanu Girma',
     employeeId: 'ET12345',
-    email: 'john.doe@ethiopianairlines.com',
+    email: 'BerhanuGirma@ethiopianairlines.com',
   );
 });
