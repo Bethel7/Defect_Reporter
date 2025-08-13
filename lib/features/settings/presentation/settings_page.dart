@@ -51,7 +51,7 @@ class SettingsPage extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  elevation: 2,
+                  elevation: 0,
                   color: AppColors.primary.withOpacity(0.07),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(

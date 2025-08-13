@@ -4,6 +4,33 @@ import '../../core/common/bottom_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/my_reports/presentation/my_reports_provider.dart';
 import '../../core/common/profile_popup_menu.dart';
+import '../../features/report/data/report_model.dart';
+
+Color statusColor(String status) {
+  switch (status.toLowerCase()) {
+    case 'resolved':
+      return Colors.green;
+    case 'in progress':
+      return Colors.orange;
+    case 'submitted':
+      return Colors.blueGrey;
+    default:
+      return Colors.grey;
+  }
+}
+
+Icon statusIcon(String status) {
+  switch (status.toLowerCase()) {
+    case 'resolved':
+      return Icon(Icons.check, color: statusColor(status));
+    case 'in progress':
+      return Icon(Icons.hourglass_bottom, color: statusColor(status));
+    case 'submitted':
+      return Icon(Icons.send, color: statusColor(status));
+    default:
+      return Icon(Icons.help_outline, color: statusColor(status));
+  }
+}
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -32,20 +59,19 @@ class HomePage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        
-  actions: [
-    IconButton(
-      icon: Icon(Icons.notifications, color: AppColors.primary),
-      onPressed: () {
-        Navigator.pushNamed(context, '/notifications');
-      },
-      tooltip: 'Notifications',
-    ),
-    Padding(
-      padding: EdgeInsets.only(right: 24),
-      child: ProfilePopupMenu(),
-    ),
-  ],
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications, color: AppColors.primary),
+            onPressed: () {
+              Navigator.pushNamed(context, '/notifications');
+            },
+            tooltip: 'Notifications',
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: 24),
+            child: ProfilePopupMenu(),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
@@ -79,7 +105,7 @@ class HomePage extends ConsumerWidget {
                   icon: Icons.check_circle,
                   label: "Resolved",
                   value: "$resolvedReports",
-                  color: Colors.green,
+                  color: statusColor(ReportModel.statusResolved),
                 ),
               ),
               const SizedBox(width: 12),
@@ -88,7 +114,7 @@ class HomePage extends ConsumerWidget {
                   icon: Icons.pending_actions,
                   label: "In Progress",
                   value: "$pendingReports",
-                  color: Colors.orange,
+                  color: statusColor(ReportModel.statusInProgress),
                 ),
               ),
             ],
@@ -111,15 +137,37 @@ class HomePage extends ConsumerWidget {
               ),
               child: ListTile(
                 leading: Icon(Icons.report, color: AppColors.primary),
-                title: Text(report.title),
-                subtitle: Text("Status: ${report.status}"),
-                trailing: Icon(
-                  report.status.toLowerCase() == "resolved"
-                      ? Icons.check
-                      : Icons.hourglass_bottom,
-                  color: report.status.toLowerCase() == "resolved"
-                      ? Colors.green
-                      : Colors.orange,
+                title: Text(report.title, 
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                overflow: TextOverflow.fade,
+                softWrap: false,
+                ),
+                subtitle: Text("Status: ${report.status}", 
+                style: const TextStyle(fontSize: 13, color: Colors.black87),
+                overflow: TextOverflow.fade,
+                softWrap: false,),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    statusIcon(report.status),
+                    Container(
+                      margin: const EdgeInsets.only(left: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: statusColor(report.status),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        report.status,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 onTap: () {
                   Navigator.pushNamed(

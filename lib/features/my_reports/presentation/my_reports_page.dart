@@ -236,7 +236,6 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                         _search = '';
                       });
                     },
-                    child: const Text('Reset Filters'),
                     style: TextButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -244,6 +243,7 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
+                    child: const Text('Reset Filters'),
                   ),
                 ),
               ],
@@ -318,10 +318,13 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                 ),
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
                               ),
                               subtitle: Text(
                                 'Reported on ${formatDate(report.timestamp)}\nLocation: ${report.location}',
                                 style: const TextStyle(fontSize: 13),
+                                overflow : TextOverflow.fade,
                               ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,

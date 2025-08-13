@@ -13,10 +13,26 @@ import 'features/settings/presentation/settings_page.dart';
 import 'features/my_reports/domain/notification_page.dart';
 import 'features/profile/profile_page.dart';
 import 'features/auth/presentation/forget_password.dart';
+import 'features/profile/change_password.dart';
 import 'features/my_reports/presentation/report_detail_page.dart';
 import 'features/report/data/report_model.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'features/my_reports/domain/notification_count_provider.dart';
+import 'features/my_reports/domain/notification_list_provider.dart';
+import 'features/my_reports/data/notification_model.dart';
 
-void main() {
+// Add this background handler
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  // Handle background message if needed
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   runApp(
     DevicePreview(
       enabled: kDebugMode,
@@ -25,11 +41,28 @@ void main() {
   );
 }
 
-class DefectReporterApp extends StatelessWidget {
+class DefectReporterApp extends ConsumerWidget {
   const DefectReporterApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Request notification permissions (for iOS and Android 13+)
+    FirebaseMessaging.instance.requestPermission();
+
+    // Listen for foreground messages
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      final notif = NotificationModel(
+        id: message.messageId ?? DateTime.now().toIso8601String(),
+        title: message.notification?.title ?? 'Notification',
+        message: message.notification?.body ?? '',
+        timestamp: DateTime.now(),
+        isRead: false,
+      );
+      ref.read(notificationListProvider.notifier).add(notif);
+      ref.read(notificationCountProvider.notifier).state++;
+      debugPrint('Received push notification: ${message.notification?.title}');
+    });
+
     return MaterialApp(
       builder: DevicePreview.appBuilder,
       locale: DevicePreview.locale(context),
@@ -54,11 +87,17 @@ class DefectReporterApp extends StatelessWidget {
           case '/notifications':
             return MaterialPageRoute(builder: (_) => const NotificationPage());
           case '/forgot-password':
-            return MaterialPageRoute(builder: (_) => const ForgotPasswordPage());
+            return MaterialPageRoute(
+              builder: (_) => const ForgotPasswordPage(),
+            );
           case '/support':
             return MaterialPageRoute(builder: (_) => const SupportPage());
           case '/profile':
             return MaterialPageRoute(builder: (_) => const ProfilePage());
+          case '/change-password':
+            return MaterialPageRoute(
+              builder: (_) => const ChangePasswordPage(),
+            );
           case '/report-detail':
             final report = settings.arguments as ReportModel;
             return MaterialPageRoute(

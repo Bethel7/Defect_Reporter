@@ -13,10 +13,10 @@ class MainBottomAppBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.accent.withOpacity(0.10),
+            color: Colors.white10,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.10), 
+                color: Colors.black.withOpacity(0.08), 
                 blurRadius: 32,
                 spreadRadius: 2,
                 offset: const Offset(0, 12),

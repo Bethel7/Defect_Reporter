@@ -75,7 +75,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   Semantics(
                     label: 'Reset password instructions',
                     child: const Text(
-                      'Enter your email or employee ID to reset your password.',
+                      'Enter your email to reset your password.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
@@ -86,12 +86,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                   const SizedBox(height: 32),
                   Semantics(
-                    label: 'Email or Employee ID input field',
+                    label: 'Email input field',
                     textField: true,
                     child: TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(
-                        labelText: 'Email or Employee ID',
+                        labelText: 'Email',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -105,7 +105,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       validator: (value) {
                         if (!_submitted) return null;
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email or employee ID';
+                          return 'Please enter your email ';
                         }
                         return null;
                       },

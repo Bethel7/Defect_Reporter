@@ -7,7 +7,6 @@ import 'image_input.dart';
 import 'report_confirmation_page.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/validators.dart';
-import 'location_selector.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../core/common/profile_popup_menu.dart';
@@ -17,6 +16,7 @@ import '../../../core/utils/network_checker.dart';
 import '../../../widgets/offline_banner.dart';
 import '../../../services/offline_storage_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'location_selector.dart'; // <-- Import the modular location selector
 
 class ReportFormPage extends ConsumerStatefulWidget {
   const ReportFormPage({super.key});
@@ -175,7 +175,7 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          // Location Selector
+                          // Location Selector (modular)
                           Semantics(
                             label: 'Location Selector',
                             child: LocationSelector(
@@ -186,19 +186,9 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                   _locationError = null;
                                 });
                               },
+                              errorText: _locationError,
                             ),
                           ),
-                          if (_locationError != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4, left: 8),
-                              child: Text(
-                                _locationError!,
-                                style: const TextStyle(
-                                  color: AppColors.error,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
                           const SizedBox(height: 32),
                           // Image upload area
                           Semantics(
@@ -372,8 +362,8 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
             );
           },
         ),
-         bottomNavigationBar: const MainBottomAppBar(),
+        bottomNavigationBar: const MainBottomAppBar(),
       ),
     );
   }
-}
+}   

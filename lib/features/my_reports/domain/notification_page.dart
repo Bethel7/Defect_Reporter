@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
-import 'notification_repository.dart';
 import '../data/notification_model.dart';
 import 'notifications_detail_page.dart';
+import 'notification_list_provider.dart';
 
-class NotificationPage extends StatefulWidget {
+class NotificationPage extends ConsumerWidget {
   const NotificationPage({super.key});
 
   @override
-  State<NotificationPage> createState() => _NotificationPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notifications = ref.watch(notificationListProvider);
 
-class _NotificationPageState extends State<NotificationPage> {
-  late Future<List<NotificationModel>> _notificationsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _notificationsFuture = DummyNotificationRepository().getNotifications();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -39,7 +29,7 @@ class _NotificationPageState extends State<NotificationPage> {
         title: Semantics(
           label: 'Notifications Page',
           header: true,
-          child: Text(
+          child: const Text(
             'Notifications',
             style: TextStyle(
               color: AppColors.primary,
@@ -48,18 +38,9 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
           ),
         ),
-        
       ),
-      body: FutureBuilder<List<NotificationModel>>(
-        future: _notificationsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final notifications = snapshot.data ?? [];
-          if (notifications.isEmpty) {
-            // No notifications UI
-            return Center(
+      body: notifications.isEmpty
+          ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -95,70 +76,68 @@ class _NotificationPageState extends State<NotificationPage> {
                   ),
                 ],
               ),
-            );
-          }
-          // Notifications list UI
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: notifications.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final notif = notifications[index];
-              return Semantics(
-                label:
-                    '${notif.title}, ${notif.isRead ? "Read" : "Unread"} notification',
-                button: true,
-                child: Material(
-                  color: AppColors.primary.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(16),
-                  child: InkWell(
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: notifications.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final notif = notifications[index];
+                return Semantics(
+                  label:
+                      '${notif.title}, ${notif.isRead ? "Read" : "Unread"} notification',
+                  button: true,
+                  child: Material(
+                    color: AppColors.primary.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(16),
-                   onTap: () {
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => NotificationDetailPage(notification: notif),
+                            builder: (_) =>
+                                NotificationDetailPage(notification: notif),
                           ),
                         );
                       },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 18,
-                        horizontal: 16,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            notif.isRead
-                                ? Icons.notifications
-                                : Icons.notifications_active,
-                            color: AppColors.primary,
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              notif.title,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: AppColors.primaryDark,
-                                fontWeight: FontWeight.w500,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 18,
+                          horizontal: 16,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              notif.isRead
+                                  ? Icons.notifications
+                                  : Icons.notifications_active,
+                              color: AppColors.primary,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                notif.title,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: AppColors.primaryDark,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                          ),
-                          const Icon(
-                            Icons.chevron_right,
-                            color: AppColors.primary,
-                          ),
-                        ],
+                            const Icon(
+                              Icons.chevron_right,
+                              color: AppColors.primary,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            },
-          );
-        },
-      ),
+                );
+              },
+            ),
     );
   }
 }

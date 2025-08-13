@@ -21,7 +21,7 @@ class SettingsTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.09),
+            color: Colors.black.withOpacity(0.010),
             blurRadius: 8,
             offset: const Offset(0, 8),
           ),

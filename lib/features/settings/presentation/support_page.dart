@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/common/profile_popup_menu.dart';
 
 class SupportPage extends StatelessWidget {
   const SupportPage({super.key});
@@ -33,16 +32,7 @@ class SupportPage extends StatelessWidget {
             ),
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Semantics(
-              label: 'Open profile menu',
-              button: true,
-              child: ProfilePopupMenu(),
-            ),
-          ),
-        ],
+      
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -64,7 +54,7 @@ class SupportPage extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                elevation: 3,
+                elevation: 0,
                 color: AppColors.primary.withOpacity(0.08),
                 child: Padding(
                   padding: const EdgeInsets.all(20),

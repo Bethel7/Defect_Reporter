@@ -25,7 +25,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     if (_formKey.currentState!.validate()) {
       await Future.delayed(const Duration(seconds: 1));
       if (mounted) {
-        Navigator.pop(context, true); // Return to previous page
+        Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Password changed successfully!')),
         );
@@ -63,7 +63,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         title: Semantics(
           label: 'Change Password Page',
           header: true,
-          child: Text(
+          child: const Text(
             'Change Password',
             style: TextStyle(
               color: AppColors.primary,
@@ -75,109 +75,120 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
-          child: SingleChildScrollView(
-            child: Align(
-              alignment : Alignment.topCenter,
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              elevation: 4,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 32,
-                  horizontal: 24,
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
+        child: Center(
+          child: Card(
+            color: const Color(0xFFF6F8F5), // Light tone to match settings
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            elevation: 0,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: const Text(
                         'Change Password',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                           color: AppColors.primary,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 24),
-                      Semantics(
-                        label: 'New Password',
-                        textField: true,
-                        child: TextFormField(
-                          controller: _newPasswordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'New Password',
-                            border: OutlineInputBorder(),
+                    ),
+                    const SizedBox(height: 24),
+                    Semantics(
+                      label: 'New Password',
+                      textField: true,
+                      child: TextFormField(
+                        controller: _newPasswordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'New Password',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                         validator: Validators.validatePassword,
+                          filled: true,
+                          fillColor: Colors.white,
+                          prefixIcon: const Icon(Icons.lock_outline),
                         ),
+                        validator: Validators.validatePassword,
+                        textInputAction: TextInputAction.next,
                       ),
-                      const SizedBox(height: 16),
-                      Semantics(
-                        label: 'Confirm Password',
-                        textField: true,
-                        child: TextFormField(
-                          controller: _confirmPasswordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Confirm Password',
-                            border: OutlineInputBorder(),
+                    ),
+                    const SizedBox(height: 16),
+                    Semantics(
+                      label: 'Confirm Password',
+                      textField: true,
+                      child: TextFormField(
+                        controller: _confirmPasswordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          validator: (value) => Validators.validateConfirmPassword(
-                            value,
-                            _newPasswordController.text,
-                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          prefixIcon: const Icon(Icons.lock_reset),
                         ),
+                        validator: (value) => Validators.validateConfirmPassword(
+                          value,
+                          _newPasswordController.text,
+                        ),
+                        textInputAction: TextInputAction.done,
                       ),
-                      if (_error != null) ...[
-                        const SizedBox(height: 12),
-                        Text(
-                          _error!,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ],
-                      const SizedBox(height: 28),
-                      Semantics(
-                        label: 'Save new password',
-                        button: true,
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(32),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                            ),
-                            onPressed: _isLoading
-                                ? null
-                                : _handleChangePassword,
-                            child: _isLoading
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Text(
-                                    'SAVE',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                          ),
-                        ),
+                    ),
+                    if (_error != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        _error!,
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.center,
                       ),
                     ],
-                  ),
+                    const SizedBox(height: 28),
+                    Semantics(
+                      label: 'Save new password',
+                      button: true,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(32),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          onPressed: _isLoading ? null : _handleChangePassword,
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  'SAVE',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
