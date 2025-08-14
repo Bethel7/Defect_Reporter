@@ -16,18 +16,27 @@ class ImageInput extends StatefulWidget {
 class _ImageInputState extends State<ImageInput> {
   File? _imageFile;
 
-  Future<void> _pickImage() async {
-    // Request permission for photos/gallery
-    final status = await Permission.photos.request();
+  Future<void> _pickImage(ImageSource source) async {
+    // Request permission for camera or gallery
+    PermissionStatus status;
+    if (source == ImageSource.camera) {
+      status = await Permission.camera.request();
+    } else {
+      status = await Permission.photos.request();
+    }
     if (!status.isGranted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Permission denied to access gallery.')),
+        SnackBar(
+          content: Text(
+            'Permission denied to access ${source == ImageSource.camera ? 'camera' : 'gallery'}.',
+          ),
+        ),
       );
       return;
     }
 
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
+    final picked = await picker.pickImage(source: source);
     if (picked != null) {
       setState(() {
         _imageFile = File(picked.path);
@@ -36,10 +45,40 @@ class _ImageInputState extends State<ImageInput> {
     }
   }
 
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take a photo'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from gallery'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _pickImage,
+      onTap: _showImageSourceDialog,
       child: Container(
         width: double.infinity,
         height: 200,
@@ -50,7 +89,11 @@ class _ImageInputState extends State<ImageInput> {
         child: _imageFile != null
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Image.file(_imageFile!, fit: BoxFit.cover, width: double.infinity),
+                child: Image.file(
+                  _imageFile!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,

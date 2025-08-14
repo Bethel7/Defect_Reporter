@@ -18,21 +18,19 @@ import 'features/my_reports/presentation/report_detail_page.dart';
 import 'features/report/data/report_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'features/my_reports/domain/notification_count_provider.dart';
-import 'features/my_reports/domain/notification_list_provider.dart';
-import 'features/my_reports/data/notification_model.dart';
+import 'services/push_notification_service.dart'; 
+import 'firebase_options.dart';
 
-// Add this background handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  // Handle background message if needed
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
   runApp(
     DevicePreview(
       enabled: kDebugMode,
@@ -46,22 +44,8 @@ class DefectReporterApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Request notification permissions (for iOS and Android 13+)
-    FirebaseMessaging.instance.requestPermission();
-
-    // Listen for foreground messages
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      final notif = NotificationModel(
-        id: message.messageId ?? DateTime.now().toIso8601String(),
-        title: message.notification?.title ?? 'Notification',
-        message: message.notification?.body ?? '',
-        timestamp: DateTime.now(),
-        isRead: false,
-      );
-      ref.read(notificationListProvider.notifier).add(notif);
-      ref.read(notificationCountProvider.notifier).state++;
-      debugPrint('Received push notification: ${message.notification?.title}');
-    });
+    // Initialize push notification service
+    PushNotificationService().initialize(ref);
 
     return MaterialApp(
       builder: DevicePreview.appBuilder,

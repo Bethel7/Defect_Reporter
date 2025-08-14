@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1003455371096",
+    "project_id": "defectreporter-f8615",
+    "storage_bucket": "defectreporter-f8615.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1003455371096:android:82c4af94eb172e0c77772d",
+        "android_client_info": {
+          "package_name": "com.ethiopianairlines.defect_reporter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuBy-Bh8iNFUl81DcTuhndP_8_mbTXCJg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
