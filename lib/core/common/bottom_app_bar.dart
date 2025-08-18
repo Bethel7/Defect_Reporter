@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MainBottomAppBar extends StatelessWidget {
   const MainBottomAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const double iconSize = 38;
+    const double iconSize = 36;
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white10,
+            color: AppColors.background,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08), 
+                color: Colors.black.withOpacity(0.08),
                 blurRadius: 32,
                 spreadRadius: 2,
                 offset: const Offset(0, 12),
@@ -36,9 +37,9 @@ class MainBottomAppBar extends StatelessWidget {
                       child: Material(
                         color: Colors.transparent,
                         child: IconButton(
-                          icon: const Icon(
-                            Icons.home,
-                            size: iconSize,
+                          icon: Icon(
+                            FontAwesomeIcons.house,
+                            size: 26,
                             color: AppColors.primary,
                           ),
                           onPressed: () {
@@ -50,14 +51,14 @@ class MainBottomAppBar extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Add Icon
+                // Add Icon (same size as others, but with colored background)
                 Expanded(
                   child: Center(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
-                        width: iconSize + 8,
-                        height: iconSize + 8,
+                        width: iconSize + 16,
+                        height: iconSize + 16,
                         decoration: BoxDecoration(
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(16),
@@ -71,8 +72,12 @@ class MainBottomAppBar extends StatelessWidget {
                           ],
                         ),
                         child: IconButton(
-                          icon: const Icon(Icons.add, color: Colors.white),
-                          iconSize: 28,
+                          icon: Icon(
+                            FontAwesomeIcons.plus,
+                            color: Colors.white,
+                            size: 26,
+                          ),
+                          iconSize: iconSize,
                           padding: EdgeInsets.zero,
                           onPressed: () {
                             Navigator.pushNamed(context, '/report-form');
@@ -91,9 +96,9 @@ class MainBottomAppBar extends StatelessWidget {
                       child: Material(
                         color: Colors.transparent,
                         child: IconButton(
-                          icon: const Icon(
-                            Icons.assignment,
-                            size: iconSize,
+                          icon: Icon(
+                            FontAwesomeIcons.clipboardList,
+                            size: 24,
                             color: AppColors.primary,
                           ),
                           onPressed: () {

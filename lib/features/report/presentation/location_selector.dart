@@ -5,12 +5,14 @@ class LocationSelector extends StatefulWidget {
   final String? selectedLocation;
   final ValueChanged<String> onLocationSelected;
   final String? errorText;
+  final TextStyle? textStyle;
 
   const LocationSelector({
     super.key,
     required this.selectedLocation,
     required this.onLocationSelected,
     this.errorText,
+    this.textStyle,
   });
 
   @override
@@ -21,6 +23,8 @@ class _LocationSelectorState extends State<LocationSelector> {
   final TextEditingController _controller = TextEditingController();
   List<String> _locations = [];
   List<String> _filteredLocations = [];
+
+  bool _showDropdown = false;
 
   @override
   void initState() {
@@ -33,7 +37,15 @@ class _LocationSelectorState extends State<LocationSelector> {
   Future<void> _loadLocations() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _locations = prefs.getStringList('locations') ?? ['HQ', 'Terminal A', 'Maintenance Facility'];
+      _locations =
+          prefs.getStringList('locations') ??
+          [
+            'Main Hub',
+            'Headquarters',
+            'Aviation Academy',
+            'Cargo & Logistics Center',
+            'MRO Facility',
+          ];
       _filteredLocations = _locations;
     });
   }
@@ -52,8 +64,12 @@ class _LocationSelectorState extends State<LocationSelector> {
   void _filterLocations() {
     setState(() {
       _filteredLocations = _locations
-          .where((loc) => loc.toLowerCase().contains(_controller.text.toLowerCase()))
+          .where(
+            (loc) => loc.toLowerCase().contains(_controller.text.toLowerCase()),
+          )
           .toList();
+      _showDropdown =
+          _controller.text.isNotEmpty && _filteredLocations.isNotEmpty;
     });
   }
 
@@ -70,22 +86,42 @@ class _LocationSelectorState extends State<LocationSelector> {
       children: [
         TextFormField(
           controller: _controller,
+          style: widget.textStyle,
           decoration: InputDecoration(
             labelText: 'Location',
-            border: const OutlineInputBorder(),
+            labelStyle: const TextStyle(color: Color(0xFF717182)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Colors.blueAccent),
+            ),
             errorText: widget.errorText,
+            fillColor: Colors.white,
+            filled: true,
           ),
           onChanged: (val) {
             widget.onLocationSelected(val);
             _filterLocations();
+            setState(() {
+              _showDropdown = val.isNotEmpty && _filteredLocations.isNotEmpty;
+            });
           },
           onFieldSubmitted: (val) async {
             await _saveLocation(val);
             widget.onLocationSelected(val);
-            _filterLocations();
+            setState(() {
+              _showDropdown = false;
+            });
           },
         ),
-        if (_filteredLocations.isNotEmpty && _controller.text.isNotEmpty)
+        if (_showDropdown)
           Container(
             margin: const EdgeInsets.only(top: 4),
             decoration: BoxDecoration(
@@ -98,11 +134,14 @@ class _LocationSelectorState extends State<LocationSelector> {
               shrinkWrap: true,
               children: _filteredLocations.map((loc) {
                 return ListTile(
-                  title: Text(loc),
+                  title: Text(loc, style: widget.textStyle),
                   onTap: () async {
                     _controller.text = loc;
                     widget.onLocationSelected(loc);
                     await _saveLocation(loc);
+                    setState(() {
+                      _showDropdown = false;
+                    });
                     FocusScope.of(context).unfocus();
                   },
                 );

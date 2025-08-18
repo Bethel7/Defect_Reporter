@@ -1,6 +1,9 @@
 import 'package:defect_reporter/core/common/bottom_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'filter_dropdown.dart';
 import '../../../core/constants/app_colors.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../core/theme/text_styles.dart';
 import 'report_detail_page.dart';
 import '../../../core/common/profile_popup_menu.dart';
 import '../../../features/report/data/report_model.dart';
@@ -28,16 +31,16 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
   String _selectedLocation = 'All';
 
   List<String> getAllLocations(List<ReportModel> reports) => [
-        'All',
-        ...reports.map((r) => r.location).toSet(),
-      ];
+    'All',
+    ...reports.map((r) => r.location).toSet(),
+  ];
 
   List<String> get _allStatuses => [
-        'All',
-        ReportModel.statusSubmitted,
-        ReportModel.statusInProgress,
-        ReportModel.statusResolved,
-      ];
+    'All',
+    ReportModel.statusSubmitted,
+    ReportModel.statusInProgress,
+    ReportModel.statusResolved,
+  ];
 
   bool matchesDateRange(ReportModel report) {
     if (_selectedDateRange == 'All' || report.timestamp == null) return true;
@@ -61,31 +64,27 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
 
     final List<ReportModel> reportModels = reports.cast<ReportModel>();
 
-    final allLocations = getAllLocations(reportModels);
+    final allLocations = [
+      'All',
+      'Main Hub',
+      'Headquarters',
+      'Aviation Academy',
+      'Cargo & Logistics Center',
+      'MRO Facility',
+    ];
 
     List<ReportModel> filteredReports = reportModels.where((report) {
       final matchesStatus =
-          _selectedStatus == 'All' || report.status.toLowerCase() == _selectedStatus.toLowerCase();
+          _selectedStatus == 'All' ||
+          report.status.toLowerCase() == _selectedStatus.toLowerCase();
       final matchesLocation =
           _selectedLocation == 'All' || report.location == _selectedLocation;
       final matchesDate = matchesDateRange(report);
       final matchesSearch = report.title.toLowerCase().contains(
-            _search.toLowerCase(),
-          );
+        _search.toLowerCase(),
+      );
       return matchesStatus && matchesLocation && matchesDate && matchesSearch;
     }).toList();
-
-    Color statusColor(String status) {
-      switch (status) {
-        case ReportModel.statusResolved:
-          return Colors.green;
-        case ReportModel.statusInProgress:
-          return Colors.orange;
-        case ReportModel.statusSubmitted:
-        default:
-          return Colors.blueGrey;
-      }
-    }
 
     String formatDate(DateTime? date) {
       if (date == null) return '';
@@ -95,13 +94,13 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: Semantics(
           label: 'Back',
           button: true,
           child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+            icon: const Icon(Icons.arrow_back, color: AppColors.text),
             onPressed: () => Navigator.pop(context),
             tooltip: 'Back',
           ),
@@ -111,8 +110,8 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
           header: true,
           child: Text(
             'Previous Reports',
-            style: TextStyle(
-              color: AppColors.primary,
+            style: TextStyles.headlineMedium.copyWith(
+              color: AppColors.text,
               fontWeight: FontWeight.bold,
               fontSize: 22,
             ),
@@ -122,12 +121,32 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
           Semantics(
             label: 'Notifications',
             button: true,
-            child: IconButton(
-              icon: const Icon(Icons.notifications, color: AppColors.primary),
-              onPressed: () {
-                Navigator.pushNamed(context, '/notifications');
-              },
-              tooltip: 'Notifications',
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 4.0,
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () {
+                  Navigator.pushNamed(context, '/notifications');
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      FontAwesomeIcons.bell,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
           Padding(
@@ -143,112 +162,8 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                SizedBox(
-                  width: 130,
-                  child: DropdownButtonFormField<String>(
-                    isExpanded: true,
-                    value: _selectedStatus,
-                    decoration: const InputDecoration(
-                      labelText: 'Status',
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    ),
-                    style: const TextStyle(fontSize: 13),
-                    items: _allStatuses
-                        .map(
-                          (status) => DropdownMenuItem(
-                            value: status,
-                            child: Text(status, overflow: TextOverflow.ellipsis),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedStatus = val!;
-                      });
-                    },
-                  ),
-                ),
-                SizedBox(
-                  width: 130,
-                  child: DropdownButtonFormField<String>(
-                    isExpanded: true,
-                    value: _selectedLocation,
-                    decoration: const InputDecoration(
-                      labelText: 'Location',
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    ),
-                    style: const TextStyle(fontSize: 13),
-                    items: allLocations
-                        .map(
-                          (loc) =>
-                              DropdownMenuItem(value: loc, child: Text(loc, overflow: TextOverflow.ellipsis)),
-                        )
-                        .toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedLocation = val!;
-                      });
-                    },
-                  ),
-                ),
-                SizedBox(
-                  width: 120,
-                  child: DropdownButtonFormField<String>(
-                    isExpanded: true,
-                    value: _selectedDateRange,
-                    decoration: const InputDecoration(
-                      labelText: 'Date',
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    ),
-                    style: const TextStyle(fontSize: 13),
-                    items: _dateRanges
-                        .map((range) => DropdownMenuItem(
-                              value: range,
-                              child: Text(range, overflow: TextOverflow.ellipsis),
-                            ))
-                        .toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedDateRange = val!;
-                      });
-                    },
-                  ),
-                ),
-                SizedBox(
-                  width: 120,
-                  child: TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _selectedStatus = 'All';
-                        _selectedLocation = 'All';
-                        _selectedDateRange = 'All';
-                        _search = '';
-                      });
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text('Reset Filters'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
             // Search bar
             Semantics(
               label: 'Search Reports',
@@ -276,6 +191,50 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            // Filters
+            Row(
+              children: [
+                Expanded(
+                  child: FilterDropdown(
+                    label: 'Status',
+                    value: _selectedStatus,
+                    items: _allStatuses,
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedStatus = val!;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: FilterDropdown(
+                    label: 'Location',
+                    value: _selectedLocation,
+                    items: allLocations,
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedLocation = val!;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: FilterDropdown(
+                    label: 'Date',
+                    value: _selectedDateRange,
+                    items: _dateRanges,
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedDateRange = val!;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 24),
             // Reports list
             Expanded(
@@ -291,92 +250,141 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                       separatorBuilder: (_, __) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final report = filteredReports[index];
-                        return Semantics(
-                          label:
-                              '${report.title}, status: ${report.status}, reported on ${formatDate(report.timestamp)} at ${report.location}',
-                          button: true,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.06),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
+                        // Home page card style, but with date/location
+                        Color cardBg = Colors.white;
+                        Color statusBg;
+                        Color statusText;
+                        IconData statusIcon;
+                        Color statusIconColor;
+                        String statusLabel = report.status;
+                        if (report.status == ReportModel.statusResolved) {
+                          statusBg = const Color(0xFF26D27E);
+                          statusText = Colors.white;
+                          statusIcon = FontAwesomeIcons.circleCheck;
+                          statusIconColor = const Color(0xFF26D27E);
+                        } else if (report.status ==
+                            ReportModel.statusInProgress) {
+                          statusBg = const Color(0xFFF59E42);
+                          statusText = Colors.white;
+                          statusIcon = FontAwesomeIcons.triangleExclamation;
+                          statusIconColor = const Color(0xFFF59E42);
+                        } else if (report.status ==
+                            ReportModel.statusSubmitted) {
+                          statusBg = const Color(0xFF64748B);
+                          statusText = Colors.white;
+                          statusIcon = FontAwesomeIcons.paperPlane;
+                          statusIconColor = const Color(0xFF64748B);
+                        } else {
+                          statusBg = Colors.grey;
+                          statusText = Colors.white;
+                          statusIcon = FontAwesomeIcons.circleInfo;
+                          statusIconColor = Colors.grey;
+                        }
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 0),
+                          decoration: BoxDecoration(
+                            color: cardBg,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            leading: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: statusIconColor.withOpacity(0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  statusIcon,
+                                  color: statusIconColor,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              report.title,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
+                              maxLines: 2,
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Status: ${report.status}',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.black87,
+                                  ),
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
+                                ),
+                                Text(
+                                  'Reported on ${formatDate(report.timestamp)}',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.black54,
+                                  ),
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
+                                ),
+                                Text(
+                                  'Location: ${report.location}',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.black54,
+                                  ),
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
                                 ),
                               ],
                             ),
-                            child: ListTile(
-                              leading: Icon(
-                                Icons.report,
-                                color: AppColors.primary,
+                            trailing: Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
                               ),
-                              title: Text(
-                                report.title,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                              decoration: BoxDecoration(
+                                color: statusBg,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                statusLabel,
+                                style: TextStyle(
+                                  color: statusText,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                  letterSpacing: 0.5,
                                 ),
-                                overflow: TextOverflow.fade,
-                                softWrap: false,
                               ),
-                              subtitle: Text(
-                                'Reported on ${formatDate(report.timestamp)}\nLocation: ${report.location}',
-                                style: const TextStyle(fontSize: 13),
-                                overflow : TextOverflow.fade,
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (report.status ==
-                                      ReportModel.statusResolved)
-                                    const Icon(
-                                      Icons.check,
-                                      color: Colors.green,
-                                    ),
-                                  if (report.status ==
-                                      ReportModel.statusInProgress)
-                                    const Icon(
-                                      Icons.hourglass_bottom,
-                                      color: Colors.orange,
-                                    ),
-                                  if (report.status ==
-                                      ReportModel.statusSubmitted)
-                                    const Icon(
-                                      Icons.send,
-                                      color: Colors.blueGrey,
-                                    ),
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 8),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: statusColor(report.status),
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: Text(
-                                      report.status,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        ReportDetailPage(report: report),
-                                  ),
-                                );
-                              },
                             ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      ReportDetailPage(report: report),
+                                ),
+                              );
+                            },
                           ),
                         );
                       },

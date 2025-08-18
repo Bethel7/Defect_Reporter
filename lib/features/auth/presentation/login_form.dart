@@ -21,7 +21,6 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   bool _passwordValid = false;
   bool _isLoading = false;
 
-
   bool _employeeIdTouched = false;
   bool _passwordTouched = false;
   bool _submitted = false;
@@ -56,98 +55,127 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     );
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-    child: Form(
-      key: _formKey,
-      autovalidateMode: AutovalidateMode.disabled, 
-      child: Column(
-        children: [
-          CustomTextField(
+      child: Form(
+        key: _formKey,
+        autovalidateMode: AutovalidateMode.disabled,
+        child: Column(
+          children: [
+            CustomTextField(
               label: 'EmployeeID',
               controller: _employeeIdController,
               validator: (val) {
-                  if (!_employeeIdTouched && !_submitted) return null;
-                  return Validators.validateEmployeeId(val);
-         },
-                onChanged: (val) {
+                if (!_employeeIdTouched && !_submitted) return null;
+                return Validators.validateEmployeeId(val);
+              },
+              onChanged: (val) {
+                _employeeIdTouched = true;
+                _validateFields();
+              },
+              onFieldSubmitted: (_) {
+                setState(() {
                   _employeeIdTouched = true;
-                  _validateFields();
-          },
-             onFieldSubmitted: (_) {
-               setState(() {
-             _employeeIdTouched = true;
-             });
-         },
-                border: grayBorder,
-                enabledBorder: grayBorder,
-                focusedBorder: _employeeIdValid ? greenBorder : grayBorder,
-                errorBorder: redBorder,
-                focusedErrorBorder: redBorder,
-                errorStyle: const TextStyle(color: AppColors.error),
-    ),
-         const SizedBox(height: 16),
-           CustomTextField(
-               label: 'Password',
-               controller: _passwordController,
-               obscureText: true,
-               validator: (val) {
-             if (!_passwordTouched && !_submitted) return null;
+                });
+              },
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AppColors.borderGray),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AppColors.borderGray),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: _employeeIdValid
+                      ? AppColors.borderGreen
+                      : AppColors.borderGray,
+                ),
+              ),
+              errorBorder: redBorder,
+              focusedErrorBorder: redBorder,
+              errorStyle: const TextStyle(color: AppColors.error),
+            ),
+            const SizedBox(height: 16),
+            CustomTextField(
+              label: 'Password',
+              controller: _passwordController,
+              obscureText: true,
+              validator: (val) {
+                if (!_passwordTouched && !_submitted) return null;
                 return Validators.validatePassword(val);
-          },
-            onChanged: (val) {
-               _passwordTouched = true;
-               _validateFields();
-         },
-            onFieldSubmitted: (_) {
-                   setState(() {
-                    _passwordTouched = true;
-             });
-            },
-                    border: grayBorder,
-                    enabledBorder: grayBorder,
-                    focusedBorder: _passwordValid ? greenBorder : grayBorder,
-                    errorBorder: redBorder,
-                    focusedErrorBorder: redBorder,
-                    errorStyle: const TextStyle(color: AppColors.error),
-),
-         Align(
-           alignment: Alignment.centerRight,
-           child: TextButton(
-            onPressed: () {
-            Navigator.pushNamed(context, '/forgot-password');
-          },
-    child: const Text(
-      'Forgot Password?',
-      style: TextStyle(color: AppColors.primary),
-    ),
-  ),
-),
-          const SizedBox(height: 24),
-          CustomButton(
-              label: 'Login',
-              isLoading: _isLoading,
-             onPressed: _isLoading
-                      ? null
-                      : () async {
-                 setState(() {
-                       _submitted = true;
-             });
-          if (_formKey.currentState!.validate()) {
-            setState(() {
-              _isLoading = true;
-            });
-            await Future.delayed(const Duration(seconds: 2));
-            setState(() {
-              _isLoading = false;
-            });
-            if (context.mounted) {
-              Navigator.pushReplacementNamed(context, '/home');
-            }
-          }
-        },
-         ),
-        ],
+              },
+              onChanged: (val) {
+                _passwordTouched = true;
+                _validateFields();
+              },
+              onFieldSubmitted: (_) {
+                setState(() {
+                  _passwordTouched = true;
+                });
+              },
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AppColors.borderGray),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AppColors.borderGray),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: _passwordValid
+                      ? AppColors.borderGreen
+                      : AppColors.borderGray,
+                ),
+              ),
+              errorBorder: redBorder,
+              focusedErrorBorder: redBorder,
+              errorStyle: const TextStyle(color: AppColors.error),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/forgot-password');
+                },
+                child: const Text(
+                  'Forgot Password?',
+                  style: TextStyle(color: AppColors.primary),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: CustomButton(
+                label: 'Login',
+                isLoading: _isLoading,
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        setState(() {
+                          _submitted = true;
+                        });
+                        if (_formKey.currentState!.validate()) {
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          await Future.delayed(const Duration(seconds: 2));
+                          setState(() {
+                            _isLoading = false;
+                          });
+                          if (context.mounted) {
+                            Navigator.pushReplacementNamed(context, '/home');
+                          }
+                        }
+                      },
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 }

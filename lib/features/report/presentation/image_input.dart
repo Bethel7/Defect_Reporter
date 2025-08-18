@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../core/constants/app_colors.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ImageInput extends StatefulWidget {
   final ValueChanged<String> onImageSelected;
@@ -53,7 +54,7 @@ class _ImageInputState extends State<ImageInput> {
           child: Wrap(
             children: [
               ListTile(
-                leading: const Icon(Icons.camera_alt),
+                leading: Icon(FontAwesomeIcons.camera),
                 title: const Text('Take a photo'),
                 onTap: () {
                   Navigator.of(context).pop();
@@ -61,7 +62,7 @@ class _ImageInputState extends State<ImageInput> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library),
+                leading: Icon(FontAwesomeIcons.images),
                 title: const Text('Choose from gallery'),
                 onTap: () {
                   Navigator.of(context).pop();
@@ -97,10 +98,14 @@ class _ImageInputState extends State<ImageInput> {
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.image, size: 48, color: AppColors.primaryDark),
-                  SizedBox(height: 8),
-                  Text(
+                children: [
+                  Icon(
+                    FontAwesomeIcons.image,
+                    size: 48,
+                    color: AppColors.primaryDark,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
                     'Upload an image',
                     style: TextStyle(
                       color: AppColors.primaryDark,

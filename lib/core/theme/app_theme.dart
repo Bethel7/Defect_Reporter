@@ -5,19 +5,29 @@ import 'text_styles.dart';
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
-        primary: AppColors.primary,
-        secondary: AppColors.accent,
-        background: AppColors.background,
-        error: AppColors.error,
+      colorScheme: ColorScheme(
         brightness: Brightness.light,
+        primary: AppColors.primary,
+        onPrimary: Colors.white,
+        secondary: AppColors.accent,
+        onSecondary: AppColors.primary,
+        background: AppColors.background,
+        onBackground: AppColors.text,
+        surface: Colors.white,
+        onSurface: AppColors.text,
+        error: AppColors.error,
+        onError: Colors.white,
       ),
       scaffoldBackgroundColor: AppColors.background,
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -27,6 +37,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
+      cardColor: Colors.white,
       textTheme: TextTheme(
         headlineLarge: TextStyles.headlineLarge,
         headlineMedium: TextStyles.headlineMedium,

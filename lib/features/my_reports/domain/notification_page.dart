@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../../core/theme/text_styles.dart';
 import 'notifications_detail_page.dart';
 import 'notification_list_provider.dart';
 
@@ -12,66 +14,57 @@ class NotificationPage extends ConsumerWidget {
     final notifications = ref.watch(notificationListProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
-        leading: Semantics(
-          label: 'Back',
-          button: true,
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-            onPressed: () => Navigator.pop(context),
-            tooltip: 'Back',
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black, size: 22),
+          onPressed: () => Navigator.pop(context),
+          tooltip: 'Back',
+        ),
+        title: const Text(
+          'Notifications',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
           ),
         ),
-        title: Semantics(
-          label: 'Notifications Page',
-          header: true,
-          child: const Text(
-            'Notifications',
-            style: TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 22,
-            ),
-          ),
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: Colors.black.withOpacity(0.07), height: 1),
         ),
       ),
       body: notifications.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Semantics(
-                    label: 'No notifications icon',
-                    child: Icon(
-                      Icons.notifications_none,
-                      size: 80,
-                      color: AppColors.primaryDark,
-                    ),
+                  FaIcon(
+                    FontAwesomeIcons.bellSlash,
+                    size: 64,
+                    color: Colors.black.withOpacity(0.18),
                   ),
                   const SizedBox(height: 24),
-                  Semantics(
-                    label: 'No notifications yet',
-                    child: Text(
-                      'No notifications yet',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: AppColors.primaryDark,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  Text(
+                    'No notifications yet',
+                    style: TextStyles.bodyLarge.copyWith(
+                      color: Colors.black.withOpacity(0.65),
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Semantics(
-                    label:
-                        "Your notifications will appear here once you've received them.",
-                    child: Text(
-                      "Your notifications will appear here once you've received them.",
-                      style: TextStyle(fontSize: 14, color: Colors.black54),
-                      textAlign: TextAlign.center,
+                  Text(
+                    "Your notifications will appear here once you've received them.",
+                    style: TextStyles.bodyMedium.copyWith(
+                      color: Colors.black.withOpacity(0.45),
+                      fontWeight: FontWeight.w400,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),

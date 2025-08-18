@@ -1,3 +1,5 @@
+import '../../../widgets/custom_text_field.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../widgets/custom_button.dart';
@@ -10,27 +12,18 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
   bool _submitted = false;
   bool _isLoading = false;
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  void _submit() async {
+  void _submit() {
     setState(() {
       _submitted = true;
+      _isLoading = true;
     });
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+    // Simulate sending reset link
+    Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         _isLoading = false;
       });
@@ -40,7 +33,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         );
         Navigator.pop(context);
       }
-    }
+    });
   }
 
   @override
@@ -55,13 +48,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           child: const Text(
             'Forgot Password',
             style: TextStyle(
-              color: AppColors.primary,
+              color: AppColors.text,
               fontWeight: FontWeight.bold,
               fontSize: 22,
             ),
           ),
         ),
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        iconTheme: const IconThemeData(color: AppColors.text),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -88,20 +81,31 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   Semantics(
                     label: 'Email input field',
                     textField: true,
-                    child: TextFormField(
+                    child: CustomTextField(
+                      label: 'Email',
                       controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: const Icon(Icons.email, color: AppColors.primary),
-                        filled: true,
-                        fillColor: Colors.white,
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
                       ),
-                      style: const TextStyle(fontSize: 15),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
+                      ),
+                      prefixIcon: const Icon(
+                        FontAwesomeIcons.envelope,
+                        color: Color(0xFF717182),
+                        size: 20,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF252525),
+                      ),
+                      enabled: !_isLoading,
                       validator: (value) {
                         if (!_submitted) return null;
                         if (value == null || value.isEmpty) {
@@ -109,17 +113,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         }
                         return null;
                       },
-                      enabled: !_isLoading,
                     ),
                   ),
                   const SizedBox(height: 32),
                   Semantics(
                     button: true,
                     label: 'Send reset link',
-                    child: CustomButton(
-                      label: 'Send Reset Link',
-                      onPressed: _isLoading ? null : _submit,
-                      isLoading: _isLoading,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: CustomButton(
+                        label: 'Send Reset Link',
+                        onPressed: _isLoading ? null : _submit,
+                        isLoading: _isLoading,
+                      ),
                     ),
                   ),
                 ],

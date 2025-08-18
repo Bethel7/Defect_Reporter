@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ProfilePopupMenu extends StatelessWidget {
   final void Function(int)? onSelected;
@@ -12,7 +13,8 @@ class ProfilePopupMenu extends StatelessWidget {
       tooltip: 'Profile menu',
       offset: const Offset(0, 40),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      onSelected: onSelected ??
+      onSelected:
+          onSelected ??
           (value) {
             if (value == 0) {
               Navigator.pushNamed(context, '/profile');
@@ -27,7 +29,7 @@ class ProfilePopupMenu extends StatelessWidget {
           value: 0,
           child: Row(
             children: const [
-              Icon(Icons.person, color: AppColors.accent),
+              Icon(FontAwesomeIcons.user, color: AppColors.accent, size: 20),
               SizedBox(width: 8),
               Text('Profile'),
             ],
@@ -37,7 +39,7 @@ class ProfilePopupMenu extends StatelessWidget {
           value: 1,
           child: Row(
             children: const [
-              Icon(Icons.settings, color: AppColors.accent),
+              Icon(FontAwesomeIcons.gear, color: AppColors.accent, size: 20),
               SizedBox(width: 8),
               Text('Settings'),
             ],
@@ -47,7 +49,11 @@ class ProfilePopupMenu extends StatelessWidget {
           value: 2,
           child: Row(
             children: [
-              Icon(Icons.logout, color: AppColors.accent),
+              Icon(
+                FontAwesomeIcons.arrowRightFromBracket,
+                color: AppColors.accent,
+                size: 20,
+              ),
               SizedBox(width: 8),
               Text('Logout'),
             ],
@@ -58,8 +64,8 @@ class ProfilePopupMenu extends StatelessWidget {
         label: 'Open profile menu',
         button: true,
         child: CircleAvatar(
-          backgroundColor: AppColors.primary,
-          child: Icon(Icons.person, color: AppColors.accent),
+          backgroundColor: AppColors.accent,
+          child: Icon(FontAwesomeIcons.user, color: Colors.white, size: 20),
         ),
       ),
     );
