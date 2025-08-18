@@ -128,91 +128,106 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                       autovalidateMode: AutovalidateMode.disabled,
                       child: ListView(
                         children: [
-                          // Title
-                          Semantics(
-                            label: 'Report Title Input',
-                            textField: true,
-                            child: CustomTextField(
-                              label: 'Title',
-                              initialValue: formState.title,
-                              validator: (val) {
-                                if (!_titleTouched && !_submitted) return null;
-                                return Validators.validateTitle(val);
-                              },
-                              onChanged: (val) {
-                                formProvider.setTitle(val);
-                                setState(() {
-                                  _titleTouched = true;
-                                });
-                              },
-                              border: grayBorder,
-                              enabledBorder: grayBorder,
-                              focusedBorder: titleValid
-                                  ? greenBorder
-                                  : grayBorder,
-                              errorBorder: redBorder,
-                              focusedErrorBorder: redBorder,
-                              errorStyle: const TextStyle(
-                                color: AppColors.error,
-                              ),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                color: Color(0xFF252525),
+                          // Title (centered, narrower)
+                          Center(
+                            child: Container(
+                              constraints: const BoxConstraints(maxWidth: 400),
+                              child: Semantics(
+                                label: 'Report Title Input',
+                                textField: true,
+                                child: CustomTextField(
+                                  label: 'Title',
+                                  initialValue: formState.title,
+                                  maxLines: 1,
+                                  validator: (val) {
+                                    if (!_titleTouched && !_submitted) return null;
+                                    return Validators.validateTitle(val);
+                                  },
+                                  onChanged: (val) {
+                                    formProvider.setTitle(val);
+                                    setState(() {
+                                      _titleTouched = true;
+                                    });
+                                  },
+                                  border: grayBorder,
+                                  enabledBorder: grayBorder,
+                                  focusedBorder: titleValid
+                                      ? greenBorder
+                                      : grayBorder,
+                                  errorBorder: redBorder,
+                                  focusedErrorBorder: redBorder,
+                                  errorStyle: const TextStyle(
+                                    color: AppColors.error,
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Color(0xFF252525),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                           const SizedBox(height: 16),
-                          // Description
+                          // Description (twice the height)
                           Semantics(
                             label: 'Report Description Input',
                             textField: true,
-                            child: CustomTextField(
-                              label: 'Description',
-                              initialValue: formState.description,
-                              maxLines: 3,
-                              border: grayBorder,
-                              enabledBorder: grayBorder,
-                              focusedBorder: descriptionValid
-                                  ? greenBorder
-                                  : grayBorder,
-                              errorBorder: redBorder,
-                              focusedErrorBorder: redBorder,
-                              errorStyle: const TextStyle(
-                                color: AppColors.error,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width - 32, // match image card
+                              margin: const EdgeInsets.symmetric(horizontal: 0),
+                              child: CustomTextField(
+                                label: 'Description',
+                                initialValue: formState.description,
+                                maxLines: 2,
+                                border: grayBorder,
+                                enabledBorder: grayBorder,
+                                focusedBorder: descriptionValid
+                                    ? greenBorder
+                                    : grayBorder,
+                                errorBorder: redBorder,
+                                focusedErrorBorder: redBorder,
+                                errorStyle: const TextStyle(
+                                  color: AppColors.error,
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Color(0xFF252525),
+                                ),
+                                onChanged: (val) {
+                                  formProvider.setDescription(val);
+                                  setState(() {
+                                    _descriptionTouched = true;
+                                  });
+                                },
+                                validator: (val) {
+                                  if (!_descriptionTouched && !_submitted)
+                                    return null;
+                                  return Validators.validateDescription(val);
+                                },
                               ),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                color: Color(0xFF252525),
-                              ),
-                              onChanged: (val) {
-                                formProvider.setDescription(val);
-                                setState(() {
-                                  _descriptionTouched = true;
-                                });
-                              },
-                              validator: (val) {
-                                if (!_descriptionTouched && !_submitted)
-                                  return null;
-                                return Validators.validateDescription(val);
-                              },
                             ),
                           ),
                           const SizedBox(height: 16),
-                          // Location Selector (modular)
-                          Semantics(
-                            label: 'Location Selector',
-                            child: LocationSelector(
-                              selectedLocation: formState.location,
-                              onLocationSelected: (loc) {
-                                formProvider.setLocation(loc);
-                                setState(() {
-                                  _locationError = null;
-                                });
-                              },
-                              errorText: _locationError,
-                              textStyle: const TextStyle(
-                                color: Color(0xFF252525),
-                                fontSize: 15,
+                          // Location Selector (centered, narrower)
+                          Center(
+                            child: Container(
+                              constraints: const BoxConstraints(maxWidth: 400),
+                              child: Semantics(
+                                label: 'Location Selector',
+                                child: LocationSelector(
+                                  selectedLocation: formState.location,
+                                  onLocationSelected: (loc) {
+                                    formProvider.setLocation(loc);
+                                    setState(() {
+                                      _locationError = null;
+                                    });
+                                  },
+                                  errorText: _locationError,
+                                  textStyle: const TextStyle(
+                                    color: Color(0xFF252525),
+                                    fontSize: 15,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -422,3 +437,4 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
     );
   }
 }
+

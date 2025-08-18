@@ -105,7 +105,7 @@ class ReportDetailPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     borderSide: const BorderSide(color: AppColors.borderGreen),
                   ),
-                  labelStyle: const TextStyle(color: AppColors.primaryDark),
+                  labelStyle: const TextStyle(color: AppColors.borderGray),
                   filled: true,
                   fillColor: Colors.white,
                   contentPadding: const EdgeInsets.symmetric(
@@ -138,7 +138,7 @@ class ReportDetailPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     borderSide: const BorderSide(color: AppColors.borderGreen),
                   ),
-                  labelStyle: const TextStyle(color: AppColors.primaryDark),
+                  labelStyle: const TextStyle(color: AppColors.borderGray),
                   filled: true,
                   fillColor: Colors.white,
                   contentPadding: const EdgeInsets.symmetric(
@@ -170,7 +170,7 @@ class ReportDetailPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     borderSide: const BorderSide(color: AppColors.borderGreen),
                   ),
-                  labelStyle: const TextStyle(color: AppColors.primaryDark),
+                  labelStyle: const TextStyle(color: AppColors.borderGray),
                   filled: true,
                   fillColor: Colors.white,
                   contentPadding: const EdgeInsets.symmetric(

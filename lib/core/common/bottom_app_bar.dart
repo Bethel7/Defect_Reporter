@@ -7,7 +7,9 @@ class MainBottomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double iconSize = 36;
+    const double homeIconSize = 28;
+    const double addIconSize = 28;
+    const double clipboardIconSize = 31;
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       child: ClipRRect(
@@ -39,7 +41,7 @@ class MainBottomAppBar extends StatelessWidget {
                         child: IconButton(
                           icon: Icon(
                             FontAwesomeIcons.house,
-                            size: 26,
+                            size: homeIconSize,
                             color: AppColors.primary,
                           ),
                           onPressed: () {
@@ -51,14 +53,13 @@ class MainBottomAppBar extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Add Icon (same size as others, but with colored background)
                 Expanded(
                   child: Center(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
-                        width: iconSize + 16,
-                        height: iconSize + 16,
+                        width: addIconSize + 24,
+                        height: addIconSize + 24,
                         decoration: BoxDecoration(
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(16),
@@ -75,9 +76,9 @@ class MainBottomAppBar extends StatelessWidget {
                           icon: Icon(
                             FontAwesomeIcons.plus,
                             color: Colors.white,
-                            size: 26,
+                            size: addIconSize,
                           ),
-                          iconSize: iconSize,
+                          iconSize: addIconSize,
                           padding: EdgeInsets.zero,
                           onPressed: () {
                             Navigator.pushNamed(context, '/report-form');
@@ -98,7 +99,7 @@ class MainBottomAppBar extends StatelessWidget {
                         child: IconButton(
                           icon: Icon(
                             FontAwesomeIcons.clipboardList,
-                            size: 24,
+                            size: clipboardIconSize,
                             color: AppColors.primary,
                           ),
                           onPressed: () {
