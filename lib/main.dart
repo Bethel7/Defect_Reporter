@@ -8,7 +8,6 @@ import 'features/splash/splash_page.dart';
 import 'features/auth/presentation/login_page.dart';
 import 'features/home/home_page.dart';
 import 'features/report/presentation/report_form_page.dart';
-import 'package:device_preview/device_preview.dart';
 import 'features/settings/presentation/settings_page.dart';
 import 'features/my_reports/domain/notification_page.dart';
 import 'features/profile/profile_page.dart';
@@ -17,7 +16,7 @@ import 'features/my_reports/presentation/report_detail_page.dart';
 import 'features/report/data/report_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'services/push_notification_service.dart'; 
+import 'services/push_notification_service.dart';
 import 'firebase_options.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -26,16 +25,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  runApp(
-    DevicePreview(
-      enabled: kDebugMode,
-      builder: (context) => const ProviderScope(child: DefectReporterApp()),
-    ),
-  );
+  runApp(const ProviderScope(child: DefectReporterApp()));
 }
 
 class DefectReporterApp extends ConsumerWidget {
@@ -47,8 +39,6 @@ class DefectReporterApp extends ConsumerWidget {
     PushNotificationService().initialize(ref);
 
     return MaterialApp(
-      builder: DevicePreview.appBuilder,
-      locale: DevicePreview.locale(context),
       debugShowCheckedModeBanner: false,
       title: 'Defect Reporter',
       theme: AppTheme.lightTheme,
@@ -77,7 +67,7 @@ class DefectReporterApp extends ConsumerWidget {
             return MaterialPageRoute(builder: (_) => const SupportPage());
           case '/profile':
             return MaterialPageRoute(builder: (_) => const ProfilePage());
-         
+
           case '/report-detail':
             final report = settings.arguments as ReportModel;
             return MaterialPageRoute(

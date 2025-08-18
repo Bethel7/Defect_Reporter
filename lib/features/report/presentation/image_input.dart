@@ -18,14 +18,28 @@ class _ImageInputState extends State<ImageInput> {
   File? _imageFile;
 
   Future<void> _pickImage(ImageSource source) async {
-    // Request permission for camera or gallery
-    PermissionStatus status;
+    bool granted = false;
     if (source == ImageSource.camera) {
-      status = await Permission.camera.request();
+      final status = await Permission.camera.request();
+      if (status.isGranted) {
+        granted = true;
+      } else if (status.isPermanentlyDenied) {
+        _showPermissionDialog('Camera');
+        return;
+      }
     } else {
-      status = await Permission.photos.request();
+      // For Android 13+ use photos, for older use storage
+      final photosStatus = await Permission.photos.request();
+      final storageStatus = await Permission.storage.request();
+      if (photosStatus.isGranted || storageStatus.isGranted) {
+        granted = true;
+      } else if (photosStatus.isPermanentlyDenied ||
+          storageStatus.isPermanentlyDenied) {
+        _showPermissionDialog('Gallery');
+        return;
+      }
     }
-    if (!status.isGranted) {
+    if (!granted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -44,6 +58,31 @@ class _ImageInputState extends State<ImageInput> {
       });
       widget.onImageSelected(picked.path);
     }
+  }
+
+  void _showPermissionDialog(String type) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('$type Permission Required'),
+        content: Text(
+          'Please enable $type permission in settings to use this feature.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              openAppSettings();
+              Navigator.of(context).pop();
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showImageSourceDialog() {

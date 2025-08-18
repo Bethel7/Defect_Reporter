@@ -82,7 +82,9 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/logo/Elogo.png"
+  image_path: "assets/logo/Elogo.png"  
+  remove_alpha_ios: true
+
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
