@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SettingsTile extends StatelessWidget {
   final IconData icon;
@@ -17,13 +18,13 @@ class SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.08),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.010),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 8,
-            offset: const Offset(0, 8),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -37,7 +38,7 @@ class SettingsTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
             child: Row(
               children: [
-                Icon(icon, color: AppColors.primary, size: 28),
+                FaIcon(icon, color: AppColors.primary, size: 22),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
@@ -49,7 +50,11 @@ class SettingsTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: AppColors.primary),
+                const FaIcon(
+                  FontAwesomeIcons.chevronRight,
+                  color: AppColors.primary,
+                  size: 16,
+                ),
               ],
             ),
           ),

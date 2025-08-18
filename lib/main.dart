@@ -13,7 +13,6 @@ import 'features/settings/presentation/settings_page.dart';
 import 'features/my_reports/domain/notification_page.dart';
 import 'features/profile/profile_page.dart';
 import 'features/auth/presentation/forget_password.dart';
-import 'features/profile/change_password.dart';
 import 'features/my_reports/presentation/report_detail_page.dart';
 import 'features/report/data/report_model.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -78,10 +77,7 @@ class DefectReporterApp extends ConsumerWidget {
             return MaterialPageRoute(builder: (_) => const SupportPage());
           case '/profile':
             return MaterialPageRoute(builder: (_) => const ProfilePage());
-          case '/change-password':
-            return MaterialPageRoute(
-              builder: (_) => const ChangePasswordPage(),
-            );
+         
           case '/report-detail':
             final report = settings.arguments as ReportModel;
             return MaterialPageRoute(

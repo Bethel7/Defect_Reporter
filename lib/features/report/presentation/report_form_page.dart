@@ -64,12 +64,18 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
         backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.white,
-          elevation: 2,
-          shadowColor: Colors.black12,
+          elevation: 0,
+          shadowColor: Colors.transparent,
           titleSpacing: 0,
           title: Padding(
             padding: const EdgeInsets.only(left: 8.0),
-            child: Text('New Report', style: TextStyles.headlineMedium),
+            child: Text(
+              'New Report',
+              style: TextStyles.headlineMedium.copyWith(
+                color: AppColors.text,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: AppColors.text),
@@ -237,9 +243,9 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
-                                    foregroundColor: AppColors.primary,
+                                    foregroundColor: Color(0xFF474747),
                                     side: const BorderSide(
-                                      color: AppColors.primary,
+                                      color: AppColors.borderGray,
                                     ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(40),

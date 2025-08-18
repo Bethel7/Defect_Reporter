@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/text_styles.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../widgets/settings_tile.dart';
+import '../../profile/change_password.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -13,27 +16,18 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
-        leading: Semantics(
-          label: 'Back',
-          button: true,
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-            onPressed: () => Navigator.pop(context),
-            tooltip: 'Back',
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+          tooltip: 'Back',
         ),
-        title: Semantics(
-          label: 'Settings Page',
-          header: true,
-          child: const Text(
-            'Settings',
-            style: TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 22,
-            ),
+        title: Text(
+          'Settings',
+          style: TextStyles.headlineMedium.copyWith(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
@@ -47,58 +41,61 @@ class SettingsPage extends StatelessWidget {
               button: true,
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, '/profile'),
-                child: Card(
-                  shape: RoundedRectangleBorder(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.03),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  elevation: 0,
-                  color: AppColors.primary.withOpacity(0.07),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 18,
-                      horizontal: 16,
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 28,
-                          backgroundColor: AppColors.primary.withOpacity(0.2),
-                          child: const Icon(
-                            Icons.person,
-                            size: 36,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                userName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                userEmail,
-                                style: const TextStyle(
-                                 color: Colors.black54,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(
-                          Icons.arrow_forward_ios,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 18,
+                    horizontal: 16,
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 28,
+                        backgroundColor: AppColors.primary.withOpacity(0.12),
+                        child: const Icon(
+                          FontAwesomeIcons.user,
+                          size: 28,
                           color: AppColors.primary,
-                          size: 18,
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              userName,
+                              style: TextStyles.bodyLarge.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              userEmail,
+                              style: TextStyles.bodyMedium.copyWith(
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        FontAwesomeIcons.chevronRight,
+                        color: AppColors.primary,
+                        size: 18,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -109,9 +106,9 @@ class SettingsPage extends StatelessWidget {
               label: 'Change Password',
               button: true,
               child: SettingsTile(
-                icon: Icons.lock_outline,
+                icon: FontAwesomeIcons.lock,
                 label: 'Change Password',
-                onTap: () => Navigator.pushNamed(context, '/change-password'),
+                onTap: () => showChangePasswordSheet(context),
               ),
             ),
             const SizedBox(height: 12),
@@ -119,7 +116,7 @@ class SettingsPage extends StatelessWidget {
               label: 'Support and Frequently Asked Questions',
               button: true,
               child: SettingsTile(
-                icon: Icons.help_outline,
+                icon: FontAwesomeIcons.circleQuestion,
                 label: 'Support',
                 onTap: () => Navigator.pushNamed(context, '/support'),
               ),
@@ -130,7 +127,7 @@ class SettingsPage extends StatelessWidget {
               label: 'Logout',
               button: true,
               child: SettingsTile(
-                icon: Icons.logout,
+                icon: FontAwesomeIcons.arrowRightFromBracket,
                 label: 'Logout',
                 onTap: () {
                   Navigator.pushNamedAndRemoveUntil(

@@ -14,7 +14,7 @@ class NotificationPage extends ConsumerWidget {
     final notifications = ref.watch(notificationListProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -23,12 +23,11 @@ class NotificationPage extends ConsumerWidget {
           onPressed: () => Navigator.pop(context),
           tooltip: 'Back',
         ),
-        title: const Text(
+        title: Text(
           'Notifications',
-          style: TextStyle(
+          style: TextStyles.headlineMedium.copyWith(
             color: Colors.black,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: false,

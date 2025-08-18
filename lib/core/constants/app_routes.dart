@@ -10,6 +10,5 @@ class AppRoutes {
   static const String notifications = '/notifications';
   static const String forgotPassword = '/forgot-password';
   static const String support = '/support';
-  static const String changePassword = '/change-password';
   
 }

@@ -3,7 +3,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../features/my_reports/presentation/report_detail_page.dart';
 import '../../../features/report/data/report_model.dart';
-
+import '../../../core/theme/text_styles.dart';
 
 class ReportConfirmationPage extends StatelessWidget {
   final String reportId;
@@ -27,29 +27,50 @@ class ReportConfirmationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Treat back button as cancel
         Navigator.popUntil(context, (route) => route.isFirst);
         return false;
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         body: Center(
           child: Container(
             margin: const EdgeInsets.all(24),
-            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.10),
-              borderRadius: BorderRadius.circular(32),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Icon(Icons.check_circle, color: AppColors.primary, size: 48),
-                const SizedBox(height: 16),
-                const Text(
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.check_circle,
+                      color: AppColors.primary,
+                      size: 40,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
                   'Submission Successful!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: TextStyles.headlineMedium.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: 22,
                   ),
@@ -58,73 +79,89 @@ class ReportConfirmationPage extends StatelessWidget {
                 const Text(
                   'Thank you for reporting the issue. Your report has been submitted successfully.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14),
+                  style: TextStyle(fontSize: 15, color: Colors.black87),
                 ),
                 const SizedBox(height: 24),
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 24,
+                    ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Report ID: $reportId',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyles.bodyLarge.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Timestamp: $timestamp',
-                          style: const TextStyle(fontSize: 14),
+                          style: TextStyles.bodyLarge,
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 28),
                 Row(
                   children: [
                     Expanded(
                       child: CustomButton(
                         label: 'View Report',
-                                               
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ReportDetailPage(
-                                  report: ReportModel(
-                                    id: reportId,
-                                    title: submittedTitle, 
-                                    description: submittedDescription, 
-                                    location: submittedLocation, 
-                                    status: ReportModel.statusSubmitted,
-                                    imageUrl: submittedImageUrl, 
-                                    aiDepartment: null,
-                                    aiSeverity: null,
-                                    timestamp: DateTime.tryParse(timestamp),
-                                  ),
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ReportDetailPage(
+                                report: ReportModel(
+                                  id: reportId,
+                                  title: submittedTitle,
+                                  description: submittedDescription,
+                                  location: submittedLocation,
+                                  status: ReportModel.statusSubmitted,
+                                  imageUrl: submittedImageUrl,
+                                  aiDepartment: null,
+                                  aiSeverity: null,
+                                  timestamp: DateTime.tryParse(timestamp),
                                 ),
                               ),
-                            );
-                          },
+                            ),
+                          );
+                        },
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.primary,
-                          side: const BorderSide(color: AppColors.primary),
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                          foregroundColor: Color(0xFFBDBDBD),
+                          side: const BorderSide(color: Color(0xFFBDBDBD)),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                            horizontal: 24,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(40),
                           ),
                         ),
                         onPressed: () {
-                          Navigator.popAndPushNamed(context, './home');
+                          Navigator.popUntil(context, (route) => route.isFirst);
                         },
-                        child: const Text('Cancel'),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF474747),
+                          ),
+                        ),
                       ),
                     ),
                   ],

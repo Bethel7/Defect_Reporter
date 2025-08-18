@@ -6,5 +6,6 @@ final profileProvider = StateProvider<ProfileModel>((ref) {
     name: 'Berhanu Girma',
     employeeId: 'ET12345',
     email: 'BerhanuGirma@ethiopianairlines.com',
+    role: 'Employee',
   );
 });

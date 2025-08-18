@@ -5,16 +5,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/my_reports/presentation/my_reports_provider.dart';
 import '../../core/common/profile_popup_menu.dart';
 import '../../features/report/data/report_model.dart';
+import '../../core/theme/text_styles.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 Color statusColor(String status) {
   switch (status.toLowerCase()) {
     case 'resolved':
-      return AppColors.primary; // #26D27E
+      return AppColors.primary; 
     case 'in progress':
-      return Color(0xFFF59E42); // Orange
+      return Color(0xFFF59E42); 
     case 'submitted':
-      return Color(0xFF64748B); // BlueGrey
+      return Color(0xFF64748B); 
     default:
       return Colors.grey;
   }
@@ -80,12 +81,11 @@ class HomePage extends ConsumerWidget {
             size: 22,
           ),
         ),
-        title: const Text(
+        title: Text(
           "Dashboard",
-          style: TextStyle(
+          style: TextStyles.headlineMedium.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
           ),
         ),
         actions: [
@@ -100,7 +100,7 @@ class HomePage extends ConsumerWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.accent, 
+                  color: AppColors.accent,
                   shape: BoxShape.circle,
                 ),
                 child: const Center(
