@@ -10,6 +10,7 @@ import '../../../features/report/data/report_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../my_reports/presentation/my_reports_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/common/notification_bell.dart';
 
 class MyReportsPage extends ConsumerStatefulWidget {
   const MyReportsPage({super.key});
@@ -131,37 +132,7 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
           ),
         ),
         actions: [
-          Semantics(
-            label: 'Notifications',
-            button: true,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 8.0,
-                horizontal: 4.0,
-              ),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: () {
-                  Navigator.pushNamed(context, '/notifications');
-                },
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.accent,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      FontAwesomeIcons.bell,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          const NotificationBell(),
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Semantics(
@@ -275,12 +246,14 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                           statusText = Colors.white;
                           statusIcon = FontAwesomeIcons.circleCheck;
                           statusIconColor = const Color(0xFF26D27E);
-                        } else if (report.status == ReportModel.statusInProgress) {
+                        } else if (report.status ==
+                            ReportModel.statusInProgress) {
                           statusBg = const Color(0xFFF59E42);
                           statusText = Colors.white;
                           statusIcon = FontAwesomeIcons.triangleExclamation;
                           statusIconColor = const Color(0xFFF59E42);
-                        } else if (report.status == ReportModel.statusSubmitted) {
+                        } else if (report.status ==
+                            ReportModel.statusSubmitted) {
                           statusBg = const Color(0xFF64748B);
                           statusText = Colors.white;
                           statusIcon = FontAwesomeIcons.paperPlane;

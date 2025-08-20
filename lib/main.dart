@@ -1,3 +1,4 @@
+import 'widgets/offline_snackbar.dart';
 import 'dart:async';
 import 'features/report/domain/sync_offline_report.dart';
 import 'features/report/data/report_repository_impl.dart';
@@ -64,7 +65,7 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
 
     // Initialize local notifications
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      LocalNotificationService().initialize(context);
+      LocalNotificationService().initialize(context, ref);
     });
 
     // Listen to connectivity changes
@@ -72,14 +73,20 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
       status,
     ) async {
       final isOnline = status.toString() != 'ConnectivityResult.none';
-      if (isOnline && _wasOffline) {
-        // Sync offline reports when back online
-        await _syncOfflineReports.call();
-        // Show local notification
-        await LocalNotificationService().showNotification(
-          title: 'Reports Synced',
-          body: 'Your offline reports have been submitted successfully.',
-        );
+      if (!isOnline) {
+        OfflineSnackbar.show();
+      } else {
+        OfflineSnackbar.hide();
+        if (_wasOffline) {
+          // Sync offline reports when back online
+          await _syncOfflineReports.call();
+          // Show local notification and add to in-app list
+          await LocalNotificationService().showNotification(
+            title: 'Reports Synced',
+            body: 'Your offline reports have been submitted successfully.',
+            ref: ref,
+          );
+        }
       }
       _wasOffline = !isOnline;
     });
@@ -100,6 +107,7 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
       debugShowCheckedModeBanner: false,
       title: 'Defect Reporter',
       theme: AppTheme.lightTheme,
+      scaffoldMessengerKey: OfflineSnackbar.key,
       initialRoute: '/',
       onGenerateRoute: (settings) {
         switch (settings.name) {

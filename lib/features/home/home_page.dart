@@ -6,15 +6,16 @@ import '../../features/my_reports/presentation/my_reports_provider.dart';
 import '../../core/common/profile_popup_menu.dart';
 import '../../core/theme/text_styles.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../core/common/notification_bell.dart';
 
 Color statusColor(String status) {
   switch (status.toLowerCase()) {
     case 'resolved':
-      return AppColors.primary; 
+      return AppColors.primary;
     case 'in progress':
-      return Color(0xFFF59E42); 
+      return Color(0xFFF59E42);
     case 'submitted':
-      return Color(0xFF64748B); 
+      return Color(0xFF64748B);
     default:
       return Colors.grey;
   }
@@ -68,7 +69,7 @@ class HomePage extends ConsumerWidget {
     final recentReports = reports.reversed.take(5).toList();
 
     return Scaffold(
-    backgroundColor: AppColors.background,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         elevation: 0,
@@ -88,30 +89,7 @@ class HomePage extends ConsumerWidget {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: () {
-                Navigator.pushNamed(context, '/notifications');
-              },
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.accent,
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Icon(
-                    FontAwesomeIcons.bell,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          const NotificationBell(),
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: ProfilePopupMenu(),

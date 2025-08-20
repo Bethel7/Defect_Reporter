@@ -7,10 +7,47 @@ class MainBottomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double homeIconSize = 28;
-    const double addIconSize = 28;
-    const double clipboardIconSize = 31;
-    const double cachedIconSize = 27;
+    const double iconSize = 28;
+
+    String? currentRoute = ModalRoute.of(context)?.settings.name;
+    // Fallback for MaterialPageRoute
+    if (currentRoute == null) {
+      final route = ModalRoute.of(context);
+      if (route != null &&
+          route.settings.arguments is Map &&
+          (route.settings.arguments as Map).containsKey('routeName')) {
+        currentRoute =
+            (route.settings.arguments as Map)['routeName'] as String?;
+      }
+    }
+
+    Widget navIcon({
+      required IconData icon,
+      required String route,
+      required String tooltip,
+    }) {
+      final bool isActive = currentRoute == route;
+      return Container(
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.primary : AppColors.accent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: IconButton(
+          icon: Icon(
+            icon,
+            size: iconSize,
+            color: isActive ? Colors.white : Colors.grey[400],
+          ),
+          onPressed: () {
+            if (!isActive) {
+              Navigator.pushReplacementNamed(context, route);
+            }
+          },
+          tooltip: tooltip,
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       child: ClipRRect(
@@ -35,103 +72,40 @@ class MainBottomAppBar extends StatelessWidget {
                 // Home Icon
                 Expanded(
                   child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: IconButton(
-                          icon: Icon(
-                            FontAwesomeIcons.house,
-                            size: homeIconSize,
-                            color: AppColors.primary,
-                          ),
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/home');
-                          },
-                          tooltip: 'Home',
-                        ),
-                      ),
+                    child: navIcon(
+                      icon: FontAwesomeIcons.house,
+                      route: '/home',
+                      tooltip: 'Home',
                     ),
                   ),
                 ),
                 // New Report Icon
                 Expanded(
                   child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        width: addIconSize + 24,
-                        height: addIconSize + 24,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primary.withOpacity(0.30),
-                              blurRadius: 24,
-                              spreadRadius: 1,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            FontAwesomeIcons.plus,
-                            color: Colors.white,
-                            size: addIconSize,
-                          ),
-                          iconSize: addIconSize,
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/report-form');
-                          },
-                          tooltip: 'New Report',
-                        ),
-                      ),
+                    child: navIcon(
+                      icon: FontAwesomeIcons.plus,
+                      route: '/report-form',
+                      tooltip: 'New Report',
                     ),
                   ),
                 ),
-                // Cached Reports Icon
+                // Cached Reports Icon (folder open)
                 Expanded(
                   child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: IconButton(
-                          icon: Icon(
-                            FontAwesomeIcons.fileLines, // draft icon
-                            size: cachedIconSize,
-                            color: AppColors.primary,
-                          ),
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/cached-reports');
-                          },
-                          tooltip: 'Cached Reports',
-                        ),
-                      ),
+                    child: navIcon(
+                      icon: FontAwesomeIcons.folderOpen,
+                      route: '/cached-reports',
+                      tooltip: 'Cached Reports',
                     ),
                   ),
                 ),
-                // Assignment Icon
+                // My Reports Icon (history)
                 Expanded(
                   child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: IconButton(
-                          icon: Icon(
-                            FontAwesomeIcons.clipboardList,
-                            size: clipboardIconSize,
-                            color: AppColors.primary,
-                          ),
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/my-reports');
-                          },
-                          tooltip: 'My Reports',
-                        ),
-                      ),
+                    child: navIcon(
+                      icon: FontAwesomeIcons.clockRotateLeft,
+                      route: '/my-reports',
+                      tooltip: 'My Reports',
                     ),
                   ),
                 ),

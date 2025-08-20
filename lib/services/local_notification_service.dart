@@ -1,5 +1,9 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../features/my_reports/domain/notification_list_provider.dart';
+import '../features/my_reports/domain/notification_count_provider.dart';
+import '../features/my_reports/data/notification_model.dart';
 
 class LocalNotificationService {
   static final LocalNotificationService _instance =
@@ -10,7 +14,12 @@ class LocalNotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  Future<void> initialize(BuildContext context) async {
+  BuildContext? _navContext;
+  WidgetRef? _ref;
+
+  Future<void> initialize(BuildContext context, [WidgetRef? ref]) async {
+    _navContext = context;
+    _ref = ref;
     const AndroidInitializationSettings androidInit =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
@@ -21,7 +30,10 @@ class LocalNotificationService {
     await _flutterLocalNotificationsPlugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        // Optionally handle notification tap
+        // Handle notification tap: navigate to notifications page
+        if (_navContext != null) {
+          Navigator.of(_navContext!).pushNamed('/notifications');
+        }
       },
     );
   }
@@ -30,6 +42,7 @@ class LocalNotificationService {
     required String title,
     required String body,
     int id = 0,
+    WidgetRef? ref,
   }) async {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
@@ -46,5 +59,19 @@ class LocalNotificationService {
       iOS: iosDetails,
     );
     await _flutterLocalNotificationsPlugin.show(id, title, body, details);
+
+    // Add to in-app notification list
+    final notification = NotificationModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: title,
+      message: body,
+      timestamp: DateTime.now(),
+      isRead: false,
+    );
+    final provider = ref ?? _ref;
+    if (provider != null) {
+      provider.read(notificationListProvider.notifier).add(notification);
+      provider.read(notificationCountProvider.notifier).state++;
+    }
   }
 }
