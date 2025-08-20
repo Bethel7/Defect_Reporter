@@ -8,6 +8,24 @@ import '../../report/data/report_model.dart';
 import '../../../core/theme/text_styles.dart';
 
 class ReportDetailPage extends StatelessWidget {
+  void _showFullImageDialog(BuildContext context, File imageFile) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: InteractiveViewer(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.file(imageFile, fit: BoxFit.contain),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   final ReportModel report;
 
   const ReportDetailPage({super.key, required this.report});
@@ -247,13 +265,17 @@ class ReportDetailPage extends StatelessWidget {
                   ? 'Report image'
                   : 'No image attached',
               child: report.imageUrl != null && report.imageUrl!.isNotEmpty
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.file(
-                        File(report.imageUrl!),
-                        height: 160,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
+                  ? GestureDetector(
+                      onTap: () =>
+                          _showFullImageDialog(context, File(report.imageUrl!)),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(
+                          File(report.imageUrl!),
+                          height: 160,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     )
                   : Container(

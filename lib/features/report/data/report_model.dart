@@ -4,10 +4,8 @@ class ReportModel {
   final String description;
   final String location;
   final String status;
-  final String? imageUrl;
-  final String? aiDepartment;
-  final String? aiSeverity;
-  final DateTime? timestamp;
+  final String imageUrl;
+  final DateTime timestamp;
   final double? latitude;
   final double? longitude;
 
@@ -21,10 +19,8 @@ class ReportModel {
     required this.description,
     required this.location,
     required this.status,
-    this.imageUrl,
-    this.aiDepartment,
-    this.aiSeverity,
-    this.timestamp,
+    required this.imageUrl,
+    required this.timestamp,
     this.latitude,
     this.longitude,
   });
@@ -35,12 +31,8 @@ class ReportModel {
     description: json['description'] as String,
     location: json['location'] as String,
     status: json['status'] as String,
-    imageUrl: json['imageUrl'] as String?,
-    aiDepartment: json['aiDepartment'] as String?,
-    aiSeverity: json['aiSeverity'] as String?,
-    timestamp: json['timestamp'] != null
-        ? DateTime.tryParse(json['timestamp'])
-        : null,
+    imageUrl: json['imageUrl'] as String,
+    timestamp: DateTime.tryParse(json['timestamp']) ?? DateTime.now(),
     latitude: (json['latitude'] as num?)?.toDouble(),
     longitude: (json['longitude'] as num?)?.toDouble(),
   );
@@ -52,8 +44,6 @@ class ReportModel {
     'location': location,
     'status': status,
     'imageUrl': imageUrl,
-    'aiDepartment': aiDepartment,
-    'aiSeverity': aiSeverity,
     'timestamp': timestamp?.toIso8601String(),
     'latitude': latitude,
     'longitude': longitude,
@@ -66,8 +56,6 @@ class ReportModel {
     String? location,
     String? status,
     String? imageUrl,
-    String? aiDepartment,
-    String? aiSeverity,
     DateTime? timestamp,
     double? latitude,
     double? longitude,
@@ -79,8 +67,6 @@ class ReportModel {
       location: location ?? this.location,
       status: status ?? this.status,
       imageUrl: imageUrl ?? this.imageUrl,
-      aiDepartment: aiDepartment ?? this.aiDepartment,
-      aiSeverity: aiSeverity ?? this.aiSeverity,
       timestamp: timestamp ?? this.timestamp,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,

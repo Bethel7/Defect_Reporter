@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'report_form_provider.dart';
 import 'image_input.dart';
 import 'report_confirmation_page.dart';
+import 'cached_report_confirmation_page.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/validators.dart';
 import '../../../widgets/custom_text_field.dart';
@@ -29,7 +30,6 @@ class ReportFormPage extends ConsumerStatefulWidget {
 
 class _ReportFormPageState extends ConsumerState<ReportFormPage> {
   final _formKey = GlobalKey<FormState>();
-
   bool _titleTouched = false;
   bool _descriptionTouched = false;
   bool _submitted = false;
@@ -87,9 +87,7 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: InkWell(
                 borderRadius: BorderRadius.circular(20),
-                onTap: () {
-                  Navigator.pushNamed(context, '/notifications');
-                },
+                onTap: () => Navigator.pushNamed(context, '/notifications'),
                 child: Container(
                   width: 40,
                   height: 40,
@@ -107,8 +105,8 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 16),
+            const Padding(
+              padding: EdgeInsets.only(right: 16),
               child: ProfilePopupMenu(),
             ),
           ],
@@ -128,7 +126,7 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                       autovalidateMode: AutovalidateMode.disabled,
                       child: ListView(
                         children: [
-                          // Title (centered, narrower)
+                          // Title
                           Center(
                             child: Container(
                               constraints: const BoxConstraints(maxWidth: 400),
@@ -140,14 +138,13 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                   initialValue: formState.title,
                                   maxLines: 1,
                                   validator: (val) {
-                                    if (!_titleTouched && !_submitted) return null;
+                                    if (!_titleTouched && !_submitted)
+                                      return null;
                                     return Validators.validateTitle(val);
                                   },
                                   onChanged: (val) {
                                     formProvider.setTitle(val);
-                                    setState(() {
-                                      _titleTouched = true;
-                                    });
+                                    setState(() => _titleTouched = true);
                                   },
                                   border: grayBorder,
                                   enabledBorder: grayBorder,
@@ -173,7 +170,7 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                             label: 'Report Description Input',
                             textField: true,
                             child: Container(
-                              width: MediaQuery.of(context).size.width - 32, // match image card
+                              width: MediaQuery.of(context).size.width - 32,
                               margin: const EdgeInsets.symmetric(horizontal: 0),
                               child: CustomTextField(
                                 label: 'Description',
@@ -195,9 +192,7 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                 ),
                                 onChanged: (val) {
                                   formProvider.setDescription(val);
-                                  setState(() {
-                                    _descriptionTouched = true;
-                                  });
+                                  setState(() => _descriptionTouched = true);
                                 },
                                 validator: (val) {
                                   if (!_descriptionTouched && !_submitted)
@@ -208,7 +203,7 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          // Location Selector (centered, narrower)
+                          // Location Selector
                           Center(
                             child: Container(
                               constraints: const BoxConstraints(maxWidth: 400),
@@ -218,9 +213,7 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                   selectedLocation: formState.location,
                                   onLocationSelected: (loc) {
                                     formProvider.setLocation(loc);
-                                    setState(() {
-                                      _locationError = null;
-                                    });
+                                    setState(() => _locationError = null);
                                   },
                                   errorText: _locationError,
                                   textStyle: const TextStyle(
@@ -241,11 +234,24 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                 ImageInput(
                                   onImageSelected: (path) {
                                     formProvider.setImagePath(path);
-                                    setState(() {
-                                      _imageError = null;
-                                    });
+                                    setState(() => _imageError = null);
                                   },
                                 ),
+                                if (_imageError != null) ...[
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 8.0,
+                                      left: 8.0,
+                                    ),
+                                    child: Text(
+                                      _imageError!,
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -258,7 +264,7 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
-                                    foregroundColor: Color(0xFF474747),
+                                    foregroundColor: const Color(0xFF474747),
                                     side: const BorderSide(
                                       color: AppColors.borderGray,
                                     ),
@@ -290,20 +296,17 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                   onPressed: formState.isSubmitting
                                       ? null
                                       : () async {
-                                          setState(() {
-                                            _submitted = true;
-                                          });
+                                          setState(() => _submitted = true);
                                           bool valid = _formKey.currentState!
                                               .validate();
                                           String? locationError =
                                               Validators.validateLocation(
                                                 formState.location,
                                               );
-                                          String? imageError = kIsWeb
-                                              ? null // Skip image validation on web
-                                              : Validators.validateImagePath(
-                                                  formState.imagePath,
-                                                );
+                                          String? imageError =
+                                              Validators.validateImagePath(
+                                                formState.imagePath,
+                                              );
 
                                           setState(() {
                                             _locationError = locationError;
@@ -336,16 +339,17 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                             .description,
                                                         location:
                                                             formState.location,
-                                                        status: "Submitted",
+                                                        status: ReportModel
+                                                            .statusSubmitted,
                                                         imageUrl:
                                                             formState.imagePath,
-                                                        aiDepartment: null,
-                                                        aiSeverity: null,
                                                         timestamp:
                                                             DateTime.tryParse(
-                                                              result['timestamp'] ??
+                                                              result['timestamp']
+                                                                      ?.toString() ??
                                                                   '',
-                                                            ),
+                                                            ) ??
+                                                            DateTime.now(),
                                                       ),
                                                     );
                                                 ref
@@ -354,7 +358,6 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                           .notifier,
                                                     )
                                                     .reset();
-
                                                 Navigator.pushReplacement(
                                                   context,
                                                   MaterialPageRoute(
@@ -372,6 +375,9 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                           submittedLocation:
                                                               formState
                                                                   .location,
+                                                          submittedImageUrl:
+                                                              formState
+                                                                  .imagePath,
                                                         ),
                                                   ),
                                                 );
@@ -389,11 +395,10 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                           formState.description,
                                                       location:
                                                           formState.location,
-                                                      status: "Submitted",
+                                                      status: ReportModel
+                                                          .statusSubmitted,
                                                       imageUrl:
                                                           formState.imagePath,
-                                                      aiDepartment: null,
-                                                      aiSeverity: null,
                                                       timestamp: DateTime.now(),
                                                     ),
                                                   );
@@ -403,9 +408,12 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                   )
                                                   .reset();
                                               if (context.mounted) {
-                                                Navigator.pushReplacementNamed(
+                                                Navigator.pushReplacement(
                                                   context,
-                                                  '/home',
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        const CachedReportConfirmationPage(),
+                                                  ),
                                                 );
                                               }
                                             }
@@ -437,4 +445,3 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
     );
   }
 }
-

@@ -10,6 +10,7 @@ class MainBottomAppBar extends StatelessWidget {
     const double homeIconSize = 28;
     const double addIconSize = 28;
     const double clipboardIconSize = 31;
+    const double cachedIconSize = 27;
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       child: ClipRRect(
@@ -53,6 +54,7 @@ class MainBottomAppBar extends StatelessWidget {
                     ),
                   ),
                 ),
+                // New Report Icon
                 Expanded(
                   child: Center(
                     child: ClipRRect(
@@ -84,6 +86,28 @@ class MainBottomAppBar extends StatelessWidget {
                             Navigator.pushNamed(context, '/report-form');
                           },
                           tooltip: 'New Report',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Cached Reports Icon
+                Expanded(
+                  child: Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: IconButton(
+                          icon: Icon(
+                            FontAwesomeIcons.fileLines, // draft icon
+                            size: cachedIconSize,
+                            color: AppColors.primary,
+                          ),
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/cached-reports');
+                          },
+                          tooltip: 'Cached Reports',
                         ),
                       ),
                     ),

@@ -4,7 +4,6 @@ import '../../core/common/bottom_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/my_reports/presentation/my_reports_provider.dart';
 import '../../core/common/profile_popup_menu.dart';
-import '../../features/report/data/report_model.dart';
 import '../../core/theme/text_styles.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -69,7 +68,7 @@ class HomePage extends ConsumerWidget {
     final recentReports = reports.reversed.take(5).toList();
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+    backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         elevation: 0,

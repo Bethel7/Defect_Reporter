@@ -1,4 +1,5 @@
 import '../../../widgets/custom_text_field.dart';
+import '../../../core/utils/validators.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
@@ -20,6 +21,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   void _submit() {
     setState(() {
       _submitted = true;
+    });
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    setState(() {
       _isLoading = true;
     });
     // Simulate sending reset link
@@ -108,10 +114,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       enabled: !_isLoading,
                       validator: (value) {
                         if (!_submitted) return null;
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email ';
-                        }
-                        return null;
+                        return Validators.validateEmail(value);
                       },
                     ),
                   ),

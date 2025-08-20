@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../core/utils/helpers.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../core/constants/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -15,6 +16,24 @@ class ImageInput extends StatefulWidget {
 }
 
 class _ImageInputState extends State<ImageInput> {
+  void _showFullImageDialog(File imageFile) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: InteractiveViewer(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.file(imageFile, fit: BoxFit.contain),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   File? _imageFile;
 
   Future<void> _pickImage(ImageSource source) async {
@@ -53,10 +72,25 @@ class _ImageInputState extends State<ImageInput> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: source);
     if (picked != null) {
-      setState(() {
-        _imageFile = File(picked.path);
-      });
-      widget.onImageSelected(picked.path);
+      File originalFile = File(picked.path);
+      // Determine format from extension
+      String ext = originalFile.path.split('.').last.toLowerCase();
+      String format = (ext == 'png') ? 'png' : 'jpg';
+      File? compressed = await Helpers.compressImage(
+        originalFile,
+        format: format,
+      );
+      if (compressed != null) {
+        setState(() {
+          _imageFile = compressed;
+        });
+        widget.onImageSelected(compressed.path);
+      } else {
+        setState(() {
+          _imageFile = originalFile;
+        });
+        widget.onImageSelected(originalFile.path);
+      }
     }
   }
 
@@ -118,7 +152,9 @@ class _ImageInputState extends State<ImageInput> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _showImageSourceDialog,
+      onTap: _imageFile != null
+          ? () => _showFullImageDialog(_imageFile!)
+          : _showImageSourceDialog,
       child: Container(
         width: double.infinity,
         height: 200,

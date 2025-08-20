@@ -11,7 +11,7 @@ class ReportConfirmationPage extends StatelessWidget {
   final String submittedTitle;
   final String submittedDescription;
   final String submittedLocation;
-  final String? submittedImageUrl;
+  final String submittedImageUrl;
 
   const ReportConfirmationPage({
     super.key,
@@ -20,7 +20,8 @@ class ReportConfirmationPage extends StatelessWidget {
     required this.submittedTitle,
     required this.submittedDescription,
     required this.submittedLocation,
-    this.submittedImageUrl,
+    required this.submittedImageUrl,
+    
   });
 
   @override
@@ -97,14 +98,14 @@ class ReportConfirmationPage extends StatelessWidget {
                       children: [
                         Text(
                           'Report ID: $reportId',
-                          style: TextStyles.bodyLarge.copyWith(
+                          style: TextStyles.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Timestamp: $timestamp',
-                          style: TextStyles.bodyLarge,
+                          style: TextStyles.bodyMedium,
                         ),
                       ],
                     ),
@@ -112,8 +113,10 @@ class ReportConfirmationPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 28),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
+                    SizedBox(
+                      width: 160,
                       child: CustomButton(
                         label: 'View Report',
                         onPressed: () {
@@ -128,9 +131,8 @@ class ReportConfirmationPage extends StatelessWidget {
                                   location: submittedLocation,
                                   status: ReportModel.statusSubmitted,
                                   imageUrl: submittedImageUrl,
-                                  aiDepartment: null,
-                                  aiSeverity: null,
-                                  timestamp: DateTime.tryParse(timestamp),
+                                  timestamp: DateTime.tryParse(timestamp) ??  DateTime.now(),
+                                  
                                 ),
                               ),
                             ),
@@ -139,7 +141,8 @@ class ReportConfirmationPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Expanded(
+                    SizedBox(
+                      width: 120,
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Color(0xFFBDBDBD),

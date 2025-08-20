@@ -2,7 +2,7 @@ class ReportFormState {
   final String title;
   final String description;
   final String location;
-  final String? imagePath;
+  final String imagePath;
   final bool isSubmitting;
   final String? error;
 
@@ -10,7 +10,7 @@ class ReportFormState {
     required this.title,
     required this.description,
     required this.location,
-    this.imagePath,
+    required this.imagePath,
     this.isSubmitting = false,
     this.error,
   });
@@ -19,7 +19,7 @@ class ReportFormState {
         title: '',
         description: '',
         location: '',
-        imagePath: null,
+        imagePath: '',
         isSubmitting: false,
         error: null,
       );

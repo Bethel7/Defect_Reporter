@@ -9,6 +9,7 @@ import '../../../core/common/profile_popup_menu.dart';
 import '../../../features/report/data/report_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../my_reports/presentation/my_reports_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyReportsPage extends ConsumerStatefulWidget {
   const MyReportsPage({super.key});
@@ -30,10 +31,32 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
   String _selectedStatus = 'All';
   String _selectedLocation = 'All';
 
-  List<String> getAllLocations(List<ReportModel> reports) => [
+  List<String> _allLocations = [
     'All',
-    ...reports.map((r) => r.location).toSet(),
+    'Main Hub',
+    'Headquarters',
+    'Aviation Academy',
+    'Cargo & Logistics Center',
+    'MRO Facility',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocations();
+  }
+
+  Future<void> _loadLocations() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList('locations');
+    setState(() {
+      _allLocations = [
+        'All',
+        ...?_allLocations.skip(1), // keep defaults after 'All'
+        ...?saved?.where((loc) => !_allLocations.contains(loc)),
+      ].toSet().toList(); // remove duplicates
+    });
+  }
 
   List<String> get _allStatuses => [
     'All',
@@ -61,17 +84,7 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
   @override
   Widget build(BuildContext context) {
     final reports = ref.watch(myReportsProvider).reports;
-
     final List<ReportModel> reportModels = reports.cast<ReportModel>();
-
-    final allLocations = [
-      'All',
-      'Main Hub',
-      'Headquarters',
-      'Aviation Academy',
-      'Cargo & Logistics Center',
-      'MRO Facility',
-    ];
 
     List<ReportModel> filteredReports = reportModels.where((report) {
       final matchesStatus =
@@ -212,7 +225,7 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                   child: FilterDropdown(
                     label: 'Location',
                     value: _selectedLocation,
-                    items: allLocations,
+                    items: _allLocations,
                     onChanged: (val) {
                       setState(() {
                         _selectedLocation = val!;
@@ -262,14 +275,12 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                           statusText = Colors.white;
                           statusIcon = FontAwesomeIcons.circleCheck;
                           statusIconColor = const Color(0xFF26D27E);
-                        } else if (report.status ==
-                            ReportModel.statusInProgress) {
+                        } else if (report.status == ReportModel.statusInProgress) {
                           statusBg = const Color(0xFFF59E42);
                           statusText = Colors.white;
                           statusIcon = FontAwesomeIcons.triangleExclamation;
                           statusIconColor = const Color(0xFFF59E42);
-                        } else if (report.status ==
-                            ReportModel.statusSubmitted) {
+                        } else if (report.status == ReportModel.statusSubmitted) {
                           statusBg = const Color(0xFF64748B);
                           statusText = Colors.white;
                           statusIcon = FontAwesomeIcons.paperPlane;

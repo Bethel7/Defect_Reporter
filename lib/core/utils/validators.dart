@@ -1,63 +1,47 @@
 class Validators {
-  static String? validateEmployeeId(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Employee ID is required';
-    }
+  static String? validateEmail(String? value) {
+    if (value == null || value.isEmpty) return 'Please enter your email';
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value)) return 'Enter a valid email';
+    return null;
+  }
 
+  static String? validateEmployeeId(String? value) {
+    if (value == null || value.isEmpty) return 'Employee ID is required';
     return null;
   }
 
   static String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Password is required';
-    }
-    if (value.length < 6) {
-      return 'Password must be at least 6 characters';
-    }
+    if (value == null || value.isEmpty) return 'Password is required';
+    if (value.length < 6) return 'Password must be at least 6 characters';
     return null;
   }
 
   static String? validateTitle(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Title is required';
-    }
-    if (value.length > 100) {
-      return 'Title is too long';
-    }
+    if (value == null || value.isEmpty) return 'Title is required';
+    if (value.length > 100) return 'Title is too long';
     return null;
   }
 
   static String? validateLocation(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Location is required';
-    }
+    if (value == null || value.isEmpty) return 'Location is required';
     return null;
   }
 
   static String? validateImagePath(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Image is required';
-    }
+    if (value == null || value.isEmpty) return 'Image is required';
     return null;
   }
 
   static String? validateDescription(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Description is required';
-    }
-    if (value.length > 500) {
-      return 'Description is too long';
-    }
+    if (value == null || value.isEmpty) return 'Description is required';
+    if (value.length > 500) return 'Description is too long';
     return null;
   }
 
-  static String? validateConfirmPassword(String? value, String newPassword) {
-    if (value == null || value.isEmpty) {
-      return 'please confirm your password';
-    }
-    if (value != newPassword) {
-      return 'passwords do not match';
-    }
+    static String? validateConfirmPassword(String? value, String newPassword) {
+    if (value == null || value.isEmpty) return 'Please confirm your password';
+    if (value != newPassword) return 'Passwords do not match';
     return null;
   }
 }

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/theme/text_styles.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../core/common/profile_popup_menu.dart';
 import 'profile_provider.dart';
 
 class ProfilePage extends ConsumerWidget {

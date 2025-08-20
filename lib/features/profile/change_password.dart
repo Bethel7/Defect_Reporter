@@ -6,11 +6,11 @@ import '../../widgets/custom_button.dart';
 import 'dart:ui';
 
 Future<void> showChangePasswordSheet(BuildContext context) async {
-  final _formKey = GlobalKey<FormState>();
-  final _newPasswordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  bool _isLoading = false;
-  String? _error;
+  final formKey = GlobalKey<FormState>();
+  final newPasswordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  bool isLoading = false;
+  String? error;
 
   await showModalBottomSheet(
     context: context,
@@ -56,7 +56,7 @@ Future<void> showChangePasswordSheet(BuildContext context) async {
                       child: SingleChildScrollView(
                         controller: scrollController,
                         child: Form(
-                          key: _formKey,
+                          key: formKey,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -84,38 +84,30 @@ Future<void> showChangePasswordSheet(BuildContext context) async {
                               const SizedBox(height: 24),
                               CustomTextField(
                                 label: 'New Password',
-                                controller: _newPasswordController,
+                                controller: newPasswordController,
                                 obscureText: true,
                                 validator: Validators.validatePassword,
                               ),
                               const SizedBox(height: 16),
                               CustomTextField(
                                 label: 'Confirm Password',
-                                controller: _confirmPasswordController,
+                                controller: confirmPasswordController,
                                 obscureText: true,
                                 validator: (value) =>
                                     Validators.validateConfirmPassword(
                                       value,
-                                      _newPasswordController.text,
+                                      newPasswordController.text,
                                     ),
                               ),
-                              if (_error != null) ...[
-                                const SizedBox(height: 12),
-                                Text(
-                                  _error!,
-                                  style: const TextStyle(color: Colors.red),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
                               const SizedBox(height: 28),
                               CustomButton(
-                                label: _isLoading ? 'Saving...' : 'Save',
-                                isLoading: _isLoading,
-                                onPressed: _isLoading
+                                label: isLoading ? 'Saving...' : 'Save',
+                                isLoading: isLoading,
+                                onPressed: isLoading
                                     ? null
                                     : () async {
-                                        setState(() => _isLoading = true);
-                                        if (_formKey.currentState!.validate()) {
+                                        setState(() => isLoading = true);
+                                        if (formKey.currentState!.validate()) {
                                           await Future.delayed(
                                             const Duration(seconds: 1),
                                           );
@@ -132,7 +124,7 @@ Future<void> showChangePasswordSheet(BuildContext context) async {
                                             );
                                           }
                                         } else {
-                                          setState(() => _isLoading = false);
+                                          setState(() => isLoading = false);
                                         }
                                       },
                               ),
