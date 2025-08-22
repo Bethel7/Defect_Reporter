@@ -26,22 +26,19 @@ class MainBottomAppBar extends StatelessWidget {
       required String route,
       required String tooltip,
     }) {
-      final bool isActive = currentRoute == route;
       return Container(
         decoration: BoxDecoration(
-          color: isActive ? AppColors.primary : AppColors.accent,
+          color: AppColors.primary,
           borderRadius: BorderRadius.circular(16),
         ),
         child: IconButton(
           icon: Icon(
             icon,
             size: iconSize,
-            color: isActive ? Colors.white : Colors.grey[400],
+            color: Colors.white, 
           ),
           onPressed: () {
-            if (!isActive) {
-              Navigator.pushReplacementNamed(context, route);
-            }
+            Navigator.pushReplacementNamed(context, route);
           },
           tooltip: tooltip,
         ),
@@ -89,17 +86,17 @@ class MainBottomAppBar extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Cached Reports Icon (folder open)
+                // Cached Reports Icon
                 Expanded(
                   child: Center(
                     child: navIcon(
-                      icon: FontAwesomeIcons.folderOpen,
+                      icon: FontAwesomeIcons.database,
                       route: '/cached-reports',
                       tooltip: 'Cached Reports',
                     ),
                   ),
                 ),
-                // My Reports Icon (history)
+                // My Reports Icon
                 Expanded(
                   child: Center(
                     child: navIcon(

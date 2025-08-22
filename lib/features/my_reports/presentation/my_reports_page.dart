@@ -51,11 +51,11 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getStringList('locations');
     setState(() {
-      _allLocations = [
+      _allLocations = {
         'All',
-        ...?_allLocations.skip(1), // keep defaults after 'All'
+        ..._allLocations.skip(1), // keep defaults after 'All'
         ...?saved?.where((loc) => !_allLocations.contains(loc)),
-      ].toSet().toList(); // remove duplicates
+      }.toList(); // remove duplicates
     });
   }
 
@@ -67,9 +67,9 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
   ];
 
   bool matchesDateRange(ReportModel report) {
-    if (_selectedDateRange == 'All' || report.timestamp == null) return true;
+    if (_selectedDateRange == 'All') return true;
     final now = DateTime.now();
-    final diff = now.difference(report.timestamp!).inDays;
+    final diff = now.difference(report.timestamp).inDays;
     switch (_selectedDateRange) {
       case 'Last 7 days':
         return diff <= 7;
@@ -115,7 +115,11 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
           button: true,
           child: IconButton(
             icon: const Icon(Icons.arrow_back, color: AppColors.text),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/home',
+              (route) => false,
+            ),
             tooltip: 'Back',
           ),
         ),

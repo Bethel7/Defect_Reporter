@@ -1,25 +1,23 @@
 import '../domain/report_repository.dart';
 import '../data/report_remote_data_source.dart';
-import '../data/report_local_data_source.dart';
-import '../data/report_model.dart';
-
+import '../../../services/offline_storage_service.dart';
+import 'report_model.dart';
 
 class ReportRepositoryImpl implements ReportRepository {
   final ReportRemoteDataSource remoteDataSource;
-  final ReportLocalDataSource localDataSource;
+  final OfflineStorageService offlineStorageService;
 
   ReportRepositoryImpl({
     required this.remoteDataSource,
-    required this.localDataSource,
+    required this.offlineStorageService,
   });
-  
 
   @override
   Future<void> submitReport(ReportModel report) async {
     try {
       await remoteDataSource.submitReport(report);
     } catch (_) {
-      await localDataSource.cacheReport(report);
+      await offlineStorageService.saveReport(report);
     }
   }
 
@@ -29,11 +27,24 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
-  Future<void> syncOfflineReports() async {
-    final cachedReports = await localDataSource.getCachedReports();
+  Future<int> syncOfflineReports() async {
+    final cachedReports = await offlineStorageService.getOfflineReports();
+    int syncedCount = 0;
+    final List<ReportModel> failedToSync = [];
     for (final report in cachedReports) {
-      await remoteDataSource.submitReport(report);
+      try {
+        await remoteDataSource.submitReport(report);
+        syncedCount++;
+      } catch (_) {
+        failedToSync.add(report);
+      }
     }
-    await localDataSource.clearCachedReports();
+    // Only keep failed reports in offline storage
+    if (failedToSync.isEmpty) {
+      await offlineStorageService.clearOfflineReports();
+    } else {
+      await offlineStorageService.replaceAllReports(failedToSync);
+    }
+    return syncedCount;
   }
 }

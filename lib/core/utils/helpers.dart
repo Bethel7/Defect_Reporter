@@ -22,10 +22,12 @@ class Helpers {
     String format = 'jpg',
   }) async {
     final ext = format.toLowerCase() == 'png' ? 'png' : 'jpg';
-    final targetPath = '${file.parent.path}/compressed_${file.uri.pathSegments.last}.$ext';
+    final targetPath =
+        '${file.parent.path}/compressed_${file.uri.pathSegments.last}.$ext';
 
-    CompressFormat compressFormat =
-        ext == 'png' ? CompressFormat.png : CompressFormat.jpeg;
+    CompressFormat compressFormat = ext == 'png'
+        ? CompressFormat.png
+        : CompressFormat.jpeg;
 
     final result = await FlutterImageCompress.compressAndGetFile(
       file.absolute.path,
@@ -35,5 +37,25 @@ class Helpers {
     );
 
     return result != null ? File(result.path) : null;
+  }
+
+  static Future<T> retryWithBackoff<T>(
+    Future<T> Function() action, {
+    int maxAttempts = 5,
+    Duration initialDelay = const Duration(seconds: 2),
+  }) async {
+    int attempt = 0;
+    Duration delay = initialDelay;
+    while (attempt < maxAttempts) {
+      try {
+        return await action(); // Success!
+      } catch (e) {
+        attempt++;
+        if (attempt >= maxAttempts) rethrow;
+        await Future.delayed(delay);
+        delay *= 2; // Exponential backoff
+      }
+    }
+    throw Exception('Max retry attempts reached');
   }
 }

@@ -4,9 +4,12 @@ import '../../core/constants/app_colors.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
 import 'dart:ui';
+import '../../core/theme/input_borders.dart';
+import '../../services/auth_service.dart';
 
 Future<void> showChangePasswordSheet(BuildContext context) async {
   final formKey = GlobalKey<FormState>();
+  final currentPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   bool isLoading = false;
@@ -77,15 +80,35 @@ Future<void> showChangePasswordSheet(BuildContext context) async {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20,
-                                  color: AppColors.primary,
+                                  color: AppColors.text,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: 24),
                               CustomTextField(
+                                label: 'Current Password',
+                                controller: currentPasswordController,
+                                obscureText: true,
+                                border: InputBorders.gray,
+                                enabledBorder: InputBorders.gray,
+                                focusedBorder: InputBorders.green,
+                                errorBorder: InputBorders.red,
+                                focusedErrorBorder: InputBorders.red,
+                                validator: (value) =>
+                                    value == null || value.isEmpty
+                                    ? 'Enter your current password'
+                                    : null,
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextField(
                                 label: 'New Password',
                                 controller: newPasswordController,
                                 obscureText: true,
+                                border: InputBorders.gray,
+                                enabledBorder: InputBorders.gray,
+                                focusedBorder: InputBorders.green,
+                                errorBorder: InputBorders.red,
+                                focusedErrorBorder: InputBorders.red,
                                 validator: Validators.validatePassword,
                               ),
                               const SizedBox(height: 16),
@@ -93,6 +116,11 @@ Future<void> showChangePasswordSheet(BuildContext context) async {
                                 label: 'Confirm Password',
                                 controller: confirmPasswordController,
                                 obscureText: true,
+                                border: InputBorders.gray,
+                                enabledBorder: InputBorders.gray,
+                                focusedBorder: InputBorders.green,
+                                errorBorder: InputBorders.red,
+                                focusedErrorBorder: InputBorders.red,
                                 validator: (value) =>
                                     Validators.validateConfirmPassword(
                                       value,
@@ -108,26 +136,40 @@ Future<void> showChangePasswordSheet(BuildContext context) async {
                                     : () async {
                                         setState(() => isLoading = true);
                                         if (formKey.currentState!.validate()) {
-                                          await Future.delayed(
-                                            const Duration(seconds: 1),
-                                          );
-                                          if (context.mounted) {
-                                            Navigator.pop(context, true);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                  'Password changed successfully!',
-                                                ),
-                                              ),
+                                          try {
+                                            await AuthService().changePassword(
+                                              currentPasswordController.text,
+                                              newPasswordController.text,
                                             );
+                                            if (context.mounted) {
+                                              Navigator.pop(context, true);
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Password changed successfully!',
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          } catch (e) {
+                                            setState(() {
+                                              error = e.toString();
+                                            });
                                           }
-                                        } else {
-                                          setState(() => isLoading = false);
                                         }
+                                        setState(() => isLoading = false);
                                       },
                               ),
+                              if (error != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 12.0),
+                                  child: Text(
+                                    error!,
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                ),
                             ],
                           ),
                         ),

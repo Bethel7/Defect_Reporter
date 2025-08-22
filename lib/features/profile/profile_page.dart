@@ -10,7 +10,7 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(profileProvider);
+    final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -29,68 +29,74 @@ class ProfilePage extends ConsumerWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-       
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-        child: Column(
-          children: [
-            Center(
-              child: CircleAvatar(
-                radius: 54,
-                backgroundColor: AppColors.primary.withOpacity(0.12),
-                child: const FaIcon(
-                  FontAwesomeIcons.user,
-                  size: 48,
-                  color: AppColors.primary,
+      body: profileAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Error: $e')),
+        data: (profile) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            children: [
+              Center(
+                child: CircleAvatar(
+                  radius: 54,
+                  backgroundColor: AppColors.primary.withOpacity(0.12),
+                  child: const FaIcon(
+                    FontAwesomeIcons.user,
+                    size: 48,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 32),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+              const SizedBox(height: 32),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 24,
+                  horizontal: 20,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _ProfileInfoItem(
+                      icon: FontAwesomeIcons.user,
+                      label: 'Name',
+                      value: profile.fullName,
+                    ),
+                    const SizedBox(height: 18),
+                    _ProfileInfoItem(
+                      icon: FontAwesomeIcons.idBadge,
+                      label: 'Employee ID',
+                      value: profile.employeeId,
+                    ),
+                    const SizedBox(height: 18),
+                    _ProfileInfoItem(
+                      icon: FontAwesomeIcons.envelope,
+                      label: 'Email',
+                      value: profile.email,
+                    ),
+                    const SizedBox(height: 18),
+                    _ProfileInfoItem(
+                      icon: FontAwesomeIcons.userShield,
+                      label: 'Role',
+                      value: profile.role,
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _ProfileInfoItem(
-                    icon: FontAwesomeIcons.user,
-                    label: 'Name',
-                    value: profile.name,
-                  ),
-                  const SizedBox(height: 18),
-                  _ProfileInfoItem(
-                    icon: FontAwesomeIcons.idBadge,
-                    label: 'Employee ID',
-                    value: profile.employeeId,
-                  ),
-                  const SizedBox(height: 18),
-                  _ProfileInfoItem(
-                    icon: FontAwesomeIcons.envelope,
-                    label: 'Email',
-                    value: profile.email,
-                  ),
-                  const SizedBox(height: 18),
-                  _ProfileInfoItem(
-                    icon: FontAwesomeIcons.userShield,
-                    label: 'Role',
-                    value: (profile as dynamic).role ?? 'Employee',
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

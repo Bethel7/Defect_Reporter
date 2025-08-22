@@ -1,22 +1,33 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
-// Utility for checking network connectivity status.
+// Utility for checking both network type and real internet connectivity status.
 class NetworkChecker {
   static final NetworkChecker instance = NetworkChecker._internal();
   final Connectivity _connectivity = Connectivity();
+  final InternetConnectionChecker _internetChecker = InternetConnectionChecker.instance;
 
   NetworkChecker._internal();
   factory NetworkChecker() => instance;
 
-  // Returns true if the device is connected to a network.
+  /// Returns true if the device is actually connected to the internet.
   Future<bool> get isConnected async {
-    final result = await _connectivity.checkConnectivity();
-    return result != ConnectivityResult.none;
+    return await _internetChecker.hasConnection;
   }
 
-  // Stream of connectivity changes.
-  Stream<ConnectivityResult> get onConnectivityChanged =>
-  _connectivity.onConnectivityChanged.asyncExpand(
-    (results) => Stream.fromIterable(results),
-  );
+  /// Returns the current network type (Wi-Fi, mobile, none, etc.)
+  Future<ConnectivityResult> get networkType async {
+    final results = await _connectivity.checkConnectivity();
+    return results.isNotEmpty ? results.first : ConnectivityResult.none;
+  }
+
+  /// Stream of network type changes (Wi-Fi, mobile, none, etc.)
+  Stream<ConnectivityResult> get onNetworkTypeChanged =>
+      _connectivity.onConnectivityChanged.expand((results) => results);
+
+  /// Stream of internet status changes (true = online, false = offline)
+  Stream<bool> get onInternetStatusChange =>
+      _internetChecker.onStatusChange.map(
+        (status) => status == InternetConnectionStatus.connected,
+      );
 }

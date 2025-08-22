@@ -44,7 +44,7 @@ class ReportModel {
     'location': location,
     'status': status,
     'imageUrl': imageUrl,
-    'timestamp': timestamp?.toIso8601String(),
+    'timestamp': timestamp.toIso8601String(),
     'latitude': latitude,
     'longitude': longitude,
   };

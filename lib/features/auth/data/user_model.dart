@@ -1,23 +1,13 @@
 class UserModel {
-  final String employeeId;
   final String fullName;
-  final String? token;
+  final String role;
 
-  UserModel({
-    required this.employeeId,
-    required this.fullName,
-    this.token,
-  });
+  UserModel({required this.fullName, required this.role});
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
-        employeeId: json['employeeId'] as String,
-        fullName: json['fullName'] as String,
-        token: json['token'] as String?,
-      );
+    fullName: json['FullName'] as String? ?? '',
+    role: json['Role'] as String? ?? '',
+  );
 
-  Map<String, dynamic> toJson() => {
-        'employeeId': employeeId,
-        'fullName': fullName,
-        'token': token,
-      };
+  Map<String, dynamic> toJson() => {'fullName': fullName, 'role': role};
 }

@@ -8,10 +8,10 @@ class PushNotificationService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   Future<void> initialize(WidgetRef ref) async {
-    // Request notification permissions (especially important for iOS)
+    // Request notification permissions 
     await _messaging.requestPermission();
 
-    // Optionally get the FCM token for this device
+    //  get the FCM token for this device
     String? token = await _messaging.getToken();
     print('FCM Token: $token');
 
@@ -29,7 +29,7 @@ class PushNotificationService {
       print('Received a foreground message: ${message.data}');
     });
 
-    // Handle background & terminated state messages (optional)
+    // Handle background & terminated state messages 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('Notification caused app to open: ${message.data}');
       // Handle navigation or other logic here

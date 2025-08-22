@@ -1,21 +1,78 @@
+import 'package:dio/dio.dart';
 import '../features/auth/data/user_model.dart';
 
 class AuthService {
+  static const String defaultBaseUrl = 'http://172.20.100.64:8212';
+  final Dio _dio;
+
+  AuthService({String? baseUrl})
+      : _dio = Dio(BaseOptions(baseUrl: baseUrl ?? defaultBaseUrl));
+
   Future<UserModel> login(String employeeId, String password) async {
-    await Future.delayed(const Duration(seconds: 1));
-    if (employeeId.isNotEmpty && password.isNotEmpty) {
-      // Return a dummy user
-      return UserModel(
-        employeeId: employeeId,
-        fullName: 'Test User',
-        token: 'dummy_token',
+    try {
+      final response = await _dio.post(
+        '/api/auth/login',
+        data: {'employeeId': employeeId, 'password': password},
       );
-    } else {
-      throw Exception('Invalid credentials');
+      return UserModel.fromJson(response.data);
+    } on DioError catch (e) {
+      if (e.response != null) {
+        throw Exception('Login failed: ${e.response?.statusCode} - ${e.response?.data}');
+      } else {
+        throw Exception('Login failed: ${e.message}');
+      }
     }
   }
 
   Future<void> logout() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await _dio.post('/api/auth/logout');
+  }
+
+  Future<void> forgotPassword(String email) async {
+    try {
+      await _dio.post(
+        '/api/auth/forgot-password',
+        data: {'email': email},
+      );
+    } on DioError catch (e) {
+      if (e.response != null) {
+        throw Exception('Forgot password failed: ${e.response?.statusCode} - ${e.response?.data}');
+      } else {
+        throw Exception('Forgot password failed: ${e.message}');
+      }
+    }
+  }
+
+  Future<void> resetPassword(String code, String newPassword) async {
+    try {
+      await _dio.post(
+        '/api/auth/reset-password',
+        data: {'code': code, 'newPassword': newPassword},
+      );
+    } on DioError catch (e) {
+      if (e.response != null) {
+        throw Exception('Reset password failed: ${e.response?.statusCode} - ${e.response?.data}');
+      } else {
+        throw Exception('Reset password failed: ${e.message}');
+      }
+    }
+  }
+
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    try {
+      await _dio.post(
+        '/api/auth/change-password',
+        data: {'currentPassword': currentPassword, 'newPassword': newPassword},
+      );
+    } on DioError catch (e) {
+      if (e.response != null) {
+        throw Exception('Change password failed: ${e.response?.statusCode} - ${e.response?.data}');
+      } else {
+        throw Exception('Change password failed: ${e.message}');
+      }
+    }
   }
 }

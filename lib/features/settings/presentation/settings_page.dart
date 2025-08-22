@@ -92,7 +92,7 @@ class SettingsPage extends StatelessWidget {
                       ),
                       const Icon(
                         FontAwesomeIcons.chevronRight,
-                        color: AppColors.primary,
+                        color: AppColors.text,
                         size: 18,
                       ),
                     ],

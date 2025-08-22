@@ -30,7 +30,6 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
     });
   }
 
- 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +46,11 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.text),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/home',
+            (route) => false,
+          ),
         ),
       ),
       body: _loading
@@ -84,9 +87,7 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
                         ),
                       ],
                     ),
-                    
-                    ),
-                  
+                  ),
                 );
               },
             ),

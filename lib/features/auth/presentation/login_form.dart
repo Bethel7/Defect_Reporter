@@ -1,9 +1,12 @@
 import 'package:defect_reporter/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../core/utils/validators.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_text_field.dart';
+import 'login_provider.dart';
+import '../../../core/theme/input_borders.dart';
 
 class LoginForm extends ConsumerStatefulWidget {
   const LoginForm({super.key});
@@ -16,11 +19,10 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final _employeeIdController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _storage = const FlutterSecureStorage();
 
   bool _employeeIdValid = false;
   bool _passwordValid = false;
-  bool _isLoading = false;
-
   bool _employeeIdTouched = false;
   bool _passwordTouched = false;
   bool _submitted = false;
@@ -34,7 +36,6 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     });
   }
 
-  // disposes the controller to free up memory space and memory leaks
   @override
   void dispose() {
     _employeeIdController.dispose();
@@ -44,15 +45,25 @@ class _LoginFormState extends ConsumerState<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    OutlineInputBorder grayBorder = const OutlineInputBorder(
-      borderSide: BorderSide(color: AppColors.borderGray),
-    );
-    OutlineInputBorder greenBorder = const OutlineInputBorder(
-      borderSide: BorderSide(color: AppColors.borderGreen),
-    );
-    OutlineInputBorder redBorder = const OutlineInputBorder(
-      borderSide: BorderSide(color: AppColors.borderRed),
-    );
+    // Autofill: attempt to load saved credentials
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final savedEmployeeId = await _storage.read(key: 'employeeId');
+      final savedPassword = await _storage.read(key: 'password');
+      if (savedEmployeeId != null &&
+          savedPassword != null &&
+          _employeeIdController.text.isEmpty &&
+          _passwordController.text.isEmpty) {
+        setState(() {
+          _employeeIdController.text = savedEmployeeId;
+          _passwordController.text = savedPassword;
+        });
+      }
+    });
+
+    final loginState = ref.watch(loginProvider);
+    final loginNotifier = ref.read(loginProvider.notifier);
+
+    // Use modular input borders
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Form(
@@ -63,6 +74,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             CustomTextField(
               label: 'EmployeeID',
               controller: _employeeIdController,
+              autofillHints: const [AutofillHints.username],
               validator: (val) {
                 if (!_employeeIdTouched && !_submitted) return null;
                 return Validators.validateEmployeeId(val);
@@ -76,24 +88,13 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                   _employeeIdTouched = true;
                 });
               },
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: AppColors.borderGray),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: AppColors.borderGray),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(
-                  color: _employeeIdValid
-                      ? AppColors.borderGreen
-                      : AppColors.borderGray,
-                ),
-              ),
-              errorBorder: redBorder,
-              focusedErrorBorder: redBorder,
+              border: InputBorders.gray,
+              enabledBorder: InputBorders.gray,
+              focusedBorder: _employeeIdValid
+                  ? InputBorders.green
+                  : InputBorders.gray,
+              errorBorder: InputBorders.red,
+              focusedErrorBorder: InputBorders.red,
               errorStyle: const TextStyle(color: AppColors.error),
             ),
             const SizedBox(height: 16),
@@ -101,6 +102,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               label: 'Password',
               controller: _passwordController,
               obscureText: true,
+              autofillHints: const [AutofillHints.password],
               validator: (val) {
                 if (!_passwordTouched && !_submitted) return null;
                 return Validators.validatePassword(val);
@@ -114,24 +116,13 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                   _passwordTouched = true;
                 });
               },
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: AppColors.borderGray),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: AppColors.borderGray),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(
-                  color: _passwordValid
-                      ? AppColors.borderGreen
-                      : AppColors.borderGray,
-                ),
-              ),
-              errorBorder: redBorder,
-              focusedErrorBorder: redBorder,
+              border: InputBorders.gray,
+              enabledBorder: InputBorders.gray,
+              focusedBorder: _passwordValid
+                  ? InputBorders.green
+                  : InputBorders.gray,
+              errorBorder: InputBorders.red,
+              focusedErrorBorder: InputBorders.red,
               errorStyle: const TextStyle(color: AppColors.error),
             ),
             Align(
@@ -151,28 +142,44 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               width: double.infinity,
               child: CustomButton(
                 label: 'Login',
-                isLoading: _isLoading,
-                onPressed: _isLoading
+                isLoading: loginState.isLoading,
+                onPressed: loginState.isLoading
                     ? null
                     : () async {
                         setState(() {
                           _submitted = true;
                         });
                         if (_formKey.currentState!.validate()) {
-                          setState(() {
-                            _isLoading = true;
-                          });
-                          await Future.delayed(const Duration(seconds: 2));
-                          setState(() {
-                            _isLoading = false;
-                          });
-                          if (context.mounted) {
+                          
+                          loginNotifier.setEmployeeId(
+                            _employeeIdController.text,
+                          );
+                          loginNotifier.setPassword(_passwordController.text);
+                          await _storage.write(
+                            key: 'employeeId',
+                            value: _employeeIdController.text,
+                          );
+                          await _storage.write(
+                            key: 'password',
+                            value: _passwordController.text,
+                          );
+                          await loginNotifier.login(context, ref);
+                          
+                          if (mounted) {
                             Navigator.pushReplacementNamed(context, '/home');
                           }
                         }
                       },
               ),
             ),
+            if (loginState.error != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: Text(
+                  loginState.error!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
           ],
         ),
       ),

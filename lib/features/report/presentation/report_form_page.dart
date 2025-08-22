@@ -6,6 +6,7 @@ import 'image_input.dart';
 import 'report_confirmation_page.dart';
 import 'cached_report_confirmation_page.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/input_borders.dart';
 import '../../../core/utils/validators.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
@@ -38,18 +39,9 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
     final formProvider = ref.watch(reportFormProvider.notifier);
     final formState = ref.watch(reportFormProvider);
 
-    final grayBorder = const OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(16)),
-      borderSide: BorderSide(color: AppColors.borderGray),
-    );
-    final greenBorder = const OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(16)),
-      borderSide: BorderSide(color: AppColors.borderGreen),
-    );
-    final redBorder = const OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(16)),
-      borderSide: BorderSide(color: AppColors.borderRed),
-    );
+    final grayBorder = InputBorders.gray;
+    final greenBorder = InputBorders.green;
+    final redBorder = InputBorders.red;
 
     final titleValid = Validators.validateTitle(formState.title) == null;
     final descriptionValid =
@@ -76,7 +68,11 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: AppColors.text),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/home',
+              (route) => false,
+            ),
             tooltip: 'Back',
           ),
           actions: [
@@ -162,8 +158,9 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                               setState(() => _descriptionTouched = true);
                             },
                             validator: (val) {
-                              if (!_descriptionTouched && !_submitted)
+                              if (!_descriptionTouched && !_submitted) {
                                 return null;
+                              }
                               return Validators.validateDescription(val);
                             },
                           ),
@@ -279,9 +276,8 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                       if (valid &&
                                           locationError == null &&
                                           imageError == null) {
-                                        final isConnected =
-                                            await NetworkChecker().isConnected;
-                                        if (isConnected) {
+                                        final isOnline = await NetworkChecker().isConnected;
+                                        if (isOnline) {
                                           final result = await formProvider
                                               .submit();
                                           if (result != null &&
@@ -340,23 +336,19 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                             );
                                           }
                                         } else {
-                                          // Save offline
+                                          final report = ReportModel(
+                                            id: DateTime.now()
+                                                .millisecondsSinceEpoch
+                                                .toString(),
+                                            title: formState.title,
+                                            description: formState.description,
+                                            location: formState.location,
+                                            status: ReportModel.statusSubmitted,
+                                            imageUrl: formState.imagePath,
+                                            timestamp: DateTime.now(),
+                                          );
                                           await OfflineStorageService()
-                                              .saveReport(
-                                                ReportModel(
-                                                  id: DateTime.now()
-                                                      .millisecondsSinceEpoch
-                                                      .toString(),
-                                                  title: formState.title,
-                                                  description:
-                                                      formState.description,
-                                                  location: formState.location,
-                                                  status: ReportModel
-                                                      .statusSubmitted,
-                                                  imageUrl: formState.imagePath,
-                                                  timestamp: DateTime.now(),
-                                                ),
-                                              );
+                                              .saveReport(report);
                                           ref
                                               .read(reportFormProvider.notifier)
                                               .reset();
@@ -365,7 +357,7 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (_) =>
-                                                    const CachedReportConfirmationPage(),
+                                                    CachedReportConfirmationPage(report: report),
                                               ),
                                             );
                                           }

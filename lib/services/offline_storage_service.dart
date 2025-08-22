@@ -26,4 +26,10 @@ class OfflineStorageService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_offlineReportsKey);
   }
+
+  Future<void> replaceAllReports(List<ReportModel> reports) async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> reportsJson = reports.map((r) => jsonEncode(r.toJson())).toList();
+    await prefs.setStringList(_offlineReportsKey, reportsJson);
+  }
 }

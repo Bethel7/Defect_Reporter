@@ -3,8 +3,13 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/theme/text_styles.dart';
 import '../../../widgets/custom_button.dart';
 
+import '../../../features/my_reports/presentation/report_detail_page.dart';
+import '../../../features/report/data/report_model.dart';
+
 class CachedReportConfirmationPage extends StatelessWidget {
-  const CachedReportConfirmationPage({super.key});
+  final ReportModel report;
+
+  const CachedReportConfirmationPage({super.key, required this.report});
 
   @override
   Widget build(BuildContext context) {
@@ -60,18 +65,55 @@ class CachedReportConfirmationPage extends StatelessWidget {
                 style: TextStyle(fontSize: 15, color: Colors.black87),
               ),
               const SizedBox(height: 28),
-              SizedBox(
-                width: 180,
-                child: CustomButton(
-                  label: 'View Cached Reports',
-                  onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/cached-reports',
-                      (route) => route.isFirst,
-                    );
-                  },
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 160,
+                    child: CustomButton(
+                      label: 'View Report',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ReportDetailPage(report: report),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  SizedBox(
+                    width: 120,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Color(0xFFBDBDBD),
+                        side: const BorderSide(color: Color(0xFFBDBDBD)),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                          horizontal: 24,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/home',
+                          (route) => false,
+                        );
+                      },
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF474747),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

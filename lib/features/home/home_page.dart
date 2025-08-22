@@ -7,6 +7,7 @@ import '../../core/common/profile_popup_menu.dart';
 import '../../core/theme/text_styles.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/common/notification_bell.dart';
+import '../../features/auth/presentation/login_provider.dart';
 
 Color statusColor(String status) {
   switch (status.toLowerCase()) {
@@ -54,7 +55,8 @@ class HomePage extends ConsumerWidget {
     final reportsState = ref.watch(myReportsProvider);
     final reports = reportsState.reports;
 
-    final String userName = "Berhanu";
+    final user = ref.watch(currentUserProvider);
+    final String userName = user?.fullName ?? "User";
 
     // Calculate counts from the actual reports list
     final totalReports = reports.length;

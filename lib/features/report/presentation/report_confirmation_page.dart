@@ -21,7 +21,6 @@ class ReportConfirmationPage extends StatelessWidget {
     required this.submittedDescription,
     required this.submittedLocation,
     required this.submittedImageUrl,
-    
   });
 
   @override
@@ -120,7 +119,7 @@ class ReportConfirmationPage extends StatelessWidget {
                       child: CustomButton(
                         label: 'View Report',
                         onPressed: () {
-                          Navigator.pushReplacement(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => ReportDetailPage(
@@ -131,8 +130,9 @@ class ReportConfirmationPage extends StatelessWidget {
                                   location: submittedLocation,
                                   status: ReportModel.statusSubmitted,
                                   imageUrl: submittedImageUrl,
-                                  timestamp: DateTime.tryParse(timestamp) ??  DateTime.now(),
-                                  
+                                  timestamp:
+                                      DateTime.tryParse(timestamp) ??
+                                      DateTime.now(),
                                 ),
                               ),
                             ),
@@ -156,7 +156,11 @@ class ReportConfirmationPage extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          Navigator.popUntil(context, (route) => route.isFirst);
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/home',
+                            (route) => false,
+                          );
                         },
                         child: const Text(
                           'Cancel',

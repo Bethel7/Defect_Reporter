@@ -261,17 +261,17 @@ class ReportDetailPage extends StatelessWidget {
             const Text('Image', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Semantics(
-              label: report.imageUrl != null && report.imageUrl!.isNotEmpty
+              label: report.imageUrl.isNotEmpty
                   ? 'Report image'
                   : 'No image attached',
-              child: report.imageUrl != null && report.imageUrl!.isNotEmpty
+              child: report.imageUrl.isNotEmpty
                   ? GestureDetector(
                       onTap: () =>
-                          _showFullImageDialog(context, File(report.imageUrl!)),
+                          _showFullImageDialog(context, File(report.imageUrl)),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.file(
-                          File(report.imageUrl!),
+                          File(report.imageUrl),
                           height: 160,
                           width: double.infinity,
                           fit: BoxFit.cover,

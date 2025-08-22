@@ -3,8 +3,8 @@ import 'dart:async';
 import 'features/report/domain/sync_offline_report.dart';
 import 'features/report/data/report_repository_impl.dart';
 import 'features/report/data/report_remote_data_source.dart';
-import 'features/report/data/report_local_data_source.dart';
-import 'core/utils/network_checker.dart';
+import 'services/offline_storage_service.dart';
+
 import 'package:defect_reporter/features/my_reports/presentation/my_reports_page.dart';
 import 'package:defect_reporter/features/settings/presentation/support_page.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +26,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'services/push_notification_service.dart';
 import 'services/local_notification_service.dart';
 import 'firebase_options.dart';
+import 'features/auth/presentation/reset_password.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -46,12 +47,10 @@ class DefectReporterApp extends ConsumerStatefulWidget {
 }
 
 class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
-  StreamSubscription? _connectivitySub;
-  bool _wasOffline = false;
-
   // Set up your repository and sync use case
   late final ReportRepositoryImpl _repository;
   late final SyncOfflineReports _syncOfflineReports;
+  late final OfflineSyncManager _offlineSyncManager;
 
   @override
   void initState() {
@@ -59,7 +58,7 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
     // Initialize repository and sync use case
     _repository = ReportRepositoryImpl(
       remoteDataSource: ReportRemoteDataSourceImpl(),
-      localDataSource: ReportLocalDataSourceImpl(),
+      offlineStorageService: OfflineStorageService(),
     );
     _syncOfflineReports = SyncOfflineReports(_repository);
 
@@ -68,33 +67,14 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
       LocalNotificationService().initialize(context, ref);
     });
 
-    // Listen to connectivity changes
-    _connectivitySub = NetworkChecker().onConnectivityChanged.listen((
-      status,
-    ) async {
-      final isOnline = status.toString() != 'ConnectivityResult.none';
-      if (!isOnline) {
-        OfflineSnackbar.show();
-      } else {
-        OfflineSnackbar.hide();
-        if (_wasOffline) {
-          // Sync offline reports when back online
-          await _syncOfflineReports.call();
-          // Show local notification and add to in-app list
-          await LocalNotificationService().showNotification(
-            title: 'Reports Synced',
-            body: 'Your offline reports have been submitted successfully.',
-            ref: ref,
-          );
-        }
-      }
-      _wasOffline = !isOnline;
-    });
+    // Start global offline sync manager
+    _offlineSyncManager = OfflineSyncManager(_syncOfflineReports);
+    _offlineSyncManager.start();
   }
 
   @override
   void dispose() {
-    _connectivitySub?.cancel();
+    // No connectivity subscription to cancel; manager handles its own listeners
     super.dispose();
   }
 
@@ -140,6 +120,8 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
             return MaterialPageRoute(
               builder: (_) => ReportDetailPage(report: report),
             );
+          case '/reset-password':
+            return MaterialPageRoute(builder: (_) => const ResetPasswordPage());
           default:
             return null;
         }

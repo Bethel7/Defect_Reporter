@@ -45,14 +45,14 @@ class SettingsTile extends StatelessWidget {
                     label,
                     style: const TextStyle(
                       fontSize: 16,
-                      color: AppColors.primaryDark,
+                      color: AppColors.text,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
                 const FaIcon(
                   FontAwesomeIcons.chevronRight,
-                  color: AppColors.primary,
+                  color: AppColors.text,
                   size: 16,
                 ),
               ],

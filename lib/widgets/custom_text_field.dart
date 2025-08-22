@@ -19,6 +19,7 @@ class CustomTextField extends StatelessWidget {
   final Widget? prefixIcon;
   final TextStyle? style;
   final bool? enabled;
+  final List<String>? autofillHints;
 
   const CustomTextField({
     super.key,
@@ -39,6 +40,7 @@ class CustomTextField extends StatelessWidget {
     this.prefixIcon,
     this.style,
     this.enabled,
+    this.autofillHints,
   });
 
   @override
@@ -49,6 +51,7 @@ class CustomTextField extends StatelessWidget {
       obscureText: obscureText,
       style: style,
       enabled: enabled,
+      autofillHints: autofillHints,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Color(0xFF717182)),

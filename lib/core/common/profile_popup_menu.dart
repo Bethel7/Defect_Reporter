@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../features/profile/profile_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../features/auth/presentation/login_provider.dart';
 
-class ProfilePopupMenu extends StatelessWidget {
+class ProfilePopupMenu extends ConsumerWidget {
   final void Function(int)? onSelected;
 
-  const ProfilePopupMenu({super.key, this.onSelected});
+  const ProfilePopupMenu({Key? key, this.onSelected}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
     return PopupMenuButton<int>(
       tooltip: 'Profile menu',
       offset: const Offset(0, 40),
@@ -16,7 +20,7 @@ class ProfilePopupMenu extends StatelessWidget {
       onSelected:
           onSelected ??
           (value) {
-            if (value == 0) {
+            if (value == 0 && user != null) {
               Navigator.pushNamed(context, '/profile');
             } else if (value == 1) {
               Navigator.pushNamed(context, '/settings');
