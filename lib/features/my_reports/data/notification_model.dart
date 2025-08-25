@@ -4,6 +4,9 @@ class NotificationModel {
   final String message;
   final DateTime timestamp;
   final bool isRead;
+  final String? type;      // status update or general
+  final String? reportId;  
+  final String? status;
 
   NotificationModel({
     required this.id,
@@ -11,6 +14,9 @@ class NotificationModel {
     required this.message,
     required this.timestamp,
     this.isRead = false,
+    this.type,
+    this.reportId,
+    this.status,
   });
 
   NotificationModel copyWith({

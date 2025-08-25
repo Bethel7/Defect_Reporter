@@ -15,7 +15,7 @@ class AuthService {
         data: {'employeeId': employeeId, 'password': password},
       );
       return UserModel.fromJson(response.data);
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response != null) {
         throw Exception('Login failed: ${e.response?.statusCode} - ${e.response?.data}');
       } else {
@@ -34,7 +34,7 @@ class AuthService {
         '/api/auth/forgot-password',
         data: {'email': email},
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response != null) {
         throw Exception('Forgot password failed: ${e.response?.statusCode} - ${e.response?.data}');
       } else {
@@ -49,7 +49,7 @@ class AuthService {
         '/api/auth/reset-password',
         data: {'code': code, 'newPassword': newPassword},
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response != null) {
         throw Exception('Reset password failed: ${e.response?.statusCode} - ${e.response?.data}');
       } else {
@@ -67,7 +67,7 @@ class AuthService {
         '/api/auth/change-password',
         data: {'currentPassword': currentPassword, 'newPassword': newPassword},
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response != null) {
         throw Exception('Change password failed: ${e.response?.statusCode} - ${e.response?.data}');
       } else {

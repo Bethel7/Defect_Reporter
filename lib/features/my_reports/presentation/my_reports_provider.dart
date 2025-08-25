@@ -75,6 +75,10 @@ class MyReportsNotifier extends StateNotifier<MyReportsState> {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
+
+  Future<void> refreshReports() async {
+    await loadReports();
+  }
 }
 
 final myReportsProvider =

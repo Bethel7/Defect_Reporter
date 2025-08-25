@@ -37,98 +37,111 @@ class NotificationPage extends ConsumerWidget {
           child: Container(color: Colors.black.withOpacity(0.07), height: 1),
         ),
       ),
-      body: notifications.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref
+              .read(notificationListProvider.notifier)
+              .refreshNotifications();
+        },
+        child: notifications.isEmpty
+            ? ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 children: [
-                  FaIcon(
-                    FontAwesomeIcons.bellSlash,
-                    size: 64,
-                    color: Colors.black.withOpacity(0.18),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'No notifications yet',
-                    style: TextStyles.bodyLarge.copyWith(
-                      color: Colors.black.withOpacity(0.65),
-                      fontWeight: FontWeight.w600,
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        FaIcon(
+                          FontAwesomeIcons.bellSlash,
+                          size: 64,
+                          color: Colors.black.withOpacity(0.18),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'No notifications yet',
+                          style: TextStyles.bodyLarge.copyWith(
+                            color: Colors.black.withOpacity(0.65),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Your notifications will appear here when you receive them.",
+                          style: TextStyles.bodyMedium.copyWith(
+                            color: Colors.black.withOpacity(0.45),
+                            fontWeight: FontWeight.w400,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Your notifications will appear here once you've received them.",
-                    style: TextStyles.bodyMedium.copyWith(
-                      color: Colors.black.withOpacity(0.45),
-                      fontWeight: FontWeight.w400,
-                    ),
-                    textAlign: TextAlign.center,
                   ),
                 ],
-              ),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: notifications.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final notif = notifications[index];
-                return Semantics(
-                  label:
-                      '${notif.title}, ${notif.isRead ? "Read" : "Unread"} notification',
-                  button: true,
-                  child: Material(
-                    color: AppColors.primary.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(16),
-                    child: InkWell(
+              )
+            : ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: notifications.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final notif = notifications[index];
+                  return Semantics(
+                    label:
+                        '${notif.title}, ${notif.isRead ? "Read" : "Unread"} notification',
+                    button: true,
+                    child: Material(
+                      color: Color(0xFFFFFFFF),
                       borderRadius: BorderRadius.circular(16),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                NotificationDetailPage(notification: notif),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  NotificationDetailPage(notification: notif),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 18,
+                            horizontal: 16,
                           ),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 18,
-                          horizontal: 16,
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              notif.isRead
-                                  ? Icons.notifications
-                                  : Icons.notifications_active,
-                              color: AppColors.primary,
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Text(
-                                notif.title,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: AppColors.primaryDark,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                overflow: TextOverflow.ellipsis,
+                          child: Row(
+                            children: [
+                              Icon(
+                                notif.isRead
+                                    ? Icons.notifications
+                                    : Icons.notifications_active,
+                                color: AppColors.primary,
                               ),
-                            ),
-                            const Icon(
-                              Icons.chevron_right,
-                              color: AppColors.primary,
-                            ),
-                          ],
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  notif.title,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: AppColors.primaryDark,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.chevron_right,
+                                color: AppColors.primary,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
+      ),
     );
   }
 }

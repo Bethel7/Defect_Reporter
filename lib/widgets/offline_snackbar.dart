@@ -46,7 +46,7 @@ class OfflineSnackbar {
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
         backgroundColor: const Color(0xFF388E3C),
-        duration: const Duration(seconds: 5),
+        duration: const Duration(seconds: 3),
         content: Row(
           children: const [
             FaIcon(FontAwesomeIcons.checkCircle, color: Colors.white, size: 20),

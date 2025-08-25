@@ -19,10 +19,12 @@ class Validators {
     final upper = RegExp(r'[A-Z]');
     final lower = RegExp(r'[a-z]');
     final digit = RegExp(r'[0-9]');
-    if (!upper.hasMatch(value))
+    if (!upper.hasMatch(value)) {
       return 'Password must contain an uppercase letter';
-    if (!lower.hasMatch(value))
+    }
+    if (!lower.hasMatch(value)) {
       return 'Password must contain a lowercase letter';
+    }
     if (!digit.hasMatch(value)) return 'Password must contain a number';
     if (value.contains(' ')) return 'Password cannot contain spaces';
     

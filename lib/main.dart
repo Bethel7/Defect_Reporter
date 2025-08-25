@@ -50,7 +50,7 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
   // Set up your repository and sync use case
   late final ReportRepositoryImpl _repository;
   late final SyncOfflineReports _syncOfflineReports;
-  late final OfflineSyncManager _offlineSyncManager;
+  late OfflineSyncManager _offlineSyncManager;
 
   @override
   void initState() {
@@ -65,11 +65,10 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
     // Initialize local notifications
     WidgetsBinding.instance.addPostFrameCallback((_) {
       LocalNotificationService().initialize(context, ref);
+      // Start global offline sync manager with ref
+      _offlineSyncManager = OfflineSyncManager(_syncOfflineReports, ref);
+      _offlineSyncManager.start();
     });
-
-    // Start global offline sync manager
-    _offlineSyncManager = OfflineSyncManager(_syncOfflineReports);
-    _offlineSyncManager.start();
   }
 
   @override

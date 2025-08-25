@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../../features/profile/profile_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../features/auth/presentation/login_provider.dart';
 
 class ProfilePopupMenu extends ConsumerWidget {
   final void Function(int)? onSelected;
 
-  const ProfilePopupMenu({Key? key, this.onSelected}) : super(key: key);
+  const ProfilePopupMenu({super.key, this.onSelected});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

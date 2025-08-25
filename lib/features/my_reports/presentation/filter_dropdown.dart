@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_colors.dart';
 
 enum FilterDropdownAlignment { left, center, right }
 
@@ -123,6 +124,7 @@ class _FilterDropdownState extends State<FilterDropdown> {
         child: InputDecorator(
           decoration: InputDecoration(
             labelText: widget.label,
+            labelStyle: TextStyle(color: AppColors.text),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(

@@ -99,142 +99,147 @@ class HomePage extends ConsumerWidget {
         ],
         toolbarHeight: 64,
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-        children: [
-          const SizedBox(height: 16),
-          Text(
-            "Hello, $userName",
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: AppColors.text,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(myReportsProvider.notifier).refreshReports();
+        },
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          children: [
+            const SizedBox(height: 16),
+            Text(
+              "Hello, $userName",
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: AppColors.text,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            "Welcome back! Here’s your activity summary.",
-            style: TextStyle(
-              fontSize: 15,
-              color: AppColors.text,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          const SizedBox(height: 24),
-          // Dashboard cards
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: _DashboardCardModern(
-                  icon: FontAwesomeIcons.check,
-                  label: "Total Reports",
-                  value: "$totalReports",
-                  color: AppColors.primary,
-                  iconBg: const Color(0xFFE9EBEF),
-                  iconColor: AppColors.primary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _DashboardCardModern(
-                  icon: FontAwesomeIcons.circleCheck,
-                  label: "Resolved",
-                  value: "$resolvedReports",
-                  color: AppColors.primary,
-                  iconBg: const Color(0xFFE9EBEF),
-                  iconColor: AppColors.primary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _DashboardCardModern(
-                  icon: FontAwesomeIcons.clock,
-                  label: "In Progress",
-                  value: "$pendingReports",
-                  color: Color(0xFFF59E42),
-                  iconBg: const Color(0xFFE9EBEF),
-                  iconColor: Color(0xFFF59E42),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
-          const Text(
-            "Recent Submissions",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 12),
-          if (recentReports.isEmpty)
+            const SizedBox(height: 4),
             const Text(
-              "No recent reports.",
-              style: TextStyle(color: Colors.black54),
-            ),
-          ...recentReports.map(
-            (report) => Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+              "Welcome back! Here’s your activity summary.",
+              style: TextStyle(
+                fontSize: 15,
+                color: AppColors.text,
+                fontWeight: FontWeight.w400,
               ),
-              elevation: 2,
-              margin: const EdgeInsets.only(bottom: 12),
-              child: ListTile(
-                leading: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: statusColor(report.status).withOpacity(0.12),
-                    shape: BoxShape.circle,
+            ),
+            const SizedBox(height: 24),
+            // Dashboard cards
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: _DashboardCardModern(
+                    icon: FontAwesomeIcons.check,
+                    label: "Total Reports",
+                    value: "$totalReports",
+                    color: AppColors.primary,
+                    iconBg: const Color(0xFFE9EBEF),
+                    iconColor: AppColors.primary,
                   ),
-                  child: Center(child: statusIcon(report.status)),
                 ),
-                title: Text(
-                  report.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _DashboardCardModern(
+                    icon: FontAwesomeIcons.circleCheck,
+                    label: "Resolved",
+                    value: "$resolvedReports",
+                    color: AppColors.primary,
+                    iconBg: const Color(0xFFE9EBEF),
+                    iconColor: AppColors.primary,
                   ),
-                  overflow: TextOverflow.fade,
-                  softWrap: false,
-                  maxLines: 2,
                 ),
-                subtitle: Text(
-                  "Status: ${report.status}",
-                  style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  overflow: TextOverflow.fade,
-                  softWrap: false,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _DashboardCardModern(
+                    icon: FontAwesomeIcons.clock,
+                    label: "In Progress",
+                    value: "$pendingReports",
+                    color: Color(0xFFF59E42),
+                    iconBg: const Color(0xFFE9EBEF),
+                    iconColor: Color(0xFFF59E42),
+                  ),
                 ),
-                trailing: Container(
-                  margin: const EdgeInsets.only(left: 8),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+              ],
+            ),
+            const SizedBox(height: 32),
+            const Text(
+              "Recent Submissions",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 12),
+            if (recentReports.isEmpty)
+              const Text(
+                "No recent reports.",
+                style: TextStyle(color: Colors.black54),
+              ),
+            ...recentReports.map(
+              (report) => Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 2,
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  leading: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: statusColor(report.status).withOpacity(0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(child: statusIcon(report.status)),
                   ),
-                  decoration: BoxDecoration(
-                    color: statusColor(report.status),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    report.status,
+                  title: Text(
+                    report.title,
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                      letterSpacing: 0.5,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                    maxLines: 2,
+                  ),
+                  subtitle: Text(
+                    "Status: ${report.status}",
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                  ),
+                  trailing: Container(
+                    margin: const EdgeInsets.only(left: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusColor(report.status),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      report.status,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/report-detail',
+                      arguments: report,
+                    );
+                  },
                 ),
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/report-detail',
-                    arguments: report,
-                  );
-                },
               ),
             ),
-          ),
-          const SizedBox(height: 32),
-        ],
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
       bottomNavigationBar: const MainBottomAppBar(),
     );

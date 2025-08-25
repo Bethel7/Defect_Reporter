@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/common/profile_popup_menu.dart';
 import '../../report/data/report_model.dart';
 import '../../../core/theme/text_styles.dart';
+import '../../../core/theme/input_borders.dart';
 
 class ReportDetailPage extends StatelessWidget {
   void _showFullImageDialog(BuildContext context, File imageFile) {
@@ -33,7 +34,7 @@ class ReportDetailPage extends StatelessWidget {
   Color statusColor(String status) {
     switch (status) {
       case ReportModel.statusResolved:
-        return const Color(0xFF26D27E);
+        return AppColors.primary;
       case ReportModel.statusInProgress:
         return const Color(0xFFF59E42);
       case ReportModel.statusSubmitted:
@@ -111,18 +112,9 @@ class ReportDetailPage extends StatelessWidget {
                 initialValue: report.title,
                 decoration: InputDecoration(
                   labelText: 'Title',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColors.borderGray),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColors.borderGray),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColors.borderGreen),
-                  ),
+                  border: InputBorders.gray,
+                  enabledBorder: InputBorders.gray,
+                  focusedBorder: InputBorders.green,
                   labelStyle: const TextStyle(color: AppColors.borderGray),
                   filled: true,
                   fillColor: Colors.white,
@@ -144,18 +136,9 @@ class ReportDetailPage extends StatelessWidget {
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: 'Description',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColors.borderGray),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColors.borderGray),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColors.borderGreen),
-                  ),
+                  border: InputBorders.gray,
+                  enabledBorder: InputBorders.gray,
+                  focusedBorder: InputBorders.green,
                   labelStyle: const TextStyle(color: AppColors.borderGray),
                   filled: true,
                   fillColor: Colors.white,
@@ -176,18 +159,9 @@ class ReportDetailPage extends StatelessWidget {
                 initialValue: report.location,
                 decoration: InputDecoration(
                   labelText: 'Location',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColors.borderGray),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColors.borderGray),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColors.borderGreen),
-                  ),
+                  border: InputBorders.gray,
+                  enabledBorder: InputBorders.gray,
+                  focusedBorder: InputBorders.green,
                   labelStyle: const TextStyle(color: AppColors.borderGray),
                   filled: true,
                   fillColor: Colors.white,
@@ -243,14 +217,8 @@ class ReportDetailPage extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Semantics(
-                      label: report.timestamp != null
-                          ? 'Reported at ${formatDate(report.timestamp)}'
-                          : 'No timestamp',
-                      child: Text(
-                        report.timestamp != null
-                            ? formatDate(report.timestamp)
-                            : '',
-                      ),
+                      label: 'Reported at ${formatDate(report.timestamp)}',
+                      child: Text(formatDate(report.timestamp)),
                     ),
                   ],
                 ),
