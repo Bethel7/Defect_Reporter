@@ -12,8 +12,10 @@ class NotificationDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Mark as read when opened
-    ref.read(notificationListProvider.notifier).markAsRead(notification.id);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(notificationListProvider.notifier).markAsRead(notification.id);
+    });
 
     return Scaffold(
       backgroundColor: AppColors.background,

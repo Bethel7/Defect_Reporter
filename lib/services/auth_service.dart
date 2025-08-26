@@ -2,11 +2,11 @@ import 'package:dio/dio.dart';
 import '../features/auth/data/user_model.dart';
 
 class AuthService {
-  static const String defaultBaseUrl = 'http://172.20.100.64:8212';
+  static const String defaultBaseUrl = 'http://svdcbas02:8212/';
   final Dio _dio;
 
   AuthService({String? baseUrl})
-      : _dio = Dio(BaseOptions(baseUrl: baseUrl ?? defaultBaseUrl));
+    : _dio = Dio(BaseOptions(baseUrl: baseUrl ?? defaultBaseUrl));
 
   Future<UserModel> login(String employeeId, String password) async {
     try {
@@ -14,10 +14,16 @@ class AuthService {
         '/api/auth/login',
         data: {'employeeId': employeeId, 'password': password},
       );
-      return UserModel.fromJson(response.data);
+      print('API login response: \\${response.data}');
+      final data = response.data;
+      final user = UserModel.fromJson(data);
+      print('Parsed user fullName: \\${user.fullName}');
+      return user;
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception('Login failed: ${e.response?.statusCode} - ${e.response?.data}');
+        throw Exception(
+          'Login failed: ${e.response?.statusCode} - ${e.response?.data}',
+        );
       } else {
         throw Exception('Login failed: ${e.message}');
       }
@@ -30,13 +36,12 @@ class AuthService {
 
   Future<void> forgotPassword(String email) async {
     try {
-      await _dio.post(
-        '/api/auth/forgot-password',
-        data: {'email': email},
-      );
+      await _dio.post('/api/auth/forgot-password', data: {'email': email});
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception('Forgot password failed: ${e.response?.statusCode} - ${e.response?.data}');
+        throw Exception(
+          'Forgot password failed: ${e.response?.statusCode} - ${e.response?.data}',
+        );
       } else {
         throw Exception('Forgot password failed: ${e.message}');
       }
@@ -51,7 +56,9 @@ class AuthService {
       );
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception('Reset password failed: ${e.response?.statusCode} - ${e.response?.data}');
+        throw Exception(
+          'Reset password failed: ${e.response?.statusCode} - ${e.response?.data}',
+        );
       } else {
         throw Exception('Reset password failed: ${e.message}');
       }
@@ -69,7 +76,9 @@ class AuthService {
       );
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception('Change password failed: ${e.response?.statusCode} - ${e.response?.data}');
+        throw Exception(
+          'Change password failed: ${e.response?.statusCode} - ${e.response?.data}',
+        );
       } else {
         throw Exception('Change password failed: ${e.message}');
       }

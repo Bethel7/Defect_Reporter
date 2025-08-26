@@ -56,7 +56,10 @@ class HomePage extends ConsumerWidget {
     final reports = reportsState.reports;
 
     final user = ref.watch(currentUserProvider);
-    final String userName = user?.fullName ?? "User";
+    String userName = user?.fullName ?? "User";
+    if (userName.contains(' ')) {
+      userName = userName.split(' ').first;
+    }
 
     // Calculate counts from the actual reports list
     final totalReports = reports.length;

@@ -123,7 +123,7 @@ class NotificationPage extends ConsumerWidget {
                                   notif.title,
                                   style: const TextStyle(
                                     fontSize: 16,
-                                    color: AppColors.primaryDark,
+                                    color: AppColors.text,
                                     fontWeight: FontWeight.w500,
                                   ),
                                   overflow: TextOverflow.ellipsis,
@@ -131,7 +131,7 @@ class NotificationPage extends ConsumerWidget {
                               ),
                               const Icon(
                                 Icons.chevron_right,
-                                color: AppColors.primary,
+                                color: AppColors.text,
                               ),
                             ],
                           ),

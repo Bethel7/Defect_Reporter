@@ -1,14 +1,41 @@
 import 'package:defect_reporter/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dart:async';
 
 class OfflineSnackbar {
   static final _key = GlobalKey<ScaffoldMessengerState>();
-
   static GlobalKey<ScaffoldMessengerState> get key => _key;
 
-  /// Show the offline (red) snackbar
-  static void show() {
+  static Timer? _offlineTimer;
+  static Timer? _onlineTimer;
+  static bool _isOfflineSnackbarVisible = false;
+  static bool _isOnlineSnackbarVisible = false;
+
+  /// Call this when connection is lost
+  static void showWithDebounce() {
+    _onlineTimer?.cancel();
+    if (_isOfflineSnackbarVisible) return;
+    _offlineTimer?.cancel();
+    _offlineTimer = Timer(const Duration(seconds: 2), () {
+      _showOffline();
+    });
+  }
+
+  /// Call this when connection is restored
+  static void showBackOnlineWithDebounce() {
+    _offlineTimer?.cancel();
+    if (_isOnlineSnackbarVisible) return;
+    if (_isOfflineSnackbarVisible) {
+      _onlineTimer?.cancel();
+      _onlineTimer = Timer(const Duration(seconds: 1), () {
+        _showBackOnline();
+      });
+    }
+  }
+
+  static void _showOffline() {
+    _isOfflineSnackbarVisible = true;
     _key.currentState?.clearSnackBars();
     _key.currentState?.showSnackBar(
       SnackBar(
@@ -36,16 +63,20 @@ class OfflineSnackbar {
         ),
       ),
     );
+    // Hide after duration
+    Future.delayed(const Duration(seconds: 5), () {
+      _isOfflineSnackbarVisible = false;
+    });
   }
 
-  /// Show the back online (green) snackbar
-  static void showBackOnline() {
+  static void _showBackOnline() {
+    _isOnlineSnackbarVisible = true;
     _key.currentState?.clearSnackBars();
     _key.currentState?.showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
-        backgroundColor: const Color(0xFF388E3C),
+        backgroundColor: Colors.black45,
         duration: const Duration(seconds: 3),
         content: Row(
           children: const [
@@ -67,9 +98,13 @@ class OfflineSnackbar {
         ),
       ),
     );
+    // Hide after duration
+    Future.delayed(const Duration(seconds: 3), () {
+      _isOnlineSnackbarVisible = false;
+    });
   }
 
-  /// Show a custom error (red) snackbar
+  /// Show a custom error (red) snackbar (no debounce)
   static void showError(String message) {
     _key.currentState?.clearSnackBars();
     _key.currentState?.showSnackBar(
@@ -105,6 +140,10 @@ class OfflineSnackbar {
   }
 
   static void hide() {
+    _offlineTimer?.cancel();
+    _onlineTimer?.cancel();
+    _isOfflineSnackbarVisible = false;
+    _isOnlineSnackbarVisible = false;
     _key.currentState?.clearSnackBars();
   }
 }

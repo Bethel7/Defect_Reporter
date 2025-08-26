@@ -27,7 +27,7 @@ class OfflineSyncManager {
   void start() {
     NetworkChecker().onInternetStatusChange.listen((isOnline) async {
       if (isOnline && !_wasOnline) {
-        OfflineSnackbar.showBackOnline();
+        OfflineSnackbar.showBackOnlineWithDebounce();
         try {
           final int syncedCount = await Helpers.retryWithBackoff(
             () => syncOfflineReports.call(),
@@ -47,7 +47,7 @@ class OfflineSyncManager {
           OfflineSnackbar.showError('Failed to sync offline reports: $e');
         }
       } else if (!isOnline) {
-        OfflineSnackbar.show();
+        OfflineSnackbar.showWithDebounce();
       }
       _wasOnline = isOnline;
     });

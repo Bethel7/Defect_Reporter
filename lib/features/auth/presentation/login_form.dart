@@ -16,6 +16,11 @@ class LoginForm extends ConsumerStatefulWidget {
 }
 
 class _LoginFormState extends ConsumerState<LoginForm> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   final _formKey = GlobalKey<FormState>();
   final _employeeIdController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -57,6 +62,15 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           _employeeIdController.text = savedEmployeeId;
           _passwordController.text = savedPassword;
         });
+      }
+    });
+
+    // Listen for login errors and show SnackBar automatically
+    ref.listen(loginProvider, (previous, next) {
+      if (next.error != null && mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.error!)));
       }
     });
 
@@ -150,7 +164,6 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                           _submitted = true;
                         });
                         if (_formKey.currentState!.validate()) {
-                          
                           loginNotifier.setEmployeeId(
                             _employeeIdController.text,
                           );
@@ -163,23 +176,14 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                             key: 'password',
                             value: _passwordController.text,
                           );
-                          await loginNotifier.login(context, ref);
-                          
-                          if (mounted) {
+                          final success = await loginNotifier.login(ref);
+                          if (success && mounted) {
                             Navigator.pushReplacementNamed(context, '/home');
                           }
                         }
                       },
               ),
             ),
-            if (loginState.error != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 12.0),
-                child: Text(
-                  loginState.error!,
-                  style: const TextStyle(color: Colors.red),
-                ),
-              ),
           ],
         ),
       ),
