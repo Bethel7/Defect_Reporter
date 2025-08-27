@@ -76,7 +76,7 @@ class CachedReportConfirmationPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => ReportDetailPage(report: report),
+                            builder: (_) => ReportDetailPage(reportId: report.id),
                           ),
                         );
                       },

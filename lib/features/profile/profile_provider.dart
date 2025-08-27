@@ -3,7 +3,7 @@ import 'profile_model.dart';
 import '../../services/profile_service.dart';
 
 final profileServiceProvider = Provider<ProfileService>((ref) {
-  return ProfileService(baseUrl: 'http://svdcbas02:8212');
+  return ProfileService();
 });
 
 final profileProvider = FutureProvider<ProfileModel>((ref) async {

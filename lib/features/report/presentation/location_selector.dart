@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../../services/location_api_service.dart';
+import '../data/location_model.dart';
 
 class LocationSelector extends StatefulWidget {
-  final String? selectedLocation;
-  final ValueChanged<String> onLocationSelected;
+  final int? selectedLocationId;
+  final String? selectedLocationName;
+  final void Function(int locationId, String locationName) onLocationSelected;
   final String? errorText;
   final TextStyle? textStyle;
 
   const LocationSelector({
-    super.key,
-    required this.selectedLocation,
+    Key? key,
+    required this.selectedLocationId,
+    required this.selectedLocationName,
     required this.onLocationSelected,
     this.errorText,
     this.textStyle,
-  });
+  }) : super(key: key);
 
   @override
   State<LocationSelector> createState() => _LocationSelectorState();
@@ -21,43 +24,34 @@ class LocationSelector extends StatefulWidget {
 
 class _LocationSelectorState extends State<LocationSelector> {
   final TextEditingController _controller = TextEditingController();
-  List<String> _locations = [];
-  List<String> _filteredLocations = [];
-
+  List<LocationModel> _locations = [];
+  List<LocationModel> _filteredLocations = [];
   bool _showDropdown = false;
+  bool _loading = false;
+  final LocationApiService _apiService = LocationApiService();
 
   @override
   void initState() {
     super.initState();
-    _loadLocations();
-    _controller.text = widget.selectedLocation ?? '';
+    _fetchLocations();
+    _controller.text = widget.selectedLocationName ?? '';
     _controller.addListener(_filterLocations);
   }
 
-  Future<void> _loadLocations() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _locations =
-          prefs.getStringList('locations') ??
-          [
-            'Main Hub',
-            'Headquarters',
-            'Aviation Academy',
-            'Cargo & Logistics Center',
-            'MRO Facility',
-          ];
-      _filteredLocations = _locations;
-    });
-  }
-
-  Future<void> _saveLocation(String location) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (!_locations.contains(location)) {
+  Future<void> _fetchLocations() async {
+    setState(() => _loading = true);
+    try {
+      final locationsJson = await _apiService.getActiveLocations();
+      final locations = locationsJson
+          .map<LocationModel>((json) => LocationModel.fromJson(json))
+          .toList();
       setState(() {
-        _locations.add(location);
-        _filteredLocations = _locations;
+        _locations = locations;
+        _filteredLocations = locations;
+        _loading = false;
       });
-      await prefs.setStringList('locations', _locations);
+    } catch (e) {
+      setState(() => _loading = false);
     }
   }
 
@@ -65,18 +59,14 @@ class _LocationSelectorState extends State<LocationSelector> {
     setState(() {
       _filteredLocations = _locations
           .where(
-            (loc) => loc.toLowerCase().contains(_controller.text.toLowerCase()),
+            (loc) => loc.locationName.toLowerCase().contains(
+              _controller.text.toLowerCase(),
+            ),
           )
           .toList();
       _showDropdown =
           _controller.text.isNotEmpty && _filteredLocations.isNotEmpty;
     });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   @override
@@ -105,17 +95,44 @@ class _LocationSelectorState extends State<LocationSelector> {
             errorText: widget.errorText,
             fillColor: Colors.white,
             filled: true,
+            suffixIcon: _loading
+                ? const Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  )
+                : null,
           ),
           onChanged: (val) {
-            widget.onLocationSelected(val);
             _filterLocations();
             setState(() {
               _showDropdown = val.isNotEmpty && _filteredLocations.isNotEmpty;
             });
           },
           onFieldSubmitted: (val) async {
-            await _saveLocation(val);
-            widget.onLocationSelected(val);
+            // Check if the entered location exists
+            final match = _locations.firstWhere(
+              (loc) => loc.locationName.toLowerCase() == val.toLowerCase(),
+              orElse: () => LocationModel(locationId: -1, locationName: ''),
+            );
+            if (match.locationId != -1) {
+              widget.onLocationSelected(match.locationId, match.locationName);
+            } else if (val.trim().isNotEmpty) {
+              // Create new location
+              setState(() => _loading = true);
+              try {
+                final newId = await _apiService.createLocation(val.trim());
+                widget.onLocationSelected(newId, val.trim());
+                await _fetchLocations();
+                _controller.text = val.trim();
+              } catch (e) {
+                // Optionally show error
+              }
+              setState(() => _loading = false);
+            }
             setState(() {
               _showDropdown = false;
             });
@@ -134,11 +151,10 @@ class _LocationSelectorState extends State<LocationSelector> {
               shrinkWrap: true,
               children: _filteredLocations.map((loc) {
                 return ListTile(
-                  title: Text(loc, style: widget.textStyle),
-                  onTap: () async {
-                    _controller.text = loc;
-                    widget.onLocationSelected(loc);
-                    await _saveLocation(loc);
+                  title: Text(loc.locationName, style: widget.textStyle),
+                  onTap: () {
+                    _controller.text = loc.locationName;
+                    widget.onLocationSelected(loc.locationId, loc.locationName);
                     setState(() {
                       _showDropdown = false;
                     });

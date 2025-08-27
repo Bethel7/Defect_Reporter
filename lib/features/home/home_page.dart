@@ -1,3 +1,4 @@
+import 'package:defect_reporter/features/profile/profile_provider.dart';
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/common/bottom_app_bar.dart';
@@ -7,7 +8,6 @@ import '../../core/common/profile_popup_menu.dart';
 import '../../core/theme/text_styles.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/common/notification_bell.dart';
-import '../../features/auth/presentation/login_provider.dart';
 
 Color statusColor(String status) {
   switch (status.toLowerCase()) {
@@ -55,11 +55,7 @@ class HomePage extends ConsumerWidget {
     final reportsState = ref.watch(myReportsProvider);
     final reports = reportsState.reports;
 
-    final user = ref.watch(currentUserProvider);
-    String userName = user?.fullName ?? "User";
-    if (userName.contains(' ')) {
-      userName = userName.split(' ').first;
-    }
+    final profileAsync = ref.watch(profileProvider);
 
     // Calculate counts from the actual reports list
     final totalReports = reports.length;
@@ -110,13 +106,37 @@ class HomePage extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           children: [
             const SizedBox(height: 16),
-            Text(
-              "Hello, $userName",
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: AppColors.text,
+            profileAsync.when(
+              loading: () => const Text(
+                "Hello, ...",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
               ),
+              error: (e, _) => const Text(
+                "Hello, User",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
+              ),
+              data: (profile) {
+                String userName = profile.fullName;
+                if (userName.contains(' ')) {
+                  userName = userName.split(' ').first;
+                }
+                return Text(
+                  "Hello, $userName",
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.text,
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 4),
             const Text(

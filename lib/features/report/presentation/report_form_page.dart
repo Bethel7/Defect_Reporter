@@ -53,8 +53,6 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
         backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.white,
-          elevation: 0,
-          shadowColor: Colors.transparent,
           titleSpacing: 0,
           title: Padding(
             padding: const EdgeInsets.only(left: 8.0),
@@ -174,9 +172,10 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                           child: Semantics(
                             label: 'Location Selector',
                             child: LocationSelector(
-                              selectedLocation: formState.location,
-                              onLocationSelected: (loc) {
-                                formProvider.setLocation(loc);
+                              selectedLocationId: formState.locationId,
+                              selectedLocationName: formState.locationName,
+                              onLocationSelected: (id, name) {
+                                formProvider.setLocation(id, name);
                                 setState(() => _locationError = null);
                               },
                               errorText: _locationError,
@@ -262,9 +261,9 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                       bool valid = _formKey.currentState!
                                           .validate();
                                       String? locationError =
-                                          Validators.validateLocation(
-                                            formState.location,
-                                          );
+                                          formState.locationId == null
+                                          ? 'Please select a location.'
+                                          : null;
                                       String? imageError =
                                           Validators.validateImagePath(
                                             formState.imagePath,
@@ -276,10 +275,11 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                       if (valid &&
                                           locationError == null &&
                                           imageError == null) {
-                                        final isOnline = await NetworkChecker().isConnected;
+                                        final isOnline =
+                                            await NetworkChecker().isConnected;
                                         if (isOnline) {
                                           final result = await formProvider
-                                              .submit();
+                                              .submit(context);
                                           if (result != null &&
                                               context.mounted) {
                                             ref
@@ -295,7 +295,9 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                     description:
                                                         formState.description,
                                                     location:
-                                                        formState.location,
+                                                        formState
+                                                            .locationName ??
+                                                        '',
                                                     status: ReportModel
                                                         .statusSubmitted,
                                                     imageUrl:
@@ -328,7 +330,9 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                       submittedDescription:
                                                           formState.description,
                                                       submittedLocation:
-                                                          formState.location,
+                                                          formState
+                                                              .locationName ??
+                                                          '',
                                                       submittedImageUrl:
                                                           formState.imagePath,
                                                     ),
@@ -342,7 +346,8 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                 .toString(),
                                             title: formState.title,
                                             description: formState.description,
-                                            location: formState.location,
+                                            location:
+                                                formState.locationName ?? '',
                                             status: ReportModel.statusSubmitted,
                                             imageUrl: formState.imagePath,
                                             timestamp: DateTime.now(),
@@ -357,7 +362,9 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (_) =>
-                                                    CachedReportConfirmationPage(report: report),
+                                                    CachedReportConfirmationPage(
+                                                      report: report,
+                                                    ),
                                               ),
                                             );
                                           }
@@ -373,7 +380,7 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                               padding: const EdgeInsets.only(top: 12.0),
                               child: Text(
                                 formState.error!,
-                                style: const TextStyle(color: Colors.red),
+                                style: const TextStyle(color: AppColors.error),
                               ),
                             )
                           : const SizedBox.shrink(),

@@ -127,7 +127,7 @@ class _ImageInputState extends State<ImageInput> {
           child: Wrap(
             children: [
               ListTile(
-                leading: Icon(FontAwesomeIcons.camera, color: AppColors.accent),
+                leading: Icon(FontAwesomeIcons.camera, color: AppColors.primary),
                 title: const Text('Take a photo'),
                 onTap: () {
                   Navigator.of(context).pop();
@@ -135,7 +135,7 @@ class _ImageInputState extends State<ImageInput> {
                 },
               ),
               ListTile(
-                leading: Icon(FontAwesomeIcons.images, color: AppColors.accent),
+                leading: Icon(FontAwesomeIcons.images, color: AppColors.primary),
                 title: const Text('Choose from gallery'),
                 onTap: () {
                   Navigator.of(context).pop();

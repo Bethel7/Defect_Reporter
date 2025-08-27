@@ -1,12 +1,11 @@
 import 'package:dio/dio.dart';
 import '../features/auth/data/user_model.dart';
+import '../api_client.dart';
 
 class AuthService {
-  static const String defaultBaseUrl = 'http://svdcbas02:8212/';
   final Dio _dio;
 
-  AuthService({String? baseUrl})
-    : _dio = Dio(BaseOptions(baseUrl: baseUrl ?? defaultBaseUrl));
+  AuthService() : _dio = ApiClient().dio;
 
   Future<UserModel> login(String employeeId, String password) async {
     try {
@@ -18,6 +17,17 @@ class AuthService {
       final data = response.data;
       final user = UserModel.fromJson(data);
       print('Parsed user fullName: \\${user.fullName}');
+
+      // Print cookies after login
+      final apiClient = ApiClient();
+      final cookies = await apiClient.cookieJar.loadForRequest(
+        Uri.parse(apiClient.dio.options.baseUrl),
+      );
+      print('Cookies after login:');
+      for (var cookie in cookies) {
+        print('  \\${cookie.name} = \\${cookie.value}');
+      }
+
       return user;
     } on DioException catch (e) {
       if (e.response != null) {
@@ -71,7 +81,7 @@ class AuthService {
   ) async {
     try {
       await _dio.post(
-        '/api/auth/change-password',
+        '/api/auth/update-password',
         data: {'currentPassword': currentPassword, 'newPassword': newPassword},
       );
     } on DioException catch (e) {

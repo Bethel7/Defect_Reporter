@@ -8,6 +8,7 @@ class ReportModel {
   final DateTime timestamp;
   final double? latitude;
   final double? longitude;
+  final String? locationName;
 
   static const String statusSubmitted = 'Submitted';
   static const String statusInProgress = 'In Progress';
@@ -23,18 +24,20 @@ class ReportModel {
     required this.timestamp,
     this.latitude,
     this.longitude,
+    this.locationName,
   });
 
   factory ReportModel.fromJson(Map<String, dynamic> json) => ReportModel(
-    id: json['id'] as String,
-    title: json['title'] as String,
-    description: json['description'] as String,
-    location: json['location'] as String,
-    status: json['status'] as String,
-    imageUrl: json['imageUrl'] as String,
-    timestamp: DateTime.tryParse(json['timestamp']) ?? DateTime.now(),
+    id: json['id'] as String? ?? json['reportID']?.toString() ?? '',
+    title: json['title'] as String? ?? json['title'] ?? '',
+    description: json['description'] as String? ?? json['description'] ?? '',
+    location: json['location'] as String? ?? json['location'] ?? '',
+    status: json['status'] as String? ?? json['status'] ?? '',
+    imageUrl: json['imageUrl'] as String? ?? json['imagePath'] ?? '',
+    timestamp: DateTime.tryParse(json['timestamp'] ?? '') ?? DateTime.now(),
     latitude: (json['latitude'] as num?)?.toDouble(),
     longitude: (json['longitude'] as num?)?.toDouble(),
+    locationName: json['locationName'] as String?,
   );
 
   Map<String, dynamic> toJson() => {
@@ -47,6 +50,7 @@ class ReportModel {
     'timestamp': timestamp.toIso8601String(),
     'latitude': latitude,
     'longitude': longitude,
+    'locationName': locationName,
   };
 
   ReportModel copyWith({
@@ -59,6 +63,7 @@ class ReportModel {
     DateTime? timestamp,
     double? latitude,
     double? longitude,
+    String? locationName,
   }) {
     return ReportModel(
       id: id ?? this.id,
@@ -70,6 +75,7 @@ class ReportModel {
       timestamp: timestamp ?? this.timestamp,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
+      locationName: locationName ?? this.locationName,
     );
   }
 }

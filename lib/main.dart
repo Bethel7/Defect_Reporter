@@ -18,7 +18,7 @@ import 'features/report/presentation/cached_reports_page.dart';
 import 'features/settings/presentation/settings_page.dart';
 import 'features/my_reports/domain/notification_page.dart';
 import 'features/profile/profile_page.dart';
-import 'features/auth/presentation/forget_password.dart';
+import 'features/auth/presentation/forgot_password.dart';
 import 'features/my_reports/presentation/report_detail_page.dart';
 import 'features/report/data/report_model.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -117,7 +117,7 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
           case '/report-detail':
             final report = settings.arguments as ReportModel;
             return MaterialPageRoute(
-              builder: (_) => ReportDetailPage(report: report),
+              builder: (_) => ReportDetailPage(reportId: report.id),
             );
           case '/reset-password':
             return MaterialPageRoute(builder: (_) => const ResetPasswordPage());

@@ -1,7 +1,8 @@
 class ReportFormState {
   final String title;
   final String description;
-  final String location;
+  final int? locationId;
+  final String? locationName;
   final String imagePath;
   final bool isSubmitting;
   final String? error;
@@ -9,25 +10,28 @@ class ReportFormState {
   ReportFormState({
     required this.title,
     required this.description,
-    required this.location,
+    required this.locationId,
+    required this.locationName,
     required this.imagePath,
     this.isSubmitting = false,
     this.error,
   });
 
   factory ReportFormState.initial() => ReportFormState(
-        title: '',
-        description: '',
-        location: '',
-        imagePath: '',
-        isSubmitting: false,
-        error: null,
-      );
+    title: '',
+    description: '',
+    locationId: null,
+    locationName: null,
+    imagePath: '',
+    isSubmitting: false,
+    error: null,
+  );
 
   ReportFormState copyWith({
     String? title,
     String? description,
-    String? location,
+    int? locationId,
+    String? locationName,
     String? imagePath,
     bool? isSubmitting,
     String? error,
@@ -35,7 +39,8 @@ class ReportFormState {
     return ReportFormState(
       title: title ?? this.title,
       description: description ?? this.description,
-      location: location ?? this.location,
+      locationId: locationId ?? this.locationId,
+      locationName: locationName ?? this.locationName,
       imagePath: imagePath ?? this.imagePath,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       error: error,

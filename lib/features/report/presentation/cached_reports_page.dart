@@ -76,7 +76,7 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ReportDetailPage(report: report),
+                          builder: (_) => ReportDetailPage(reportId: report.id),
                         ),
                       );
                     },

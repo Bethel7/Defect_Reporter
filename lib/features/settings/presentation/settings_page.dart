@@ -1,3 +1,5 @@
+import '../../../services/auth_service.dart';
+import '../../profile/profile_provider.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/theme/text_styles.dart';
@@ -6,15 +8,16 @@ import '../widgets/settings_tile.dart';
 import '../../profile/change_password.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/notification_toggle_tile.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _pushNotificationsEnabled = true;
   bool _localNotificationsEnabled = true;
   bool _loadingPrefs = true;
@@ -52,9 +55,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final String userName = "Mr. Berhanu";
-    final String userEmail = "Berhanu@ethiopianairlines.com";
-
+    final profileAsync = ref.watch(profileProvider);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -119,18 +120,38 @@ class _SettingsPageState extends State<SettingsPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    userName,
-                                    style: TextStyles.bodyLarge.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                                  profileAsync.when(
+                                    loading: () => Container(
+                                      height: 18,
+                                      width: 80,
+                                      color: Colors.grey[200],
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    userEmail,
-                                    style: TextStyles.bodyMedium.copyWith(
-                                      color: Colors.black54,
+                                    error: (e, _) => Text(
+                                      'User',
+                                      style: TextStyles.bodyLarge.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    data: (profile) => Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          profile.fullName,
+                                          style: TextStyles.bodyLarge.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          profile.email,
+                                          style: TextStyles.bodyMedium.copyWith(
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -162,8 +183,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     label: 'Local Notifications',
                     value: _localNotificationsEnabled,
                     onChanged: _setLocalNotificationsEnabled,
-                    description:
-                        'Get reminders and offline alerts on your device.',
+                    description: 'Get offline alerts on your device.',
                   ),
                   const SizedBox(height: 28),
                   // Settings Tiles
@@ -178,7 +198,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   const SizedBox(height: 12),
                   Semantics(
-                    label: 'Support and Frequently Asked Questions',
+                    label: 'Support and Contact',
                     button: true,
                     child: SettingsTile(
                       icon: FontAwesomeIcons.circleQuestion,
@@ -194,7 +214,18 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: SettingsTile(
                       icon: FontAwesomeIcons.arrowRightFromBracket,
                       label: 'Logout',
-                      onTap: () {
+                      onTap: () async {
+                        try {
+                          final authService = AuthService();
+                          await authService.logout();
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Logout failed: ${e.toString()}'),
+                            ),
+                          );
+                          return;
+                        }
                         Navigator.pushNamedAndRemoveUntil(
                           context,
                           '/',
