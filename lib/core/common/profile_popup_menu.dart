@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../features/auth/presentation/login_provider.dart';
@@ -13,10 +12,13 @@ class ProfilePopupMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return PopupMenuButton<int>(
       tooltip: 'Profile menu',
       offset: const Offset(0, 40),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: theme.cardColor,
       onSelected:
           onSelected ??
           (value) async {
@@ -30,7 +32,10 @@ class ProfilePopupMenu extends ConsumerWidget {
                 await authService.logout();
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Logout failed: ${e.toString()}')),
+                  SnackBar(
+                    content: Text('Logout failed: \\${e.toString()}'),
+                    backgroundColor: colorScheme.primary,
+                  ),
                 );
                 return;
               }
@@ -41,34 +46,49 @@ class ProfilePopupMenu extends ConsumerWidget {
         PopupMenuItem(
           value: 0,
           child: Row(
-            children: const [
-              Icon(FontAwesomeIcons.user, color: AppColors.primary, size: 20),
-              SizedBox(width: 8),
-              Text('Profile'),
+            children: [
+              Icon(FontAwesomeIcons.user, color: colorScheme.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Profile',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
             ],
           ),
         ),
         PopupMenuItem(
           value: 1,
           child: Row(
-            children: const [
-              Icon(FontAwesomeIcons.gear, color: AppColors.primary, size: 20),
-              SizedBox(width: 8),
-              Text('Settings'),
+            children: [
+              Icon(FontAwesomeIcons.gear, color: colorScheme.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Settings',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
             ],
           ),
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 2,
           child: Row(
             children: [
               Icon(
                 FontAwesomeIcons.arrowRightFromBracket,
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 size: 20,
               ),
-              SizedBox(width: 8),
-              Text('Logout'),
+              const SizedBox(width: 8),
+              Text(
+                'Logout',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
             ],
           ),
         ),
@@ -77,7 +97,7 @@ class ProfilePopupMenu extends ConsumerWidget {
         label: 'Open profile menu',
         button: true,
         child: CircleAvatar(
-          backgroundColor: AppColors.accent,
+          backgroundColor: colorScheme.primary,
           child: Icon(FontAwesomeIcons.user, color: Colors.white, size: 20),
         ),
       ),

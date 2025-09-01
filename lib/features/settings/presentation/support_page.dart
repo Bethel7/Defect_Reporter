@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/theme/text_styles.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SupportPage extends StatelessWidget {
@@ -8,21 +6,36 @@ class SupportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : Colors.black,
+          ),
           onPressed: () => Navigator.pop(context),
           tooltip: 'Back',
         ),
         title: Text(
           'Support',
-          style: TextStyles.headlineMedium.copyWith(
-            color: Colors.black,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: isDark ? Colors.white : Colors.black,
             fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            color: (isDark ? Colors.white : Colors.black).withOpacity(0.07),
+            height: 1,
           ),
         ),
       ),
@@ -33,17 +46,17 @@ class SupportPage extends StatelessWidget {
           children: [
             Row(
               children: [
-                const FaIcon(
+                FaIcon(
                   FontAwesomeIcons.circleQuestion,
-                  color: AppColors.primary,
+                  color: colorScheme.primary,
                   size: 28,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   'Need Help?',
-                  style: TextStyles.headlineMedium.copyWith(
+                  style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: colorScheme.onSurface.withOpacity(0.85),
                   ),
                 ),
               ],
@@ -52,14 +65,15 @@ class SupportPage extends StatelessWidget {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
+                  if (colorScheme.brightness != Brightness.dark)
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
                 ],
               ),
               padding: const EdgeInsets.all(20),
@@ -68,54 +82,63 @@ class SupportPage extends StatelessWidget {
                 children: [
                   Text(
                     'For support, please contact the IT helpdesk at:',
-                    style: TextStyles.bodyLarge.copyWith(
+                    style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w500,
-                      color: Colors.black87,
+                      color: colorScheme.onSurface.withOpacity(0.85),
                     ),
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      const FaIcon(
+                      FaIcon(
                         FontAwesomeIcons.envelope,
-                        color: AppColors.primary,
+                        color: colorScheme.primary,
                         size: 18,
                       ),
                       const SizedBox(width: 8),
                       SelectableText(
                         'support@ethiopianairlines.com',
-                        style: TextStyle(fontSize: 15, color: Colors.black87),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 15,
+                          color: colorScheme.onSurface.withOpacity(0.85),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const FaIcon(
+                      FaIcon(
                         FontAwesomeIcons.phone,
-                        color: AppColors.primary,
+                        color: colorScheme.primary,
                         size: 18,
                       ),
                       const SizedBox(width: 8),
                       SelectableText(
                         '+251 11 665 6666',
-                        style: TextStyle(fontSize: 15, color: Colors.black87),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 15,
+                          color: colorScheme.onSurface.withOpacity(0.85),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      const FaIcon(
+                      FaIcon(
                         FontAwesomeIcons.person,
-                        color: AppColors.primary,
+                        color: colorScheme.primary,
                         size: 18,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Or visit the HR office for in-person assistance.',
-                          style: TextStyle(fontSize: 15, color: Colors.black87),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontSize: 15,
+                            color: colorScheme.onSurface.withOpacity(0.85),
+                          ),
                         ),
                       ),
                     ],

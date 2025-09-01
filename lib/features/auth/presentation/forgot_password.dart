@@ -4,28 +4,46 @@ import '../../../core/utils/validators.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/constants/app_colors.dart';
+// import '../../../core/constants/app_routes.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../services/auth_service.dart';
 
 final forgotPasswordProvider =
-    StateNotifierProvider<ForgotPasswordNotifier, AsyncValue<String?>>((ref) {
-      final authService = AuthService();
-      return ForgotPasswordNotifier(authService);
-    });
+    StateNotifierProvider<ForgotPasswordNotifier, AsyncValue<String?>>(
+      (ref) => ForgotPasswordNotifier(AuthService()),
+    );
 
 class ForgotPasswordNotifier extends StateNotifier<AsyncValue<String?>> {
   final AuthService _authService;
   ForgotPasswordNotifier(this._authService)
     : super(const AsyncValue.data(null));
 
+  String? validateEmail(String? value) {
+    return Validators.validateEmail(value);
+  }
+
   Future<void> sendResetLink(String email) async {
     state = const AsyncValue.loading();
     try {
-      await _authService.forgotPassword(email);
-      state = const AsyncValue.data('Password reset link sent!');
+      final resultMsg = await _authService.forgotPassword(email);
+      // If backend returns a message indicating failure, treat as error
+      if (resultMsg.toLowerCase().contains('not found') ||
+          resultMsg.toLowerCase().contains('error')) {
+        state = AsyncValue.error(resultMsg, StackTrace.current);
+      } else {
+        state = AsyncValue.data(resultMsg);
+      }
     } catch (e) {
-      state = AsyncValue.error(e.toString(), StackTrace.current);
+      String message = 'An error occurred. Please try again.';
+      if (e is Exception) {
+        final msg = e.toString().toLowerCase();
+        if (msg.contains('not found')) {
+          message = 'No account found for this email.';
+        } else if (msg.contains('network')) {
+          message = 'Network error. Please check your connection.';
+        }
+      }
+      state = AsyncValue.error(message, StackTrace.current);
     }
   }
 }
@@ -52,6 +70,22 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
     setState(() {
       _submitted = true;
     });
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    // Use notifier's validation
+    final emailError = ref
+        .read(forgotPasswordProvider.notifier)
+        .validateEmail(_emailController.text);
+    if (emailError != null) {
+      // Show error immediately
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(emailError),
+          backgroundColor: colorScheme.primary,
+        ),
+      );
+      return;
+    }
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -61,9 +95,12 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
     final state = ref.read(forgotPasswordProvider);
     if (state is AsyncData && state.value != null) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(state.value!)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(state.value!),
+            backgroundColor: colorScheme.primary,
+          ),
+        );
         Navigator.pushReplacementNamed(context, '/reset-password');
       }
     }
@@ -76,23 +113,42 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
     final error = forgotState is AsyncError
         ? forgotState.error.toString()
         : null;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : Colors.black,
+          ),
+          onPressed: () => Navigator.pop(context),
+          tooltip: 'Back',
+        ),
         title: Semantics(
           header: true,
-          child: const Text(
+          child: Text(
             'Forgot Password',
-            style: TextStyle(
-              color: AppColors.text,
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: isDark ? Colors.white : Colors.black,
               fontWeight: FontWeight.bold,
               fontSize: 22,
             ),
           ),
         ),
-        iconTheme: const IconThemeData(color: AppColors.text),
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            color: (isDark ? Colors.white : Colors.black).withOpacity(0.07),
+            height: 1,
+          ),
+        ),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -122,24 +178,36 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                     child: CustomTextField(
                       label: 'Email',
                       controller: _emailController,
-                      border: InputBorders.gray,
-                      enabledBorder: InputBorders.gray,
-                      focusedBorder: InputBorders.gray,
-                      errorBorder: InputBorders.red,
-                      focusedErrorBorder: InputBorders.red,
-                      prefixIcon: const Icon(
+                      border: InputBorders.adaptive(color: theme.dividerColor),
+                      enabledBorder: InputBorders.adaptive(
+                        color: theme.dividerColor,
+                      ),
+                      focusedBorder: InputBorders.adaptive(
+                        color: colorScheme.primary,
+                      ),
+                      errorBorder: InputBorders.adaptive(
+                        color: colorScheme.error,
+                        isError: true,
+                      ),
+                      focusedErrorBorder: InputBorders.adaptive(
+                        color: colorScheme.error,
+                        isError: true,
+                      ),
+                      prefixIcon: Icon(
                         FontAwesomeIcons.envelope,
-                        color: Color(0xFF717182),
+                        color: colorScheme.primary,
                         size: 20,
                       ),
-                      style: const TextStyle(
+                      style: theme.textTheme.bodyMedium?.copyWith(
                         fontSize: 15,
-                        color: Color(0xFF252525),
+                        color: colorScheme.onSurface,
                       ),
                       enabled: !isLoading,
                       validator: (value) {
                         if (!_submitted) return null;
-                        return Validators.validateEmail(value);
+                        return ref
+                            .read(forgotPasswordProvider.notifier)
+                            .validateEmail(value);
                       },
                     ),
                   ),

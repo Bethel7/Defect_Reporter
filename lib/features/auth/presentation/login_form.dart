@@ -19,6 +19,15 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   @override
   void initState() {
     super.initState();
+    // Autofill credentials using notifier
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(loginProvider.notifier)
+          .autofillCredentials(
+            employeeIdController: _employeeIdController,
+            passwordController: _passwordController,
+          );
+    });
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -40,6 +49,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           Validators.validatePassword(_passwordController.text) == null;
     });
   }
+  // Note: Storing plain passwords is not recommended for production. Use token-based auth for better security.
 
   @override
   void dispose() {
@@ -50,27 +60,17 @@ class _LoginFormState extends ConsumerState<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    // Autofill: attempt to load saved credentials
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final savedEmployeeId = await _storage.read(key: 'employeeId');
-      final savedPassword = await _storage.read(key: 'password');
-      if (savedEmployeeId != null &&
-          savedPassword != null &&
-          _employeeIdController.text.isEmpty &&
-          _passwordController.text.isEmpty) {
-        setState(() {
-          _employeeIdController.text = savedEmployeeId;
-          _passwordController.text = savedPassword;
-        });
-      }
-    });
+    // (Autofill now handled in initState via notifier)
 
     // Listen for login errors and show SnackBar automatically
     ref.listen(loginProvider, (previous, next) {
       if (next.error != null && mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(next.error!)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: AppColors.neutralDark,
+          ),
+        );
       }
     });
 
@@ -102,13 +102,15 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                   _employeeIdTouched = true;
                 });
               },
-              border: InputBorders.gray,
-              enabledBorder: InputBorders.gray,
-              focusedBorder: _employeeIdValid
-                  ? InputBorders.green
-                  : InputBorders.gray,
-              errorBorder: InputBorders.red,
-              focusedErrorBorder: InputBorders.red,
+              border: InputBorders.adaptive(),
+              enabledBorder: InputBorders.adaptive(),
+              focusedBorder: InputBorders.adaptive(
+                color: _employeeIdValid
+                    ? AppColors.success
+                    : AppColors.borderGray,
+              ),
+              errorBorder: InputBorders.adaptive(isError: true),
+              focusedErrorBorder: InputBorders.adaptive(isError: true),
               errorStyle: const TextStyle(color: AppColors.error),
             ),
             const SizedBox(height: 16),
@@ -130,13 +132,15 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                   _passwordTouched = true;
                 });
               },
-              border: InputBorders.gray,
-              enabledBorder: InputBorders.gray,
-              focusedBorder: _passwordValid
-                  ? InputBorders.green
-                  : InputBorders.gray,
-              errorBorder: InputBorders.red,
-              focusedErrorBorder: InputBorders.red,
+              border: InputBorders.adaptive(),
+              enabledBorder: InputBorders.adaptive(),
+              focusedBorder: InputBorders.adaptive(
+                color: _passwordValid
+                    ? AppColors.success
+                    : AppColors.borderGray,
+              ),
+              errorBorder: InputBorders.adaptive(isError: true),
+              focusedErrorBorder: InputBorders.adaptive(isError: true),
               errorStyle: const TextStyle(color: AppColors.error),
             ),
             Align(

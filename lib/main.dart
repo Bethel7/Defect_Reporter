@@ -10,6 +10,7 @@ import 'package:defect_reporter/features/settings/presentation/support_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_mode_provider.dart';
 import 'features/splash/splash_page.dart';
 import 'features/auth/presentation/login_page.dart';
 import 'features/home/home_page.dart';
@@ -21,10 +22,13 @@ import 'features/profile/profile_page.dart';
 import 'features/auth/presentation/forgot_password.dart';
 import 'features/my_reports/presentation/report_detail_page.dart';
 import 'features/report/data/report_model.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'services/push_notification_service.dart';
 import 'services/local_notification_service.dart';
+import 'features/settings/presentation/notifications_setting_page.dart';
 import 'firebase_options.dart';
 import 'features/auth/presentation/reset_password.dart';
 
@@ -35,6 +39,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize Hive
+  final appDocDir = await getApplicationDocumentsDirectory();
+  await Hive.initFlutter(appDocDir.path);
+  Hive.registerAdapter(ReportModelAdapter());
+
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(const ProviderScope(child: DefectReporterApp()));
 }
@@ -82,10 +92,13 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
     // Initialize push notification service
     PushNotificationService().initialize(ref);
 
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Defect Reporter',
       theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ref.watch(themeModeProvider),
       scaffoldMessengerKey: OfflineSnackbar.key,
       initialRoute: '/',
       onGenerateRoute: (settings) {
@@ -106,6 +119,10 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
             return MaterialPageRoute(builder: (_) => const SettingsPage());
           case '/notifications':
             return MaterialPageRoute(builder: (_) => const NotificationPage());
+          case '/notifications-settings':
+            return MaterialPageRoute(
+              builder: (_) => const NotificationsSettingPage(),
+            );
           case '/forgot-password':
             return MaterialPageRoute(
               builder: (_) => const ForgotPasswordPage(),

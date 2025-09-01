@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'report_form_state.dart';
-import '../../../../services/report_service.dart';
-import 'package:dio/dio.dart';
-import '../../../../services/location_service.dart';
 import 'package:flutter/material.dart';
+import '../../../../services/location_service.dart';
+import 'report_form_state.dart';
+import '../../report/data/report_remote_data_source.dart';
+import '../../report/data/report_model.dart';
 
 final reportFormProvider =
     StateNotifierProvider<ReportFormNotifier, ReportFormState>(
@@ -11,10 +11,10 @@ final reportFormProvider =
     );
 
 class ReportFormNotifier extends StateNotifier<ReportFormState> {
-  final ReportService _reportService;
+  final ReportRemoteDataSource _reportRemoteDataSource;
 
   ReportFormNotifier()
-    : _reportService = ReportService(),
+    : _reportRemoteDataSource = ReportRemoteDataSourceImpl(),
       super(ReportFormState.initial());
 
   void setTitle(String title) => state = state.copyWith(title: title);
@@ -34,19 +34,22 @@ class ReportFormNotifier extends StateNotifier<ReportFormState> {
       final position = await LocationService().getCurrentLocation(context);
       final latitude = position?.latitude;
       final longitude = position?.longitude;
-      // Prepare FormData for image upload and fields
-      final formData = FormData.fromMap({
-        'Title': state.title,
-        'Description': state.description,
-        'LocationID': state.locationId,
-        'Latitude': latitude,
-        'Longitude': longitude,
-        'Image': await MultipartFile.fromFile(
-          state.imagePath,
-          filename: state.imagePath.split('/').last,
-        ),
-      });
-      final reportId = await _reportService.submitReport(formData);
+      // Prepare ReportModel for submission
+      final report = ReportModel(
+        id: '', // ID will be set by backend
+        title: state.title,
+        description: state.description,
+        location: '', // Set if needed
+        status: '', // Set if needed
+        imageUrl: state.imagePath,
+        timestamp: DateTime.now(),
+        latitude: latitude,
+        longitude: longitude,
+        locationName: state.locationName,
+      );
+      // Use the unified endpoint for single report
+      final ids = await _reportRemoteDataSource.submitReports([report]);
+      final reportId = ids.isNotEmpty ? ids.first : '';
       final timestamp = DateTime.now().toIso8601String();
       return {'reportId': reportId, 'timestamp': timestamp};
     } catch (e) {

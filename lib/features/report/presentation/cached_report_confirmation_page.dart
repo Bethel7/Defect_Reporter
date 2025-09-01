@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/theme/text_styles.dart';
 import '../../../widgets/custom_button.dart';
 
 import '../../../features/my_reports/presentation/report_detail_page.dart';
@@ -13,21 +11,24 @@ class CachedReportConfirmationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.colorScheme.background,
       body: Center(
         child: Container(
           margin: const EdgeInsets.all(24),
           padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
+              if (!isDark)
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
             ],
           ),
           child: Column(
@@ -38,13 +39,13 @@ class CachedReportConfirmationPage extends StatelessWidget {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.12),
+                  color: theme.colorScheme.primary.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.cloud_off,
-                    color: AppColors.primary,
+                    color: theme.colorScheme.primary,
                     size: 40,
                   ),
                 ),
@@ -53,16 +54,24 @@ class CachedReportConfirmationPage extends StatelessWidget {
               Text(
                 'Report Saved Offline',
                 textAlign: TextAlign.center,
-                style: TextStyles.headlineMedium.copyWith(
+                style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
+                  color: theme.colorScheme.onSurface,
+                ) ?? TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'You are offline. Your report has been saved locally and will be submitted automatically when you are back online.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 15, color: Colors.black87),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 15,
+                  color: theme.colorScheme.onSurface.withOpacity(0.8),
+                ),
               ),
               const SizedBox(height: 28),
               Row(
@@ -87,8 +96,8 @@ class CachedReportConfirmationPage extends StatelessWidget {
                     width: 120,
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Color(0xFFBDBDBD),
-                        side: const BorderSide(color: Color(0xFFBDBDBD)),
+                        foregroundColor: theme.colorScheme.onSurface.withOpacity(0.7),
+                        side: BorderSide(color: theme.dividerColor),
                         padding: const EdgeInsets.symmetric(
                           vertical: 14,
                           horizontal: 24,
@@ -104,11 +113,11 @@ class CachedReportConfirmationPage extends StatelessWidget {
                           (route) => false,
                         );
                       },
-                      child: const Text(
+                      child: Text(
                         'Cancel',
-                        style: TextStyle(
+                        style: theme.textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF474747),
+                          color: theme.colorScheme.onSurface.withOpacity(0.7),
                         ),
                       ),
                     ),

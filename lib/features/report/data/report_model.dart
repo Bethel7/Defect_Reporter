@@ -1,18 +1,32 @@
-class ReportModel {
-  final String id;
-  final String title;
-  final String description;
-  final String location;
-  final String status;
-  final String imageUrl;
-  final DateTime timestamp;
-  final double? latitude;
-  final double? longitude;
-  final String? locationName;
+import 'package:hive/hive.dart';
+part 'report_model.g.dart';
 
-  static const String statusSubmitted = 'Submitted';
-  static const String statusInProgress = 'In Progress';
-  static const String statusResolved = 'Resolved';
+const String statusSubmitted = 'Submitted';
+const String statusInProgress = 'In Progress';
+const String statusResolved = 'Resolved';
+
+@HiveType(typeId: 0)
+class ReportModel {
+  @HiveField(0)
+  final String id;
+  @HiveField(1)
+  final String title;
+  @HiveField(2)
+  final String description;
+  @HiveField(3)
+  final String location;
+  @HiveField(4)
+  final String status;
+  @HiveField(5)
+  final String imageUrl;
+  @HiveField(6)
+  final DateTime timestamp;
+  @HiveField(7)
+  final double? latitude;
+  @HiveField(8)
+  final double? longitude;
+  @HiveField(9)
+  final String? locationName;
 
   ReportModel({
     required this.id,

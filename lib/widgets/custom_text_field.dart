@@ -46,15 +46,21 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(16);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
-      style: style,
+      style: style ?? TextStyle(color: theme.colorScheme.onSurface),
       enabled: enabled,
       autofillHints: autofillHints,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Color(0xFF717182)),
+        labelStyle: TextStyle(
+          color: isDark
+              ? theme.colorScheme.onSurface.withOpacity(0.7)
+              : const Color(0xFF717182), // subtle gray for light mode
+        ),
         border:
             border ??
             OutlineInputBorder(
@@ -71,7 +77,9 @@ class CustomTextField extends StatelessWidget {
             focusedBorder ??
             OutlineInputBorder(
               borderRadius: borderRadius,
-              borderSide: BorderSide(color: AppColors.primary),
+              borderSide: BorderSide(
+                color: AppColors.borderGray.withOpacity(0.8),
+              ),
             ),
         errorBorder:
             errorBorder ??
@@ -87,7 +95,7 @@ class CustomTextField extends StatelessWidget {
             ),
         errorStyle: errorStyle,
         prefixIcon: prefixIcon,
-        fillColor: Colors.white,
+        fillColor: isDark ? theme.colorScheme.surface : Colors.white,
         filled: true,
       ),
       validator: validator,

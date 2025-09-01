@@ -1,14 +1,16 @@
-class NotificationModel {
+import 'package:equatable/equatable.dart';
+
+class NotificationModel extends Equatable {
   final String id;
   final String title;
   final String message;
   final DateTime timestamp;
   final bool isRead;
-  final String? type;      // status update or general
-  final String? reportId;  
+  final String? type; // status update or general
+  final String? reportId;
   final String? status;
 
-  NotificationModel({
+  const NotificationModel({
     required this.id,
     required this.title,
     required this.message,
@@ -25,6 +27,9 @@ class NotificationModel {
     String? message,
     DateTime? timestamp,
     bool? isRead,
+    String? type,
+    String? reportId,
+    String? status,
   }) {
     return NotificationModel(
       id: id ?? this.id,
@@ -32,6 +37,9 @@ class NotificationModel {
       message: message ?? this.message,
       timestamp: timestamp ?? this.timestamp,
       isRead: isRead ?? this.isRead,
+      type: type ?? this.type,
+      reportId: reportId ?? this.reportId,
+      status: status ?? this.status,
     );
   }
 
@@ -42,6 +50,9 @@ class NotificationModel {
       message: json['message'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
       isRead: json['isRead'] as bool? ?? false,
+      type: json['type'] as String?,
+      reportId: json['reportId'] as String?,
+      status: json['status'] as String?,
     );
   }
 
@@ -52,6 +63,23 @@ class NotificationModel {
       'message': message,
       'timestamp': timestamp.toIso8601String(),
       'isRead': isRead,
+      'type': type,
+      'reportId': reportId,
+      'status': status,
     };
   }
+
+  bool get isStatusUpdate => type == 'status';
+
+  @override
+  List<Object?> get props => [
+    id,
+    title,
+    message,
+    timestamp,
+    isRead,
+    type,
+    reportId,
+    status,
+  ];
 }

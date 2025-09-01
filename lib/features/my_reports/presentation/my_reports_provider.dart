@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../report/data/report_model.dart';
-import '../../../services/report_service.dart';
+import '../../report/domain/report_repository.dart';
 
 class MyReportsState {
   final List<ReportModel> reports;
@@ -23,25 +23,27 @@ class MyReportsState {
 }
 
 class MyReportsNotifier extends StateNotifier<MyReportsState> {
-  final ReportService _reportService = ReportService();
+  final ReportRepository _repository;
+  final String userId;
 
-  MyReportsNotifier() : super(MyReportsState(reports: []));
+  MyReportsNotifier(this._repository, this.userId)
+    : super(MyReportsState(reports: []));
 
   Future<void> loadReports() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final reports = await _reportService.getMyReports();
+      final reports = await _repository.getMyReports(userId);
       state = state.copyWith(reports: reports, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
+  /// Fetch a report by ID from the loaded state. Returns null if not found.
   Future<ReportModel?> fetchReportById(String id) async {
     try {
-      final report = await _reportService.getMyReportById(id);
-      return report;
-    } catch (e) {
+      return state.reports.firstWhere((r) => r.id == id);
+    } catch (_) {
       return null;
     }
   }
@@ -55,9 +57,16 @@ class MyReportsNotifier extends StateNotifier<MyReportsState> {
   }
 }
 
+// Usage: pass repository and userId when creating the provider
 final myReportsProvider =
-    StateNotifierProvider<MyReportsNotifier, MyReportsState>((ref) {
-      final notifier = MyReportsNotifier();
+    StateNotifierProvider.family<
+      MyReportsNotifier,
+      MyReportsState,
+      Map<String, dynamic>
+    >((ref, args) {
+      final repository = args['repository'] as ReportRepository;
+      final userId = args['userId'] as String;
+      final notifier = MyReportsNotifier(repository, userId);
       notifier.loadReports();
       return notifier;
     });

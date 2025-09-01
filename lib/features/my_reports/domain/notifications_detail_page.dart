@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../data/notification_model.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/theme/text_styles.dart';
 import 'notification_list_provider.dart';
 
 class NotificationDetailPage extends ConsumerWidget {
@@ -12,25 +11,28 @@ class NotificationDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(notificationListProvider.notifier).markAsRead(notification.id);
     });
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor:
+            theme.appBarTheme.backgroundColor ?? colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black, size: 22),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface, size: 22),
           onPressed: () => Navigator.pop(context),
           tooltip: 'Back',
         ),
         title: Text(
           'Notification Detail',
-          style: TextStyles.headlineMedium.copyWith(
-            color: Colors.black,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -38,14 +40,17 @@ class NotificationDetailPage extends ConsumerWidget {
         scrolledUnderElevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: Colors.black.withOpacity(0.07), height: 1),
+          child: Container(
+            color: colorScheme.onSurface.withOpacity(0.07),
+            height: 1,
+          ),
         ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           Card(
-            color: Colors.white,
+            color: theme.cardColor,
             elevation: 2,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -61,15 +66,15 @@ class NotificationDetailPage extends ConsumerWidget {
                         notification.isRead
                             ? Icons.notifications
                             : Icons.notifications_active,
-                        color: AppColors.primary,
+                        color: colorScheme.primary,
                         size: 28,
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Text(
                           notification.title,
-                          style: TextStyles.headlineMedium.copyWith(
-                            color: AppColors.primaryDark,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: colorScheme.primary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -79,8 +84,8 @@ class NotificationDetailPage extends ConsumerWidget {
                   const SizedBox(height: 18),
                   Text(
                     notification.message,
-                    style: TextStyles.bodyLarge.copyWith(
-                      color: Colors.black87,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onSurface.withOpacity(0.85),
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -89,16 +94,16 @@ class NotificationDetailPage extends ConsumerWidget {
                     const SizedBox(height: 18),
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.info_outline,
-                          color: Colors.black45,
+                          color: colorScheme.onSurface.withOpacity(0.45),
                           size: 18,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'Type: ${notification.type}',
-                          style: TextStyles.bodyMedium.copyWith(
-                            color: Colors.black54,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                       ],
@@ -109,16 +114,12 @@ class NotificationDetailPage extends ConsumerWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(
-                          Icons.verified,
-                          color: Colors.green,
-                          size: 18,
-                        ),
+                        Icon(Icons.verified, color: Colors.green, size: 18),
                         const SizedBox(width: 8),
                         Text(
                           'Status: ${notification.status}',
-                          style: TextStyles.bodyMedium.copyWith(
-                            color: Colors.black54,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                       ],
@@ -129,16 +130,16 @@ class NotificationDetailPage extends ConsumerWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.assignment,
-                          color: AppColors.primary,
+                          color: colorScheme.primary,
                           size: 18,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'Related Report ID: ${notification.reportId}',
-                          style: TextStyles.bodyMedium.copyWith(
-                            color: Colors.black54,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                       ],
@@ -147,16 +148,17 @@ class NotificationDetailPage extends ConsumerWidget {
                   const SizedBox(height: 24),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.access_time,
-                        color: Colors.black38,
+                        color: colorScheme.onSurface.withOpacity(0.38),
                         size: 18,
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Received: ${notification.timestamp}',
-                        style: TextStyles.bodyMedium.copyWith(
-                          color: Colors.black54,
+                        'Received: '
+                        '${DateFormat.yMMMEd().add_jm().format(notification.timestamp)}',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface.withOpacity(0.6),
                         ),
                       ),
                     ],

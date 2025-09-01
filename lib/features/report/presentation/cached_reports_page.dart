@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/theme/text_styles.dart';
 import '../../../core/common/bottom_app_bar.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../services/offline_storage_service.dart';
 import '../../../features/report/data/report_model.dart';
 import '../../my_reports/presentation/report_detail_page.dart';
@@ -33,24 +32,46 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         elevation: 0,
         title: Text(
           'Cached Reports',
-          style: TextStyles.headlineMedium.copyWith(
-            color: AppColors.text,
-            fontWeight: FontWeight.bold,
-          ),
+          style:
+              theme.textTheme.titleLarge?.copyWith(
+                color: isDark ? Colors.white : Colors.black,
+                fontWeight: FontWeight.bold,
+              ) ??
+              TextStyle(
+                color: isDark ? Colors.white : Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+              ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.text),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : Colors.black,
+          ),
           onPressed: () => Navigator.pushNamedAndRemoveUntil(
             context,
             '/home',
             (route) => false,
+          ),
+          tooltip: 'Back',
+        ),
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            color: (isDark ? Colors.white : Colors.black).withOpacity(0.07),
+            height: 1,
           ),
         ),
       ),
@@ -59,10 +80,30 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _cachedReports.isEmpty
-            ? const Center(
-                child: Text(
-                  'No cached reports.',
-                  style: TextStyle(color: Colors.black54),
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    FaIcon(
+                      FontAwesomeIcons.folderOpen,
+                      size: 56,
+                      color: colorScheme.onSurface.withOpacity(0.18),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'No cached reports.',
+                      style:
+                          theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface.withOpacity(0.6),
+                            fontWeight: FontWeight.w600,
+                          ) ??
+                          TextStyle(
+                            color: colorScheme.onSurface.withOpacity(0.6),
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ],
                 ),
               )
             : ListView.separated(
@@ -81,6 +122,7 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
                       );
                     },
                     child: Card(
+                      color: theme.cardColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -99,10 +141,16 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
                                 Expanded(
                                   child: Text(
                                     report.title,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
+                                    style:
+                                        theme.textTheme.bodyLarge?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ) ??
+                                        TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          color: theme.colorScheme.onSurface,
+                                        ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -113,16 +161,22 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
                                     vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.grey.shade300,
+                                    color: theme.colorScheme.surfaceVariant,
                                     borderRadius: BorderRadius.circular(16),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'Offline',
-                                    style: TextStyle(
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                    ),
+                                    style:
+                                        theme.textTheme.labelMedium?.copyWith(
+                                          color: theme.colorScheme.onSurface
+                                              .withOpacity(0.7),
+                                        ) ??
+                                        TextStyle(
+                                          color: theme.colorScheme.onSurface
+                                              .withOpacity(0.7),
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 13,
+                                        ),
                                   ),
                                 ),
                               ],
@@ -130,26 +184,40 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
                             const SizedBox(height: 8),
                             Text(
                               'Location: ${report.location}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.black87,
-                              ),
+                              style:
+                                  theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurface,
+                                  ) ??
+                                  TextStyle(
+                                    fontSize: 14,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               'Description: ${report.description}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.black87,
-                              ),
+                              style:
+                                  theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurface,
+                                  ) ??
+                                  TextStyle(
+                                    fontSize: 14,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               'Saved: ${report.timestamp.toString()}',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.black54,
-                              ),
+                              style:
+                                  theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.6),
+                                  ) ??
+                                  TextStyle(
+                                    fontSize: 13,
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.6),
+                                  ),
                             ),
                           ],
                         ),

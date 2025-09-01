@@ -2,10 +2,20 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/my_reports/domain/notification_list_provider.dart';
-import '../features/my_reports/domain/notification_count_provider.dart';
 import '../features/my_reports/data/notification_model.dart';
 
 class LocalNotificationService {
+  bool _enabled = true;
+  Future<void> enableNotifications() async {
+    _enabled = true;
+  }
+
+  Future<void> disableNotifications() async {
+    _enabled = false;
+    // Cancel all scheduled notifications
+    await _flutterLocalNotificationsPlugin.cancelAll();
+  }
+
   static final LocalNotificationService _instance =
       LocalNotificationService._internal();
   factory LocalNotificationService() => _instance;
@@ -58,6 +68,7 @@ class LocalNotificationService {
       android: androidDetails,
       iOS: iosDetails,
     );
+    if (!_enabled) return;
     await _flutterLocalNotificationsPlugin.show(id, title, body, details);
 
     // Add to in-app notification list
@@ -71,7 +82,6 @@ class LocalNotificationService {
     final provider = ref ?? _ref;
     if (provider != null) {
       provider.read(notificationListProvider.notifier).add(notification);
-      provider.read(notificationCountProvider.notifier).state++;
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../features/auth/data/user_model.dart';
 import '../api_client.dart';
+import '../core/utils/service_error.dart';
 
 class AuthService {
   final Dio _dio;
@@ -13,48 +14,43 @@ class AuthService {
         '/api/auth/login',
         data: {'employeeId': employeeId, 'password': password},
       );
-      print('API login response: \\${response.data}');
       final data = response.data;
       final user = UserModel.fromJson(data);
-      print('Parsed user fullName: \\${user.fullName}');
 
-      // Print cookies after login
-      final apiClient = ApiClient();
-      final cookies = await apiClient.cookieJar.loadForRequest(
-        Uri.parse(apiClient.dio.options.baseUrl),
-      );
-      print('Cookies after login:');
-      for (var cookie in cookies) {
-        print('  \\${cookie.name} = \\${cookie.value}');
-      }
-
-      return user;
+      return UserModel.fromJson(data);
     } on DioException catch (e) {
-      if (e.response != null) {
-        throw Exception(
-          'Login failed: ${e.response?.statusCode} - ${e.response?.data}',
-        );
-      } else {
-        throw Exception('Login failed: ${e.message}');
-      }
+      throw handleDioError(e);
     }
   }
 
   Future<void> logout() async {
-    await _dio.post('/api/auth/logout');
+    try {
+      await _dio.post('/api/auth/logout');
+    } on DioException catch (e) {
+      throw handleDioError(e);
+    }
   }
 
-  Future<void> forgotPassword(String email) async {
+  Future<String> forgotPassword(String email) async {
     try {
-      await _dio.post('/api/auth/forgot-password', data: {'email': email});
-    } on DioException catch (e) {
-      if (e.response != null) {
-        throw Exception(
-          'Forgot password failed: ${e.response?.statusCode} - ${e.response?.data}',
-        );
-      } else {
-        throw Exception('Forgot password failed: ${e.message}');
+      final response = await _dio.post(
+        '/api/auth/forgot-password',
+        data: {'email': email},
+      );
+      // Try to extract a message from the backend response
+      if (response.data != null &&
+          response.data is Map &&
+          response.data['message'] != null) {
+        return response.data['message'] as String;
       }
+      // Fallback: if status code is 200/201/204, assume success
+      if ([200, 201, 204].contains(response.statusCode)) {
+        return 'Password reset link sent!';
+      }
+      // Otherwise, treat as error
+      throw Exception('Failed to send reset link.');
+    } on DioException catch (e) {
+      throw handleDioError(e);
     }
   }
 
@@ -65,13 +61,7 @@ class AuthService {
         data: {'code': code, 'newPassword': newPassword},
       );
     } on DioException catch (e) {
-      if (e.response != null) {
-        throw Exception(
-          'Reset password failed: ${e.response?.statusCode} - ${e.response?.data}',
-        );
-      } else {
-        throw Exception('Reset password failed: ${e.message}');
-      }
+      throw handleDioError(e);
     }
   }
 
@@ -80,18 +70,12 @@ class AuthService {
     String newPassword,
   ) async {
     try {
-      await _dio.post(
+      await _dio.put(
         '/api/auth/update-password',
         data: {'currentPassword': currentPassword, 'newPassword': newPassword},
       );
     } on DioException catch (e) {
-      if (e.response != null) {
-        throw Exception(
-          'Change password failed: ${e.response?.statusCode} - ${e.response?.data}',
-        );
-      } else {
-        throw Exception('Change password failed: ${e.message}');
-      }
+      throw handleDioError(e);
     }
   }
 }

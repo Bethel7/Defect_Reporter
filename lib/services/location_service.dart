@@ -7,7 +7,6 @@ class LocationService {
       // Check if location services are enabled
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        print('Location services are disabled.');
         // Prompt the user to enable location services
         await showDialog(
           context: context,
@@ -35,15 +34,12 @@ class LocationService {
 
       // Handle all possible permission states
       if (permission == LocationPermission.denied) {
-        print('Location permission denied by user.');
         return null;
       }
       if (permission == LocationPermission.deniedForever) {
-        print('Location permission permanently denied.');
         return null;
       }
       if (permission == LocationPermission.unableToDetermine) {
-        print('Unable to determine location permission.');
         return null;
       }
 
@@ -52,9 +48,7 @@ class LocationService {
         desiredAccuracy: LocationAccuracy.high,
       );
     } catch (e) {
-      print('Error getting location: $e');
       return null;
     }
   }
 }
-

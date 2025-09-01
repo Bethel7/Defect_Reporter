@@ -8,6 +8,8 @@ import '../../report/data/report_model.dart';
 import '../../../core/theme/text_styles.dart';
 import '../../../core/theme/input_borders.dart';
 import 'my_reports_provider.dart';
+import '../../../core/utils/report_utils.dart';
+import '../../report/data/report_repository_provider.dart';
 
 class ReportDetailPage extends ConsumerWidget {
   final String reportId;
@@ -31,26 +33,11 @@ class ReportDetailPage extends ConsumerWidget {
     );
   }
 
-  Color statusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'resolved':
-        return AppColors.primary;
-      case 'in progress':
-        return const Color(0xFFF59E42);
-      case 'submitted':
-        return const Color(0xFF64748B);
-      default:
-        return Colors.grey;
-    }
-  }
-
-  String formatDate(DateTime? date) {
-    if (date == null) return '';
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final repository = ref.watch(reportRepositoryProvider);
+    final userId = ref.watch(userIdProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -102,7 +89,14 @@ class ReportDetailPage extends ConsumerWidget {
         ],
       ),
       body: FutureBuilder<ReportModel?>(
-        future: ref.read(myReportsProvider.notifier).fetchReportById(reportId),
+        future: ref
+            .read(
+              myReportsProvider({
+                'repository': repository,
+                'userId': userId,
+              }).notifier,
+            )
+            .fetchReportById(reportId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -126,9 +120,15 @@ class ReportDetailPage extends ConsumerWidget {
                     initialValue: report.title,
                     decoration: InputDecoration(
                       labelText: 'Title',
-                      border: InputBorders.gray,
-                      enabledBorder: InputBorders.gray,
-                      focusedBorder: InputBorders.green,
+                      border: InputBorders.adaptive(
+                        color: AppColors.borderGray,
+                      ),
+                      enabledBorder: InputBorders.adaptive(
+                        color: AppColors.borderGray,
+                      ),
+                      focusedBorder: InputBorders.adaptive(
+                        color: AppColors.success,
+                      ),
                       labelStyle: const TextStyle(color: AppColors.borderGray),
                       filled: true,
                       fillColor: Colors.white,
@@ -153,9 +153,15 @@ class ReportDetailPage extends ConsumerWidget {
                     maxLines: 3,
                     decoration: InputDecoration(
                       labelText: 'Description',
-                      border: InputBorders.gray,
-                      enabledBorder: InputBorders.gray,
-                      focusedBorder: InputBorders.green,
+                      border: InputBorders.adaptive(
+                        color: AppColors.borderGray,
+                      ),
+                      enabledBorder: InputBorders.adaptive(
+                        color: AppColors.borderGray,
+                      ),
+                      focusedBorder: InputBorders.adaptive(
+                        color: AppColors.success,
+                      ),
                       labelStyle: const TextStyle(color: AppColors.borderGray),
                       filled: true,
                       fillColor: Colors.white,
@@ -183,9 +189,15 @@ class ReportDetailPage extends ConsumerWidget {
                         : report.location,
                     decoration: InputDecoration(
                       labelText: 'Location',
-                      border: InputBorders.gray,
-                      enabledBorder: InputBorders.gray,
-                      focusedBorder: InputBorders.green,
+                      border: InputBorders.adaptive(
+                        color: AppColors.borderGray,
+                      ),
+                      enabledBorder: InputBorders.adaptive(
+                        color: AppColors.borderGray,
+                      ),
+                      focusedBorder: InputBorders.adaptive(
+                        color: AppColors.success,
+                      ),
                       labelStyle: const TextStyle(color: AppColors.borderGray),
                       filled: true,
                       fillColor: Colors.white,
@@ -223,7 +235,7 @@ class ReportDetailPage extends ConsumerWidget {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: statusColor(report.status),
+                              color: ReportUtils.statusColor(report.status),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(
@@ -245,8 +257,9 @@ class ReportDetailPage extends ConsumerWidget {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Semantics(
-                          label: 'Reported at ${formatDate(report.timestamp)}',
-                          child: Text(formatDate(report.timestamp)),
+                          label:
+                              'Reported at ${ReportUtils.formatDate(report.timestamp)}',
+                          child: Text(ReportUtils.formatDate(report.timestamp)),
                         ),
                       ],
                     ),

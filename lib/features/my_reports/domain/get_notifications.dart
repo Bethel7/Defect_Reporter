@@ -6,7 +6,12 @@ class GetNotifications {
 
   GetNotifications(this.repository);
 
-  Future<List<NotificationModel>> call() {
-    return repository.getNotifications();
+  Future<List<NotificationModel>> call() async {
+    try {
+      return await repository.getNotifications();
+    } catch (e) {
+      // Optionally log error or rethrow a custom Failure
+      throw Exception('Failed to fetch notifications: $e');
+    }
   }
 }

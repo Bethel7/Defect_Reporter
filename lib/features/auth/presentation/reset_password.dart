@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/input_borders.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
-import '../../../core/utils/validators.dart';
-import '../../../services/auth_service.dart';
+import 'reset_password_notifier.dart';
 
-class ResetPasswordPage extends StatefulWidget {
+class ResetPasswordPage extends ConsumerStatefulWidget {
   const ResetPasswordPage({super.key});
 
   @override
-  State<ResetPasswordPage> createState() => _ResetPasswordPageState();
+  ConsumerState<ResetPasswordPage> createState() => _ResetPasswordPageState();
 }
 
-class _ResetPasswordPageState extends State<ResetPasswordPage> {
+class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final _codeController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _isLoading = false;
-  String? _error;
 
   @override
   void dispose() {
@@ -28,38 +26,46 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     super.dispose();
   }
 
-  Future<void> _resetPassword() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
-      try {
-        await AuthService().resetPassword(
-          _codeController.text,
-          _newPasswordController.text,
+      await ref
+          .read(resetPasswordProvider.notifier)
+          .resetPassword(_codeController.text, _newPasswordController.text);
+      final state = ref.read(resetPasswordProvider);
+      if (state.success && mounted) {
+        final theme = Theme.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Password reset successfully!'),
+            backgroundColor: theme.colorScheme.primary,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Password reset successfully!')),
-          );
-          Navigator.of(context).pop();
-        }
-      } catch (e) {
-        setState(() {
-          _error = e.toString();
-        });
+        Navigator.of(context).pop();
       }
     }
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final resetState = ref.watch(resetPasswordProvider);
+    // final isDark = theme.brightness == Brightness.dark;
+    final borderGray = theme.dividerColor;
+    final borderSuccess = theme.colorScheme.secondary;
+    final borderError = theme.colorScheme.error;
     return Scaffold(
-      appBar: AppBar(title: const Text('Reset Password')),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor:
+            theme.appBarTheme.backgroundColor ?? theme.colorScheme.surface,
+        title: Text(
+          'Reset Password',
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -69,63 +75,94 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
+                Text(
                   'Enter the reset code sent to your email and choose a new password.',
-                  style: TextStyle(fontSize: 16),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 16,
+                    color: theme.colorScheme.onSurface.withOpacity(0.85),
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
                 CustomTextField(
                   label: 'Reset Code',
                   controller: _codeController,
-                  border: InputBorders.gray,
-                  enabledBorder: InputBorders.gray,
-                  focusedBorder: InputBorders.green,
-                  errorBorder: InputBorders.red,
-                  focusedErrorBorder: InputBorders.red,
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Enter the reset code'
-                      : null,
+                  border: InputBorders.adaptive(color: borderGray),
+                  enabledBorder: InputBorders.adaptive(color: borderGray),
+                  focusedBorder: InputBorders.adaptive(color: borderSuccess),
+                  errorBorder: InputBorders.adaptive(
+                    color: borderError,
+                    isError: true,
+                  ),
+                  focusedErrorBorder: InputBorders.adaptive(
+                    color: borderError,
+                    isError: true,
+                  ),
+                  validator: (value) => ref
+                      .read(resetPasswordProvider.notifier)
+                      .validateCode(value),
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
                   label: 'New Password',
                   controller: _newPasswordController,
                   obscureText: true,
-                  border: InputBorders.gray,
-                  enabledBorder: InputBorders.gray,
-                  focusedBorder: InputBorders.green,
-                  errorBorder: InputBorders.red,
-                  focusedErrorBorder: InputBorders.red,
-                  validator: Validators.validatePassword,
+                  border: InputBorders.adaptive(color: borderGray),
+                  enabledBorder: InputBorders.adaptive(color: borderGray),
+                  focusedBorder: InputBorders.adaptive(color: borderSuccess),
+                  errorBorder: InputBorders.adaptive(
+                    color: borderError,
+                    isError: true,
+                  ),
+                  focusedErrorBorder: InputBorders.adaptive(
+                    color: borderError,
+                    isError: true,
+                  ),
+                  validator: ref
+                      .read(resetPasswordProvider.notifier)
+                      .validatePassword,
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
                   label: 'Confirm Password',
                   controller: _confirmPasswordController,
                   obscureText: true,
-                  border: InputBorders.gray,
-                  enabledBorder: InputBorders.gray,
-                  focusedBorder: InputBorders.green,
-                  errorBorder: InputBorders.red,
-                  focusedErrorBorder: InputBorders.red,
-                  validator: (value) => Validators.validateConfirmPassword(
-                    value,
-                    _newPasswordController.text,
+                  border: InputBorders.adaptive(color: borderGray),
+                  enabledBorder: InputBorders.adaptive(color: borderGray),
+                  focusedBorder: InputBorders.adaptive(color: borderSuccess),
+                  errorBorder: InputBorders.adaptive(
+                    color: borderError,
+                    isError: true,
                   ),
+                  focusedErrorBorder: InputBorders.adaptive(
+                    color: borderError,
+                    isError: true,
+                  ),
+                  validator: (value) => ref
+                      .read(resetPasswordProvider.notifier)
+                      .validateConfirmPassword(
+                        value,
+                        _newPasswordController.text,
+                      ),
                 ),
                 const SizedBox(height: 28),
                 CustomButton(
-                  label: _isLoading ? 'Resetting...' : 'Reset Password',
-                  isLoading: _isLoading,
-                  onPressed: _isLoading ? null : _resetPassword,
+                  label: resetState.isLoading
+                      ? 'Resetting...'
+                      : 'Reset Password',
+                  isLoading: resetState.isLoading,
+                  onPressed: resetState.isLoading ? null : _submit,
                 ),
-                if (_error != null)
+                if (resetState.error != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 12.0),
                     child: Text(
-                      _error!,
-                      style: const TextStyle(color: Colors.red),
+                      resetState.error!,
+                      style:
+                          theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.error,
+                          ) ??
+                          TextStyle(color: theme.colorScheme.error),
                     ),
                   ),
               ],

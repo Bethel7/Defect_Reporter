@@ -76,21 +76,14 @@ class _ImageInputState extends State<ImageInput> {
       // Determine format from extension
       String ext = originalFile.path.split('.').last.toLowerCase();
       String format = (ext == 'png') ? 'png' : 'jpg';
-      File? compressed = await Helpers.compressImage(
+      File? compressed = await FileHelpers.compressImage(
         originalFile,
         format: format,
       );
-      if (compressed != null) {
-        setState(() {
-          _imageFile = compressed;
-        });
-        widget.onImageSelected(compressed.path);
-      } else {
-        setState(() {
-          _imageFile = originalFile;
-        });
-        widget.onImageSelected(originalFile.path);
-      }
+      setState(() {
+        _imageFile = compressed;
+      });
+      widget.onImageSelected(compressed.path);
     }
   }
 
@@ -127,7 +120,10 @@ class _ImageInputState extends State<ImageInput> {
           child: Wrap(
             children: [
               ListTile(
-                leading: Icon(FontAwesomeIcons.camera, color: AppColors.primary),
+                leading: Icon(
+                  FontAwesomeIcons.camera,
+                  color: AppColors.primary,
+                ),
                 title: const Text('Take a photo'),
                 onTap: () {
                   Navigator.of(context).pop();
@@ -135,7 +131,10 @@ class _ImageInputState extends State<ImageInput> {
                 },
               ),
               ListTile(
-                leading: Icon(FontAwesomeIcons.images, color: AppColors.primary),
+                leading: Icon(
+                  FontAwesomeIcons.images,
+                  color: AppColors.primary,
+                ),
                 title: const Text('Choose from gallery'),
                 onTap: () {
                   Navigator.of(context).pop();

@@ -1,3 +1,4 @@
+import '../../../core/utils/network_checker.dart';
 import 'package:defect_reporter/core/common/bottom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,10 +14,11 @@ import '../../../widgets/custom_button.dart';
 import '../../../core/common/profile_popup_menu.dart';
 import '../../../features/my_reports/presentation/my_reports_provider.dart';
 import '../../../features/report/data/report_model.dart';
-import '../../../core/utils/network_checker.dart';
+import '../../../features/report/data/report_repository_provider.dart';
 import '../../../services/offline_storage_service.dart';
 import 'location_selector.dart';
-import '../../../core/theme/text_styles.dart';
+import 'location_provider.dart';
+import '../../report/data/location_model.dart';
 import '../../../core/common/notification_bell.dart';
 
 class ReportFormPage extends ConsumerStatefulWidget {
@@ -39,79 +41,120 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
     final formProvider = ref.watch(reportFormProvider.notifier);
     final formState = ref.watch(reportFormProvider);
 
-    final grayBorder = InputBorders.gray;
-    final greenBorder = InputBorders.green;
-    final redBorder = InputBorders.red;
+    final repository = ref.watch(reportRepositoryProvider);
+    final userIdAsync = ref.watch(userIdProvider);
+
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final grayBorder = InputBorders.adaptive(color: theme.dividerColor);
+    final greenBorder = InputBorders.adaptive(color: colorScheme.primary);
+    final redBorder = InputBorders.adaptive(
+      color: colorScheme.error,
+      isError: true,
+    );
 
     final titleValid = Validators.validateTitle(formState.title) == null;
     final descriptionValid =
         Validators.validateDescription(formState.description) == null;
 
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          titleSpacing: 0,
-          title: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text(
-              'New Report',
-              style: TextStyles.headlineMedium.copyWith(
-                color: AppColors.text,
-                fontWeight: FontWeight.bold,
+    return userIdAsync.when(
+      data: (userId) => GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          backgroundColor: colorScheme.background,
+          appBar: AppBar(
+            backgroundColor:
+                theme.appBarTheme.backgroundColor ?? colorScheme.surface,
+            titleSpacing: 0,
+            title: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                'New Report',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.text),
-            onPressed: () => Navigator.pushNamedAndRemoveUntil(
-              context,
-              '/home',
-              (route) => false,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
+              onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/home',
+                (route) => false,
+              ),
+              tooltip: 'Back',
             ),
-            tooltip: 'Back',
+            actions: [
+              const NotificationBell(),
+              const Padding(
+                padding: EdgeInsets.only(right: 16),
+                child: ProfilePopupMenu(),
+              ),
+            ],
           ),
-          actions: [
-            const NotificationBell(),
-            const Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: ProfilePopupMenu(),
-            ),
-          ],
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  autovalidateMode: AutovalidateMode.disabled,
-                  child: ListView(
-                    children: [
-                      Center(
-                        child: Container(
-                          constraints: const BoxConstraints(maxWidth: 400),
-                          child: Semantics(
-                            label: 'Report Title Input',
-                            textField: true,
+          body: Column(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.disabled,
+                    child: ListView(
+                      children: [
+                        Center(
+                          child: Container(
+                            constraints: const BoxConstraints(maxWidth: 400),
+                            child: Semantics(
+                              label: 'Report Title Input',
+                              textField: true,
+                              child: CustomTextField(
+                                label: 'Title',
+                                initialValue: formState.title,
+                                maxLines: 1,
+                                validator: (val) {
+                                  if (!_titleTouched && !_submitted)
+                                    return null;
+                                  return Validators.validateTitle(val);
+                                },
+                                onChanged: (val) {
+                                  formProvider.setTitle(val);
+                                  setState(() => _titleTouched = true);
+                                },
+                                border: grayBorder,
+                                enabledBorder: grayBorder,
+                                focusedBorder: titleValid
+                                    ? greenBorder
+                                    : grayBorder,
+                                errorBorder: redBorder,
+                                focusedErrorBorder: redBorder,
+                                errorStyle: const TextStyle(
+                                  color: AppColors.error,
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Color(0xFF252525),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Description (twice the height)
+                        Semantics(
+                          label: 'Report Description Input',
+                          textField: true,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width - 32,
+                            margin: const EdgeInsets.symmetric(horizontal: 0),
                             child: CustomTextField(
-                              label: 'Title',
-                              initialValue: formState.title,
-                              maxLines: 1,
-                              validator: (val) {
-                                if (!_titleTouched && !_submitted) return null;
-                                return Validators.validateTitle(val);
-                              },
-                              onChanged: (val) {
-                                formProvider.setTitle(val);
-                                setState(() => _titleTouched = true);
-                              },
+                              label: 'Description',
+                              initialValue: formState.description,
+                              maxLines: 2,
                               border: grayBorder,
                               enabledBorder: grayBorder,
-                              focusedBorder: titleValid
+                              focusedBorder: descriptionValid
                                   ? greenBorder
                                   : grayBorder,
                               errorBorder: redBorder,
@@ -123,276 +166,291 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                 fontSize: 15,
                                 color: Color(0xFF252525),
                               ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Description (twice the height)
-                      Semantics(
-                        label: 'Report Description Input',
-                        textField: true,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width - 32,
-                          margin: const EdgeInsets.symmetric(horizontal: 0),
-                          child: CustomTextField(
-                            label: 'Description',
-                            initialValue: formState.description,
-                            maxLines: 2,
-                            border: grayBorder,
-                            enabledBorder: grayBorder,
-                            focusedBorder: descriptionValid
-                                ? greenBorder
-                                : grayBorder,
-                            errorBorder: redBorder,
-                            focusedErrorBorder: redBorder,
-                            errorStyle: const TextStyle(color: AppColors.error),
-                            style: const TextStyle(
-                              fontSize: 15,
-                              color: Color(0xFF252525),
-                            ),
-                            onChanged: (val) {
-                              formProvider.setDescription(val);
-                              setState(() => _descriptionTouched = true);
-                            },
-                            validator: (val) {
-                              if (!_descriptionTouched && !_submitted) {
-                                return null;
-                              }
-                              return Validators.validateDescription(val);
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Location Selector
-                      Center(
-                        child: Container(
-                          constraints: const BoxConstraints(maxWidth: 400),
-                          child: Semantics(
-                            label: 'Location Selector',
-                            child: LocationSelector(
-                              selectedLocationId: formState.locationId,
-                              selectedLocationName: formState.locationName,
-                              onLocationSelected: (id, name) {
-                                formProvider.setLocation(id, name);
-                                setState(() => _locationError = null);
+                              onChanged: (val) {
+                                formProvider.setDescription(val);
+                                setState(() => _descriptionTouched = true);
                               },
-                              errorText: _locationError,
-                              textStyle: const TextStyle(
-                                color: Color(0xFF252525),
-                                fontSize: 15,
+                              validator: (val) {
+                                if (!_descriptionTouched && !_submitted) {
+                                  return null;
+                                }
+                                return Validators.validateDescription(val);
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Location Selector
+                        Center(
+                          child: Container(
+                            constraints: const BoxConstraints(maxWidth: 400),
+                            child: Semantics(
+                              label: 'Location Selector',
+                              child: Consumer(
+                                builder: (context, ref, _) {
+                                  final locationsAsync = ref.watch(
+                                    activeLocationsProvider,
+                                  );
+                                  return locationsAsync.when(
+                                    data: (locations) => LocationSelector(
+                                      locations: locations
+                                          .map(
+                                            (json) =>
+                                                LocationModel.fromJson(json),
+                                          )
+                                          .toList(),
+                                      selectedLocationId: formState.locationId,
+                                      selectedLocationName:
+                                          formState.locationName,
+                                      onLocationSelected: (id, name) {
+                                        formProvider.setLocation(id, name);
+                                        setState(() => _locationError = null);
+                                      },
+                                      onNewLocationAdded: (name) async {
+                                        final service = ref.read(
+                                          locationApiServiceProvider,
+                                        );
+                                        final newId = await service
+                                            .createLocation(name);
+                                        formProvider.setLocation(newId, name);
+                                        setState(() => _locationError = null);
+                                      },
+                                      errorText: _locationError,
+                                      textStyle: const TextStyle(
+                                        color: Color(0xFF252525),
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    loading: () =>
+                                        const CircularProgressIndicator(),
+                                    error: (e, _) => Text('Error: $e'),
+                                  );
+                                },
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 32),
-                      // Image upload area
-                      Semantics(
-                        label: 'Image Upload Area',
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ImageInput(
-                              onImageSelected: (path) {
-                                formProvider.setImagePath(path);
-                                setState(() => _imageError = null);
-                              },
-                            ),
-                            if (_imageError != null) ...[
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 8.0,
-                                  left: 8.0,
-                                ),
-                                child: Text(
-                                  _imageError!,
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 13,
+                        const SizedBox(height: 32),
+                        // Image upload area
+                        Semantics(
+                          label: 'Image Upload Area',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ImageInput(
+                                onImageSelected: (path) {
+                                  formProvider.setImagePath(path);
+                                  setState(() => _imageError = null);
+                                },
+                              ),
+                              if (_imageError != null) ...[
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 8.0,
+                                    left: 8.0,
+                                  ),
+                                  child: Text(
+                                    _imageError!,
+                                    style: const TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ],
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      // Cancel and Submit buttons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: const Color(0xFF474747),
-                                side: const BorderSide(
-                                  color: AppColors.borderGray,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(40),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
-                              ),
-                              onPressed: () {
-                                ref.read(reportFormProvider.notifier).reset();
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  '/home',
-                                );
-                              },
-                              child: const Text('Cancel'),
-                            ),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: CustomButton(
-                              label: 'Submit',
-                              isLoading: formState.isSubmitting,
-                              onPressed: formState.isSubmitting
-                                  ? null
-                                  : () async {
-                                      setState(() => _submitted = true);
-                                      bool valid = _formKey.currentState!
-                                          .validate();
-                                      String? locationError =
-                                          formState.locationId == null
-                                          ? 'Please select a location.'
-                                          : null;
-                                      String? imageError =
-                                          Validators.validateImagePath(
-                                            formState.imagePath,
-                                          );
-                                      setState(() {
-                                        _locationError = locationError;
-                                        _imageError = imageError;
-                                      });
-                                      if (valid &&
-                                          locationError == null &&
-                                          imageError == null) {
-                                        final isOnline =
-                                            await NetworkChecker().isConnected;
-                                        if (isOnline) {
-                                          final result = await formProvider
-                                              .submit(context);
-                                          if (result != null &&
-                                              context.mounted) {
-                                            ref
-                                                .read(
-                                                  myReportsProvider.notifier,
-                                                )
-                                                .addReport(
-                                                  ReportModel(
-                                                    id:
-                                                        result['reportId'] ??
-                                                        '',
-                                                    title: formState.title,
-                                                    description:
-                                                        formState.description,
-                                                    location:
-                                                        formState
-                                                            .locationName ??
-                                                        '',
-                                                    status: ReportModel
-                                                        .statusSubmitted,
-                                                    imageUrl:
-                                                        formState.imagePath,
-                                                    timestamp:
-                                                        DateTime.tryParse(
-                                                          result['timestamp']
-                                                                  ?.toString() ??
-                                                              '',
-                                                        ) ??
-                                                        DateTime.now(),
-                                                  ),
-                                                );
+                        ),
+                        const SizedBox(height: 32),
+                        // Cancel and Submit buttons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: const Color(0xFF474747),
+                                  side: const BorderSide(
+                                    color: AppColors.borderGray,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(40),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  ref.read(reportFormProvider.notifier).reset();
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    '/home',
+                                  );
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: CustomButton(
+                                label: 'Submit',
+                                isLoading: formState.isSubmitting,
+                                onPressed: formState.isSubmitting
+                                    ? null
+                                    : () async {
+                                        setState(() => _submitted = true);
+                                        bool valid = _formKey.currentState!
+                                            .validate();
+                                        String? locationError =
+                                            Validators.validateLocationId(
+                                              formState.locationId?.toString(),
+                                            );
+                                        String? imageError =
+                                            Validators.validateImagePath(
+                                              formState.imagePath,
+                                            );
+                                        setState(() {
+                                          _locationError = locationError;
+                                          _imageError = imageError;
+                                        });
+                                        if (valid &&
+                                            locationError == null &&
+                                            imageError == null) {
+                                          final isOnline =
+                                              await InternetStatusChecker
+                                                  .instance
+                                                  .isConnected;
+                                          if (isOnline) {
+                                            final result = await formProvider
+                                                .submit(context);
+                                            if (result != null &&
+                                                context.mounted) {
+                                              ref
+                                                  .read(
+                                                    myReportsProvider({
+                                                      'repository': repository,
+                                                      'userId': userId,
+                                                    }).notifier,
+                                                  )
+                                                  .addReport(
+                                                    ReportModel(
+                                                      id:
+                                                          result['reportId'] ??
+                                                          '',
+                                                      title: formState.title,
+                                                      description:
+                                                          formState.description,
+                                                      location:
+                                                          formState
+                                                              .locationName ??
+                                                          '',
+                                                      status: 'submitted',
+                                                      imageUrl:
+                                                          formState.imagePath,
+                                                      timestamp:
+                                                          DateTime.tryParse(
+                                                            result['timestamp']
+                                                                    ?.toString() ??
+                                                                '',
+                                                          ) ??
+                                                          DateTime.now(),
+                                                    ),
+                                                  );
+                                              ref
+                                                  .read(
+                                                    reportFormProvider.notifier,
+                                                  )
+                                                  .reset();
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      ReportConfirmationPage(
+                                                        reportId:
+                                                            result['reportId']!,
+                                                        timestamp:
+                                                            result['timestamp']!,
+                                                        submittedTitle:
+                                                            formState.title,
+                                                        submittedDescription:
+                                                            formState
+                                                                .description,
+                                                        submittedLocation:
+                                                            formState
+                                                                .locationName ??
+                                                            '',
+                                                        submittedImageUrl:
+                                                            formState.imagePath,
+                                                      ),
+                                                ),
+                                              );
+                                            }
+                                          } else {
+                                            final report = ReportModel(
+                                              id: DateTime.now()
+                                                  .millisecondsSinceEpoch
+                                                  .toString(),
+                                              title: formState.title,
+                                              description:
+                                                  formState.description,
+                                              location:
+                                                  formState.locationName ?? '',
+                                              status: 'submitted',
+                                              imageUrl: formState.imagePath,
+                                              timestamp: DateTime.now(),
+                                            );
+                                            await OfflineStorageService()
+                                                .saveReport(report);
                                             ref
                                                 .read(
                                                   reportFormProvider.notifier,
                                                 )
                                                 .reset();
-                                            Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) =>
-                                                    ReportConfirmationPage(
-                                                      reportId:
-                                                          result['reportId']!,
-                                                      timestamp:
-                                                          result['timestamp']!,
-                                                      submittedTitle:
-                                                          formState.title,
-                                                      submittedDescription:
-                                                          formState.description,
-                                                      submittedLocation:
-                                                          formState
-                                                              .locationName ??
-                                                          '',
-                                                      submittedImageUrl:
-                                                          formState.imagePath,
-                                                    ),
-                                              ),
-                                            );
-                                          }
-                                        } else {
-                                          final report = ReportModel(
-                                            id: DateTime.now()
-                                                .millisecondsSinceEpoch
-                                                .toString(),
-                                            title: formState.title,
-                                            description: formState.description,
-                                            location:
-                                                formState.locationName ?? '',
-                                            status: ReportModel.statusSubmitted,
-                                            imageUrl: formState.imagePath,
-                                            timestamp: DateTime.now(),
-                                          );
-                                          await OfflineStorageService()
-                                              .saveReport(report);
-                                          ref
-                                              .read(reportFormProvider.notifier)
-                                              .reset();
-                                          if (context.mounted) {
-                                            Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) =>
-                                                    CachedReportConfirmationPage(
-                                                      report: report,
-                                                    ),
-                                              ),
-                                            );
+                                            if (context.mounted) {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      CachedReportConfirmationPage(
+                                                        report: report,
+                                                      ),
+                                                ),
+                                              );
+                                            }
                                           }
                                         }
-                                      }
-                                    },
-                            ),
-                          ),
-                        ],
-                      ),
-                      formState.error != null
-                          ? Padding(
-                              padding: const EdgeInsets.only(top: 12.0),
-                              child: Text(
-                                formState.error!,
-                                style: const TextStyle(color: AppColors.error),
+                                      },
                               ),
-                            )
-                          : const SizedBox.shrink(),
-                    ],
+                            ),
+                          ],
+                        ),
+                        formState.error != null
+                            ? Padding(
+                                padding: const EdgeInsets.only(top: 12.0),
+                                child: Text(
+                                  formState.error!,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.error,
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
+          bottomNavigationBar: const MainBottomAppBar(),
         ),
-        bottomNavigationBar: const MainBottomAppBar(),
       ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, st) =>
+          Scaffold(body: Center(child: Text('Error loading user ID: $e'))),
     );
   }
 }

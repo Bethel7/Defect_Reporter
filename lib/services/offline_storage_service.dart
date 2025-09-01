@@ -1,35 +1,31 @@
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive/hive.dart';
 import '../features/report/data/report_model.dart';
 
 class OfflineStorageService {
-  static const String _offlineReportsKey = 'offline_reports';
+  static const String _boxName = 'offline_reports';
+
+  Future<Box<ReportModel>> _getBox() async {
+    return await Hive.openBox<ReportModel>(_boxName);
+  }
 
   Future<void> saveReport(ReportModel report) async {
-    final prefs = await SharedPreferences.getInstance();
-    final List<String> reportsJson =
-        prefs.getStringList(_offlineReportsKey) ?? [];
-    reportsJson.add(jsonEncode(report.toJson()));
-    await prefs.setStringList(_offlineReportsKey, reportsJson);
+    final box = await _getBox();
+    await box.add(report);
   }
 
   Future<List<ReportModel>> getOfflineReports() async {
-    final prefs = await SharedPreferences.getInstance();
-    final List<String> reportsJson =
-        prefs.getStringList(_offlineReportsKey) ?? [];
-    return reportsJson
-        .map((jsonStr) => ReportModel.fromJson(jsonDecode(jsonStr)))
-        .toList();
+    final box = await _getBox();
+    return box.values.toList();
   }
 
   Future<void> clearOfflineReports() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_offlineReportsKey);
+    final box = await _getBox();
+    await box.clear();
   }
 
   Future<void> replaceAllReports(List<ReportModel> reports) async {
-    final prefs = await SharedPreferences.getInstance();
-    final List<String> reportsJson = reports.map((r) => jsonEncode(r.toJson())).toList();
-    await prefs.setStringList(_offlineReportsKey, reportsJson);
+    final box = await _getBox();
+    await box.clear();
+    await box.addAll(reports);
   }
 }

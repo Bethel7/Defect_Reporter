@@ -41,7 +41,7 @@ class OfflineSnackbar {
       SnackBar(
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
-        backgroundColor: AppColors.error,
+        backgroundColor: AppColors.neutralDark,
         duration: const Duration(seconds: 5),
         content: Row(
           children: const [
@@ -76,7 +76,7 @@ class OfflineSnackbar {
       SnackBar(
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
-        backgroundColor: Colors.black45,
+        backgroundColor: AppColors.neutralDark,
         duration: const Duration(seconds: 3),
         content: Row(
           children: const [
@@ -111,7 +111,7 @@ class OfflineSnackbar {
       SnackBar(
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
-        backgroundColor: AppColors.error,
+        backgroundColor: AppColors.neutralDark,
         duration: const Duration(seconds: 5),
         content: Row(
           children: [
