@@ -14,7 +14,7 @@ class CachedReportConfirmationPage extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       body: Center(
         child: Container(
           margin: const EdgeInsets.all(24),

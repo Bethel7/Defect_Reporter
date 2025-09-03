@@ -14,7 +14,7 @@ class ProfilePage extends ConsumerWidget {
     final isDark = colorScheme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         elevation: 0,

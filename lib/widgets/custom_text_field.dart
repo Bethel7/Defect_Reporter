@@ -2,6 +2,7 @@ import '../core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
+  final FocusNode? focusNode;
   final String label;
   final String? initialValue;
   final TextEditingController? controller;
@@ -41,16 +42,20 @@ class CustomTextField extends StatelessWidget {
     this.style,
     this.enabled,
     this.autofillHints,
+    this.focusNode,
   });
 
   @override
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(16);
+    const thinBorderWidth = 0.7;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       obscureText: obscureText,
+      textCapitalization: TextCapitalization.sentences,
       style: style ?? TextStyle(color: theme.colorScheme.onSurface),
       enabled: enabled,
       autofillHints: autofillHints,
@@ -65,33 +70,46 @@ class CustomTextField extends StatelessWidget {
             border ??
             OutlineInputBorder(
               borderRadius: borderRadius,
-              borderSide: BorderSide(color: AppColors.borderGray),
+              borderSide: BorderSide(
+                color: AppColors.borderGray,
+                width: thinBorderWidth,
+              ),
             ),
         enabledBorder:
             enabledBorder ??
             OutlineInputBorder(
               borderRadius: borderRadius,
-              borderSide: BorderSide(color: AppColors.borderGray),
+              borderSide: BorderSide(
+                color: AppColors.borderGray,
+                width: thinBorderWidth,
+              ),
             ),
         focusedBorder:
             focusedBorder ??
             OutlineInputBorder(
               borderRadius: borderRadius,
               borderSide: BorderSide(
-                color: AppColors.borderGray.withOpacity(0.8),
+                color: AppColors.primary,
+                width: thinBorderWidth,
               ),
             ),
         errorBorder:
             errorBorder ??
             OutlineInputBorder(
               borderRadius: borderRadius,
-              borderSide: BorderSide(color: AppColors.borderRed),
+              borderSide: BorderSide(
+                color: AppColors.borderRed,
+                width: thinBorderWidth,
+              ),
             ),
         focusedErrorBorder:
             focusedErrorBorder ??
             OutlineInputBorder(
               borderRadius: borderRadius,
-              borderSide: BorderSide(color: AppColors.borderRed),
+              borderSide: BorderSide(
+                color: AppColors.borderRed,
+                width: thinBorderWidth,
+              ),
             ),
         errorStyle: errorStyle,
         prefixIcon: prefixIcon,

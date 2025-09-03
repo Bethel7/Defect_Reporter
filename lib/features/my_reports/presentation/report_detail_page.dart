@@ -1,6 +1,6 @@
 import 'package:defect_reporter/core/common/bottom_app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../core/common/notification_bell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/common/profile_popup_menu.dart';
@@ -35,284 +35,290 @@ class ReportDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repository = ref.watch(reportRepositoryProvider);
-    final userId = ref.watch(userIdProvider);
-
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    // Removed unused isDark variable
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor:
+            theme.appBarTheme.backgroundColor ?? colorScheme.primary,
         elevation: 0,
         shadowColor: Colors.transparent,
         titleSpacing: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(
+            Icons.arrow_back,
+            color: theme.appBarTheme.foregroundColor ?? colorScheme.onPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
           tooltip: 'Back',
         ),
         title: Text(
           'Report Detail',
           style: TextStyles.headlineMedium.copyWith(
-            color: Colors.black,
+            color: theme.appBarTheme.foregroundColor ?? colorScheme.onPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: () {
-                Navigator.pushNamed(context, '/notifications');
-              },
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.accent,
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Icon(
-                    FontAwesomeIcons.bell,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          NotificationBell(),
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: ProfilePopupMenu(),
           ),
         ],
       ),
-      body: FutureBuilder<ReportModel?>(
-        future: ref
-            .read(
-              myReportsProvider({
-                'repository': repository,
-                'userId': userId,
-              }).notifier,
-            )
-            .fetchReportById(reportId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          final report = snapshot.data;
-          if (report == null) {
-            return const Center(child: Text('Report not found.'));
-          }
-          // Display all backend fields
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ListView(
-              children: [
-                // Title
-                Semantics(
-                  label: 'Report Title',
-                  child: TextFormField(
-                    initialValue: report.title,
-                    decoration: InputDecoration(
-                      labelText: 'Title',
-                      border: InputBorders.adaptive(
-                        color: AppColors.borderGray,
-                      ),
-                      enabledBorder: InputBorders.adaptive(
-                        color: AppColors.borderGray,
-                      ),
-                      focusedBorder: InputBorders.adaptive(
-                        color: AppColors.success,
-                      ),
-                      labelStyle: const TextStyle(color: AppColors.borderGray),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                    ),
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: Color(0xFF252525),
-                    ),
-                    readOnly: true,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Description
-                Semantics(
-                  label: 'Report Description',
-                  child: TextFormField(
-                    initialValue: report.description,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      labelText: 'Description',
-                      border: InputBorders.adaptive(
-                        color: AppColors.borderGray,
-                      ),
-                      enabledBorder: InputBorders.adaptive(
-                        color: AppColors.borderGray,
-                      ),
-                      focusedBorder: InputBorders.adaptive(
-                        color: AppColors.success,
-                      ),
-                      labelStyle: const TextStyle(color: AppColors.borderGray),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                    ),
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: Color(0xFF252525),
-                    ),
-                    readOnly: true,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Location Name (from backend: locationName, fallback to location)
-                Semantics(
-                  label: 'Location',
-                  child: TextFormField(
-                    initialValue:
-                        (report.locationName != null &&
-                            report.locationName!.isNotEmpty)
-                        ? report.locationName!
-                        : report.location,
-                    decoration: InputDecoration(
-                      labelText: 'Location',
-                      border: InputBorders.adaptive(
-                        color: AppColors.borderGray,
-                      ),
-                      enabledBorder: InputBorders.adaptive(
-                        color: AppColors.borderGray,
-                      ),
-                      focusedBorder: InputBorders.adaptive(
-                        color: AppColors.success,
-                      ),
-                      labelStyle: const TextStyle(color: AppColors.borderGray),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                    ),
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: Color(0xFF252525),
-                    ),
-                    readOnly: true,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const SizedBox(height: 24),
-                // Status and Timestamp
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+      body: ref
+          .watch(userIdProvider)
+          .when(
+            data: (userId) {
+              final repository = ref.read(reportRepositoryProvider);
+              return FutureBuilder<ReportModel?>(
+                future: ref
+                    .read(
+                      myReportsProvider({
+                        'repository': repository,
+                        'userId': userId,
+                      }).notifier,
+                    )
+                    .fetchReportById(reportId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  final report = snapshot.data;
+                  if (report == null) {
+                    return const Center(child: Text('Report not found.'));
+                  }
+                  // Display all backend fields
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ListView(
                       children: [
-                        const Text(
-                          'Status',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        // Title
                         Semantics(
-                          label: 'Status: ${report.status}',
-                          child: Container(
-                            margin: const EdgeInsets.only(top: 4),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: ReportUtils.statusColor(report.status),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Text(
-                              report.status,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
+                          label: 'Report Title',
+                          child: TextFormField(
+                            initialValue: report.title,
+                            decoration: InputDecoration(
+                              labelText: 'Title',
+                              border: InputBorders.adaptive(
+                                color: AppColors.borderGray,
+                              ),
+                              enabledBorder: InputBorders.adaptive(
+                                color: AppColors.borderGray,
+                              ),
+                              focusedBorder: InputBorders.adaptive(
+                                color: AppColors.success,
+                              ),
+                              labelStyle: const TextStyle(
+                                color: AppColors.borderGray,
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
                               ),
                             ),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF252525),
+                            ),
+                            readOnly: true,
                           ),
                         ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text(
-                          'Timestamp',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        const SizedBox(height: 16),
+                        // Description
                         Semantics(
-                          label:
-                              'Reported at ${ReportUtils.formatDate(report.timestamp)}',
-                          child: Text(ReportUtils.formatDate(report.timestamp)),
+                          label: 'Report Description',
+                          child: TextFormField(
+                            initialValue: report.description,
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                              labelText: 'Description',
+                              border: InputBorders.adaptive(
+                                color: AppColors.borderGray,
+                              ),
+                              enabledBorder: InputBorders.adaptive(
+                                color: AppColors.borderGray,
+                              ),
+                              focusedBorder: InputBorders.adaptive(
+                                color: AppColors.success,
+                              ),
+                              labelStyle: const TextStyle(
+                                color: AppColors.borderGray,
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                            ),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF252525),
+                            ),
+                            readOnly: true,
+                          ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                // Image
-                const Text(
-                  'Image',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Semantics(
-                  label: report.imageUrl.isNotEmpty
-                      ? 'Report image'
-                      : 'No image attached',
-                  child: report.imageUrl.isNotEmpty
-                      ? GestureDetector(
-                          onTap: () =>
-                              _showFullImageDialog(context, report.imageUrl),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              report.imageUrl,
-                              height: 160,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                    height: 160,
-                                    color: AppColors.primary.withOpacity(0.1),
-                                    child: const Center(
-                                      child: Text('Image not available'),
+                        const SizedBox(height: 16),
+                        // Location Name (from backend: locationName, fallback to location)
+                        Semantics(
+                          label: 'Location',
+                          child: TextFormField(
+                            initialValue:
+                                (report.locationName != null &&
+                                    report.locationName!.isNotEmpty)
+                                ? report.locationName!
+                                : report.locationName,
+                            decoration: InputDecoration(
+                              labelText: 'Location',
+                              border: InputBorders.adaptive(
+                                color: AppColors.borderGray,
+                              ),
+                              enabledBorder: InputBorders.adaptive(
+                                color: AppColors.borderGray,
+                              ),
+                              focusedBorder: InputBorders.adaptive(
+                                color: AppColors.success,
+                              ),
+                              labelStyle: const TextStyle(
+                                color: AppColors.borderGray,
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                            ),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF252525),
+                            ),
+                            readOnly: true,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const SizedBox(height: 24),
+                        // Status and Timestamp
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Status',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Semantics(
+                                  label: 'Status: ${report.status}',
+                                  child: Container(
+                                    margin: const EdgeInsets.only(top: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: ReportUtils.statusColor(
+                                        report.status,
+                                      ),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Text(
+                                      report.status,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
+                                ),
+                              ],
                             ),
-                          ),
-                        )
-                      : Container(
-                          height: 160,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Center(child: Text('No image')),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                const Text(
+                                  'Timestamp',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Semantics(
+                                  label:
+                                      'Reported at ${ReportUtils.formatDate(report.timestamp)}',
+                                  child: Text(
+                                    ReportUtils.formatDate(report.timestamp),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+                        const SizedBox(height: 24),
+                        // Image
+                        const Text(
+                          'Image',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Semantics(
+                          label: report.imageUrl.isNotEmpty
+                              ? 'Report image'
+                              : 'No image attached',
+                          child: report.imageUrl.isNotEmpty
+                              ? GestureDetector(
+                                  onTap: () => _showFullImageDialog(
+                                    context,
+                                    report.imageUrl,
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      report.imageUrl,
+                                      height: 160,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                height: 160,
+                                                color: AppColors.primary
+                                                    .withOpacity(0.1),
+                                                child: const Center(
+                                                  child: Text(
+                                                    'Image not available',
+                                                  ),
+                                                ),
+                                              ),
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                  height: 160,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Center(child: Text('No image')),
+                                ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => Center(child: Text('Error: $err')),
+          ),
       bottomNavigationBar: const MainBottomAppBar(),
     );
   }

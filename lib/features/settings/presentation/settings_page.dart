@@ -28,7 +28,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         elevation: 0,
@@ -214,7 +214,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       );
                     },
                   ),
-                  // Removed onTap to prevent rebuild errors
                 ),
               ),
             ),

@@ -10,7 +10,7 @@ abstract class ReportRemoteDataSource {
   Future<List<String>> submitReports(List<ReportModel> reports);
 
   /// Fetches all reports for the user. Throws on error.
-  Future<List<ReportModel>> getMyReports(String userId);
+  Future<List<ReportModel>> getMyReports(int userId);
 
   /// Fetch a specific report by ID
   Future<ReportModel> getMyReportById(String id);
@@ -19,54 +19,88 @@ abstract class ReportRemoteDataSource {
 class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
   @override
   Future<List<String>> submitMultipleReports(List<ReportModel> reports) async {
-    // You can reuse the logic from submitReports or call it directly
-    return await submitReports(reports);
+    // Use the batch endpoint for both single and multiple reports
+    final formData = FormData();
+    for (int i = 0; i < reports.length; i++) {
+      final report = reports[i];
+      formData.fields.addAll([
+        MapEntry('reportDtos[' + i.toString() + '].Title', report.title),
+        MapEntry(
+          'reportDtos[' + i.toString() + '].Description',
+          report.description,
+        ),
+        MapEntry(
+          'reportDtos[' + i.toString() + '].LocationID',
+          report.locationId?.toString() ?? '',
+        ),
+        MapEntry(
+          'reportDtos[' + i.toString() + '].Latitude',
+          report.latitude?.toString() ?? '',
+        ),
+        MapEntry(
+          'reportDtos[' + i.toString() + '].Longitude',
+          report.longitude?.toString() ?? '',
+        ),
+      ]);
+      if (report.imageUrl.isNotEmpty) {
+        formData.files.add(
+          MapEntry(
+            'reportDtos[' + i.toString() + '].Image',
+            await MultipartFile.fromFile(
+              report.imageUrl,
+              filename: report.imageUrl.split('/').last,
+            ),
+          ),
+        );
+      }
+    }
+    final response = await _dio.post(
+      '/api/reports/submit-multiple',
+      data: formData,
+    );
+    print(
+      'SubmitMultipleReports response: status=${response.statusCode}, data=${response.data}',
+    );
+    if (response.statusCode == 200) {
+      final ids =
+          response.data['ReportIds'] ??
+          response.data['reportIds'] ??
+          response.data['ids'] ??
+          [];
+      return (ids as List).map((e) => e.toString()).toList();
+    } else {
+      throw Exception(response.data['Message'] ?? 'Failed to submit reports');
+    }
   }
 
   @override
   Future<List<String>> submitReports(List<ReportModel> reports) async {
-    try {
-      final formData = FormData.fromMap({
-        'Reports': reports.map((r) => r.toJson()).toList(),
-      });
-      final response = await _dio.post(
-        '/api/reports/submit-multiple',
-        data: formData,
-      );
-      if (response.statusCode == 200) {
-        final List<dynamic> ids = response.data['ReportIds'] ?? [];
-        return ids.map((e) => e.toString()).toList();
-      } else {
-        final isSingle = reports.length == 1;
-        throw Exception(
-          response.data['Message'] ??
-              (isSingle
-                  ? 'Failed to submit report'
-                  : 'Failed to submit reports'),
-        );
-      }
-    } catch (e) {
-      final isSingle = reports.length == 1;
-      throw Exception(
-        'Network error: $e. ' +
-            (isSingle ? 'Failed to submit report' : 'Failed to submit reports'),
-      );
-    }
+    return await submitMultipleReports(reports);
   }
 
   final Dio _dio = ApiClient().dio;
 
   @override
-  Future<List<ReportModel>> getMyReports(String userId) async {
+  Future<List<ReportModel>> getMyReports(int userId) async {
     try {
-      // If your API supports pagination, add query params here
       final response = await _dio.get(
         '/api/reports/my-reports',
         queryParameters: {'userId': userId},
       );
+      print('Raw API response: \\n${response.data}');
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data['Data'] ?? [];
-        return data.map((e) => ReportModel.fromJson(e)).toList();
+        final List<dynamic> data =
+            response.data['reports'] ??
+            response.data['Reports'] ??
+            response.data['Data'] ??
+            response.data['data'] ??
+            [];
+        print('Parsed reports raw list: $data');
+        final List<ReportModel> reports = data
+            .map((e) => ReportModel.fromJson(e))
+            .toList();
+        print('Parsed reports as models: $reports');
+        return reports;
       } else {
         throw Exception(response.data['Message'] ?? 'Failed to fetch reports');
       }
@@ -80,7 +114,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
     try {
       final response = await _dio.get('/api/reports/my-reports/$id');
       if (response.statusCode == 200) {
-        final data = response.data['Data'];
+        final data = response.data['report'];
         return ReportModel.fromJson(data);
       } else {
         throw Exception(response.data['Message'] ?? 'Failed to fetch report');

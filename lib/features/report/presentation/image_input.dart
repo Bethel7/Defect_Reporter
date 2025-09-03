@@ -162,13 +162,40 @@ class _ImageInputState extends State<ImageInput> {
           borderRadius: BorderRadius.circular(16),
         ),
         child: _imageFile != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.file(
-                  _imageFile!,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
+            ? Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.file(
+                      _imageFile!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() => _imageFile = null);
+                        widget.onImageSelected('');
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,

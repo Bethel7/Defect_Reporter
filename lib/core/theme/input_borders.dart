@@ -30,7 +30,7 @@ class InputBorders {
         borderRadius: BorderRadius.circular(radius),
         borderSide: BorderSide(
           color: isError ? AppColors.borderRed : color,
-          width: 2.0,
+          width: 0.7,
         ),
       );
     }

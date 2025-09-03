@@ -1,10 +1,14 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../features/auth/data/user_model.dart';
 import '../api_client.dart';
 import '../core/utils/service_error.dart';
 
 class AuthService {
-  final Dio _dio;
+  Dio _dio;
+    // a mock Dio instance for testing purpose
+  @visibleForTesting
+  set testDio(Dio dio) => _dio = dio;
 
   AuthService() : _dio = ApiClient().dio;
 
@@ -15,7 +19,6 @@ class AuthService {
         data: {'employeeId': employeeId, 'password': password},
       );
       final data = response.data;
-      final user = UserModel.fromJson(data);
 
       return UserModel.fromJson(data);
     } on DioException catch (e) {

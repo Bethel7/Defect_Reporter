@@ -6,7 +6,7 @@ class LocationSelector extends StatefulWidget {
   final int? selectedLocationId;
   final String? selectedLocationName;
   final void Function(int locationId, String locationName) onLocationSelected;
-  final Future<void> Function(String name)? onNewLocationAdded;
+  final Future<int> Function(String name)? onNewLocationAdded;
   final String? errorText;
   final TextStyle? textStyle;
 
@@ -30,22 +30,33 @@ class _LocationSelectorState extends State<LocationSelector> {
   List<LocationModel> _filteredLocations = [];
   bool _showDropdown = false;
   bool _loading = false;
-  FocusNode _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode();
+
+  int? _lastSelectedLocationId;
 
   @override
   void initState() {
     super.initState();
     _controller.text = widget.selectedLocationName ?? '';
     _filteredLocations = widget.locations;
+    _lastSelectedLocationId = widget.selectedLocationId;
     _controller.addListener(_filterLocations);
     _focusNode.addListener(() {
-      if (_focusNode.hasFocus &&
-          _controller.text.isNotEmpty &&
-          _filteredLocations.isNotEmpty) {
+      if (_focusNode.hasFocus) {
         setState(() {
-          _showDropdown = true;
+          // If input is empty, show all locations
+          _filteredLocations = _controller.text.isEmpty
+              ? widget.locations
+              : widget.locations
+                    .where(
+                      (loc) => loc.locationName.toLowerCase().contains(
+                        _controller.text.toLowerCase(),
+                      ),
+                    )
+                    .toList();
+          _showDropdown = _filteredLocations.isNotEmpty;
         });
-      } else if (!_focusNode.hasFocus) {
+      } else {
         setState(() {
           _showDropdown = false;
         });
@@ -62,10 +73,6 @@ class _LocationSelectorState extends State<LocationSelector> {
             ),
           )
           .toList();
-      _showDropdown =
-          _controller.text.isNotEmpty &&
-          _filteredLocations.isNotEmpty &&
-          _focusNode.hasFocus;
     });
   }
 
@@ -111,40 +118,49 @@ class _LocationSelectorState extends State<LocationSelector> {
           onChanged: (val) {
             _filterLocations();
             setState(() {
-              _showDropdown =
-                  val.isNotEmpty &&
-                  _filteredLocations.isNotEmpty &&
-                  _focusNode.hasFocus;
+              // Show dropdown if there are matches (even if input is empty)
+              _showDropdown = _filteredLocations.isNotEmpty;
+              // If user types, clear last selected location
+              if (_lastSelectedLocationId != null) {
+                _lastSelectedLocationId = null;
+              }
             });
           },
-          onTap: () {
-            if (_controller.text.isNotEmpty && _filteredLocations.isNotEmpty) {
-              setState(() {
-                _showDropdown = true;
-              });
-            }
-          },
+          // Remove onTap logic that shows dropdown
           onFieldSubmitted: (val) async {
             final match = widget.locations.firstWhere(
               (loc) => loc.locationName.toLowerCase() == val.toLowerCase(),
-              orElse: () => LocationModel(locationId: -1, locationName: ''),
+              orElse: () => LocationModel(locationID: -1, locationName: ''),
             );
-            if (match.locationId != -1) {
-              widget.onLocationSelected(match.locationId, match.locationName);
+            if (match.locationID != -1) {
+              widget.onLocationSelected(match.locationID, match.locationName);
+              setState(() {
+                _lastSelectedLocationId = match.locationID;
+                _controller.text = match.locationName;
+                _showDropdown = false;
+              });
             } else if (val.trim().isNotEmpty &&
                 widget.onNewLocationAdded != null) {
               setState(() => _loading = true);
               try {
-                await widget.onNewLocationAdded!(val.trim());
+                final newId = await widget.onNewLocationAdded!(val.trim());
                 _controller.text = val.trim();
+                widget.onLocationSelected(newId, val.trim());
+                setState(() {
+                  _lastSelectedLocationId = newId;
+                });
               } catch (e) {
                 // Optionally show error
               }
               setState(() => _loading = false);
+              setState(() {
+                _showDropdown = false;
+              });
+            } else {
+              setState(() {
+                _showDropdown = false;
+              });
             }
-            setState(() {
-              _showDropdown = false;
-            });
           },
         ),
         if (_showDropdown)
@@ -194,10 +210,11 @@ class _LocationSelectorState extends State<LocationSelector> {
                     onTap: () {
                       _controller.text = loc.locationName;
                       widget.onLocationSelected(
-                        loc.locationId,
+                        loc.locationID,
                         loc.locationName,
                       );
                       setState(() {
+                        _lastSelectedLocationId = loc.locationID;
                         _showDropdown = false;
                       });
                       FocusScope.of(context).unfocus();
@@ -209,10 +226,11 @@ class _LocationSelectorState extends State<LocationSelector> {
                     onTap: () {
                       _controller.text = loc.locationName;
                       widget.onLocationSelected(
-                        loc.locationId,
+                        loc.locationID,
                         loc.locationName,
                       );
                       setState(() {
+                        _lastSelectedLocationId = loc.locationID;
                         _showDropdown = false;
                       });
                       FocusScope.of(context).unfocus();

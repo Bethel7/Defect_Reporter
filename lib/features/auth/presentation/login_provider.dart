@@ -23,6 +23,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
   }) async {
     final savedEmployeeId = await _storage.read(key: 'employeeId');
     final savedPassword = await _storage.read(key: 'password');
+    // Only use for autofill, not for userId fetching
     if (savedEmployeeId != null &&
         savedPassword != null &&
         employeeIdController.text.isEmpty &&
@@ -45,7 +46,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
     state = state.copyWith(password: pwd);
   }
 
-  /// Login and persist user info in secure storage.
+  /// Login and persist user info in secure storage, including userId.
   Future<bool> login(WidgetRef ref) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
@@ -53,6 +54,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
       // Store user globally
       ref.read(currentUserProvider.notifier).state = user;
       // Persist user info in secure storage
+      await _storage.write(key: 'userId', value: user.userId.toString());
       await _storage.write(key: 'fullName', value: user.fullName);
       await _storage.write(key: 'role', value: user.role.name);
 
@@ -62,8 +64,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
       String errorMsg = 'An error occurred. Please try again.';
       // Handle ServiceError for 401 Unauthorized
       if (e is ServiceError && e.statusCode == 401) {
-        errorMsg =
-            'Incorrect Employee ID or password. Please try again.';
+        errorMsg = 'Incorrect Employee ID or password. Please try again.';
       } else if (e is ServiceError && e.message.isNotEmpty) {
         // For other service errors, show a generic message
         errorMsg = e.message;
@@ -75,11 +76,21 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
   /// Restore user session from secure storage (call on app start)
   Future<void> restoreUserSession(WidgetRef ref) async {
+    final userIdStr = await _storage.read(key: 'userId');
     final fullName = await _storage.read(key: 'fullName');
     final role = await _storage.read(key: 'role');
-    if (fullName != null && role != null) {
+    final employeeId = await _storage.read(key: 'employeeId');
+    final email = await _storage.read(key: 'email');
+    if (userIdStr != null &&
+        fullName != null &&
+        role != null &&
+        employeeId != null &&
+        email != null) {
       final user = UserModel(
+        userId: int.tryParse(userIdStr) ?? 0,
         fullName: fullName,
+        employeeId: employeeId,
+        email: email,
         role: UserRole.values.firstWhere(
           (e) => e.name == role,
           orElse: () => UserRole.unknown,

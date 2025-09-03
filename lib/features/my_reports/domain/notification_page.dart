@@ -14,7 +14,7 @@ class NotificationPage extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
     final isDark = colorScheme.brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         elevation: 0,

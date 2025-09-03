@@ -24,18 +24,29 @@ class MyReportsState {
 
 class MyReportsNotifier extends StateNotifier<MyReportsState> {
   final ReportRepository _repository;
-  final String userId;
+  final int userId;
 
   MyReportsNotifier(this._repository, this.userId)
-    : super(MyReportsState(reports: []));
+    : super(MyReportsState(reports: [])) {
+    assert(userId != null, 'userId must not be null');
+    print(
+      '[MyReportsNotifier] Constructed with userId: $userId (type: ${userId.runtimeType})',
+    );
+  }
 
   Future<void> loadReports() async {
+    print(
+      '[MyReportsNotifier] loadReports called with userId: $userId (type: ${userId.runtimeType})',
+    );
     state = state.copyWith(isLoading: true, error: null);
     try {
       final reports = await _repository.getMyReports(userId);
       state = state.copyWith(reports: reports, isLoading: false);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Failed to load reports. Please try again later.',
+      );
     }
   }
 
@@ -65,7 +76,7 @@ final myReportsProvider =
       Map<String, dynamic>
     >((ref, args) {
       final repository = args['repository'] as ReportRepository;
-      final userId = args['userId'] as String;
+      final userId = args['userId'] as int;
       final notifier = MyReportsNotifier(repository, userId);
       notifier.loadReports();
       return notifier;

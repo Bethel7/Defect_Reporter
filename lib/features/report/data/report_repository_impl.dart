@@ -29,7 +29,7 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
-  Future<List<ReportModel>> getMyReports(String userId) async {
+  Future<List<ReportModel>> getMyReports(int userId) async {
     try {
       final remoteReports = await remoteDataSource.getMyReports(userId);
       final offlineReports = await offlineStorageService.getOfflineReports();

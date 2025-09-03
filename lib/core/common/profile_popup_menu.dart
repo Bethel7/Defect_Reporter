@@ -96,9 +96,14 @@ class ProfilePopupMenu extends ConsumerWidget {
       child: Semantics(
         label: 'Open profile menu',
         button: true,
-        child: CircleAvatar(
-          backgroundColor: colorScheme.primary,
-          child: Icon(FontAwesomeIcons.user, color: Colors.white, size: 20),
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: CircleAvatar(
+            backgroundColor: colorScheme.primary,
+            radius: 18,
+            child: Icon(FontAwesomeIcons.user, color: Colors.white, size: 20),
+          ),
         ),
       ),
     );

@@ -21,7 +21,7 @@ class HomePage extends ConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor:
             theme.appBarTheme.backgroundColor ?? colorScheme.primary,
@@ -73,7 +73,7 @@ class HomePage extends ConsumerWidget {
               .length;
 
           // Show the most recent 5 reports (or fewer if less exist)
-          final recentReports = reports.reversed.take(5).toList();
+          final recentReports = reports.reversed.take(5).toList()..sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -96,7 +96,7 @@ class HomePage extends ConsumerWidget {
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: colorScheme.onBackground,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   error: (e, _) => Text(
@@ -104,7 +104,7 @@ class HomePage extends ConsumerWidget {
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: colorScheme.onBackground,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   data: (profile) {
@@ -117,7 +117,7 @@ class HomePage extends ConsumerWidget {
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: colorScheme.onBackground,
+                        color: colorScheme.onSurface,
                       ),
                     );
                   },
@@ -127,7 +127,7 @@ class HomePage extends ConsumerWidget {
                   "Welcome back! Here’s your activity summary.",
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 15,
-                    color: colorScheme.onBackground.withOpacity(0.85),
+                    color: colorScheme.onSurface.withOpacity(0.85),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -173,7 +173,7 @@ class HomePage extends ConsumerWidget {
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: colorScheme.onBackground,
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -181,7 +181,7 @@ class HomePage extends ConsumerWidget {
                   Text(
                     "No recent reports.",
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onBackground.withOpacity(0.6),
+                      color: colorScheme.onSurface.withOpacity(0.6),
                     ),
                   ),
                 ...recentReports.map((report) {

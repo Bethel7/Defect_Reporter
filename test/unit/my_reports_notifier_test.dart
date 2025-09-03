@@ -44,13 +44,19 @@ void main() {
       expect(notifier.state.error, isNull);
     });
 
-    test('loadReports sets error on failure', () async {
+    test('loadReports sets user-friendly error on failure', () async {
       when(
         () => mockRepository.getMyReports(userId),
       ).thenThrow(Exception('fail'));
       await notifier.loadReports();
       expect(notifier.state.isLoading, isFalse);
       expect(notifier.state.error, isNotNull);
+      // Check for user-friendly error (not just raw Exception)
+      expect(
+        notifier.state.error!.toLowerCase(),
+        isNot(contains('exception')),
+        reason: 'Error should be user-friendly',
+      );
     });
 
     test('addReport adds a report', () {

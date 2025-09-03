@@ -14,7 +14,9 @@ final reportRepositoryProvider = Provider<ReportRepository>((ref) {
   );
 });
 
-final userIdProvider = FutureProvider<String?>((ref) async {
+final userIdProvider = FutureProvider<int?>((ref) async {
   const storage = FlutterSecureStorage();
-  return await storage.read(key: 'employeeId');
+  final userIdStr = await storage.read(key: 'userId');
+  if (userIdStr == null) return null;
+  return int.tryParse(userIdStr);
 });

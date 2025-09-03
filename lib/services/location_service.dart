@@ -7,21 +7,9 @@ class LocationService {
       // Check if location services are enabled
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        // Prompt the user to enable location services
-        await showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Enable Location Services'),
-            content: const Text(
-              'Location services are disabled. Please enable them in your device settings.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
+        _showMessage(
+          context,
+          'Location services are disabled. Please enable them in your device settings.',
         );
         return null;
       }
@@ -34,12 +22,21 @@ class LocationService {
 
       // Handle all possible permission states
       if (permission == LocationPermission.denied) {
+        _showMessage(
+          context,
+          'Location permission denied. Please allow access in your device settings.',
+        );
         return null;
       }
       if (permission == LocationPermission.deniedForever) {
+        _showMessage(
+          context,
+          'Location permission permanently denied. Please enable it in your device settings.',
+        );
         return null;
       }
       if (permission == LocationPermission.unableToDetermine) {
+        _showMessage(context, 'Unable to determine location permission.');
         return null;
       }
 
@@ -48,7 +45,14 @@ class LocationService {
         desiredAccuracy: LocationAccuracy.high,
       );
     } catch (e) {
+      _showMessage(context, 'Failed to get location. Please try again.');
       return null;
     }
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

@@ -161,7 +161,7 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
                                     vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: theme.colorScheme.surfaceVariant,
+                                    color: theme.colorScheme.surfaceContainerHighest,
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: Text(
@@ -183,7 +183,7 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Location: ${report.location}',
+                              'Location: ${report.locationName}',
                               style:
                                   theme.textTheme.bodyMedium?.copyWith(
                                     color: theme.colorScheme.onSurface,

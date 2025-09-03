@@ -19,7 +19,7 @@ class NotificationDetailPage extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         backgroundColor:
             theme.appBarTheme.backgroundColor ?? colorScheme.surface,

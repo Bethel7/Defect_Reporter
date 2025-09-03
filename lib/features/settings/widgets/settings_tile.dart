@@ -16,16 +16,20 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
+          if (!isDark)
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
         ],
       ),
       child: Material(
@@ -43,16 +47,22 @@ class SettingsTile extends StatelessWidget {
                 Expanded(
                   child: Text(
                     label,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: AppColors.text,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style:
+                        theme.textTheme.bodyLarge?.copyWith(
+                          fontSize: 16,
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.w500,
+                        ) ??
+                        TextStyle(
+                          fontSize: 16,
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                 ),
-                const FaIcon(
+                FaIcon(
                   FontAwesomeIcons.chevronRight,
-                  color: AppColors.text,
+                  color: colorScheme.onSurface,
                   size: 16,
                 ),
               ],

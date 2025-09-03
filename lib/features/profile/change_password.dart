@@ -13,6 +13,17 @@ Future<bool?> showChangePasswordSheet(BuildContext context) async {
   final theme = Theme.of(context);
   final colorScheme = theme.colorScheme;
 
+  // Move controllers outside the builder so they persist for the lifetime of the bottom sheet
+  final currentPasswordController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  void disposeControllers() {
+    currentPasswordController.dispose();
+    newPasswordController.dispose();
+    confirmPasswordController.dispose();
+  }
+
   final result = await showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
@@ -20,18 +31,6 @@ Future<bool?> showChangePasswordSheet(BuildContext context) async {
     builder: (ctx) {
       return StatefulBuilder(
         builder: (context, setState) {
-          // Controllers are created inside the StatefulBuilder so they are disposed with the bottom sheet
-          final currentPasswordController = TextEditingController();
-          final newPasswordController = TextEditingController();
-          final confirmPasswordController = TextEditingController();
-
-          // Dispose controllers when the bottom sheet is removed
-          void disposeControllers() {
-            currentPasswordController.dispose();
-            newPasswordController.dispose();
-            confirmPasswordController.dispose();
-          }
-
           return WillPopScope(
             onWillPop: () async {
               disposeControllers();

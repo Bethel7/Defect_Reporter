@@ -18,7 +18,6 @@ import '../../../features/report/data/report_repository_provider.dart';
 import '../../../services/offline_storage_service.dart';
 import 'location_selector.dart';
 import 'location_provider.dart';
-import '../../report/data/location_model.dart';
 import '../../../core/common/notification_bell.dart';
 
 class ReportFormPage extends ConsumerStatefulWidget {
@@ -29,12 +28,23 @@ class ReportFormPage extends ConsumerStatefulWidget {
 }
 
 class _ReportFormPageState extends ConsumerState<ReportFormPage> {
+  final FocusNode _titleFocusNode = FocusNode();
+  final FocusNode _descriptionFocusNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
   bool _titleTouched = false;
   bool _descriptionTouched = false;
   bool _submitted = false;
   String? _locationError;
   String? _imageError;
+
+  Future<void> _refreshForm() async {
+    // Example: reload locations or any other async data needed for the form
+    // You can expand this as needed
+    ref.invalidate(activeLocationsProvider);
+    // Optionally, you can also reload userIdProvider if needed:
+    // ref.invalidate(userIdProvider);
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,37 +71,76 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
       data: (userId) => GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
-          backgroundColor: colorScheme.background,
+          backgroundColor: theme.scaffoldBackgroundColor,
           appBar: AppBar(
-            backgroundColor:
-                theme.appBarTheme.backgroundColor ?? colorScheme.surface,
-            titleSpacing: 0,
-            title: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                'New Report',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
+            backgroundColor: colorScheme.brightness == Brightness.dark
+                ? Colors.grey[900]
+                : Colors.white,
+            elevation: 0,
+            leading: Semantics(
+              label: 'Back',
+              button: true,
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: colorScheme.brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black,
                 ),
+                onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/home',
+                  (route) => false,
+                ),
+                tooltip: 'Back',
               ),
             ),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
-              onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/home',
-                (route) => false,
+            title: Semantics(
+              label: 'New Report Page',
+              header: true,
+              child: Text(
+                'New Report',
+                style:
+                    theme.textTheme.titleLarge?.copyWith(
+                      color: colorScheme.brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                    ) ??
+                    TextStyle(
+                      color: colorScheme.brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                    ),
               ),
-              tooltip: 'Back',
             ),
             actions: [
               const NotificationBell(),
-              const Padding(
-                padding: EdgeInsets.only(right: 16),
-                child: ProfilePopupMenu(),
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Semantics(
+                  label: 'Open profile menu',
+                  button: true,
+                  child: ProfilePopupMenu(),
+                ),
               ),
             ],
+            centerTitle: false,
+            scrolledUnderElevation: 0,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1),
+              child: Container(
+                color:
+                    (colorScheme.brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black)
+                        .withOpacity(0.07),
+                height: 1,
+              ),
+            ),
           ),
           body: Column(
             children: [
@@ -101,32 +150,83 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                   child: Form(
                     key: _formKey,
                     autovalidateMode: AutovalidateMode.disabled,
-                    child: ListView(
-                      children: [
-                        Center(
-                          child: Container(
-                            constraints: const BoxConstraints(maxWidth: 400),
-                            child: Semantics(
-                              label: 'Report Title Input',
-                              textField: true,
+                    child: RefreshIndicator(
+                      onRefresh: _refreshForm,
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          Center(
+                            child: Container(
+                              constraints: const BoxConstraints(maxWidth: 400),
+                              child: Semantics(
+                                label: 'Report Title Input',
+                                textField: true,
+                                child: CustomTextField(
+                                  label: 'Title',
+                                  initialValue: formState.title,
+                                  maxLines: 1,
+                                  validator: (val) {
+                                    if (!_titleTouched && !_submitted) {
+                                      return null;
+                                    }
+                                    return Validators.validateTitle(val);
+                                  },
+                                  onChanged: (val) {
+                                    formProvider.setTitle(val);
+                                    setState(() => _titleTouched = true);
+                                  },
+                                  focusNode: _titleFocusNode,
+                                  border: grayBorder,
+                                  enabledBorder: grayBorder,
+                                  focusedBorder:
+                                      (_titleFocusNode.hasFocus && titleValid)
+                                      ? greenBorder
+                                      : (_titleFocusNode.hasFocus &&
+                                            !_titleTouched &&
+                                            !_submitted)
+                                      ? grayBorder
+                                      : (_titleFocusNode.hasFocus
+                                            ? redBorder
+                                            : grayBorder),
+                                  errorBorder: redBorder,
+                                  focusedErrorBorder: redBorder,
+                                  errorStyle: const TextStyle(
+                                    color: AppColors.error,
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Color(0xFF252525),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          // Description (twice the height)
+                          Semantics(
+                            label: 'Report Description Input',
+                            textField: true,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width - 32,
+                              margin: const EdgeInsets.symmetric(horizontal: 0),
                               child: CustomTextField(
-                                label: 'Title',
-                                initialValue: formState.title,
-                                maxLines: 1,
-                                validator: (val) {
-                                  if (!_titleTouched && !_submitted)
-                                    return null;
-                                  return Validators.validateTitle(val);
-                                },
-                                onChanged: (val) {
-                                  formProvider.setTitle(val);
-                                  setState(() => _titleTouched = true);
-                                },
+                                label: 'Description',
+                                initialValue: formState.description,
+                                maxLines: 2,
+                                focusNode: _descriptionFocusNode,
                                 border: grayBorder,
                                 enabledBorder: grayBorder,
-                                focusedBorder: titleValid
+                                focusedBorder:
+                                    (_descriptionFocusNode.hasFocus &&
+                                        descriptionValid)
                                     ? greenBorder
-                                    : grayBorder,
+                                    : (_descriptionFocusNode.hasFocus &&
+                                          !_descriptionTouched &&
+                                          !_submitted)
+                                    ? grayBorder
+                                    : (_descriptionFocusNode.hasFocus
+                                          ? redBorder
+                                          : grayBorder),
                                 errorBorder: redBorder,
                                 focusedErrorBorder: redBorder,
                                 errorStyle: const TextStyle(
@@ -136,308 +236,290 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                   fontSize: 15,
                                   color: Color(0xFF252525),
                                 ),
+                                onChanged: (val) {
+                                  formProvider.setDescription(val);
+                                  setState(() => _descriptionTouched = true);
+                                },
+                                validator: (val) {
+                                  if (!_descriptionTouched && !_submitted) {
+                                    return null;
+                                  }
+                                  return Validators.validateDescription(val);
+                                },
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Description (twice the height)
-                        Semantics(
-                          label: 'Report Description Input',
-                          textField: true,
-                          child: Container(
-                            width: MediaQuery.of(context).size.width - 32,
-                            margin: const EdgeInsets.symmetric(horizontal: 0),
-                            child: CustomTextField(
-                              label: 'Description',
-                              initialValue: formState.description,
-                              maxLines: 2,
-                              border: grayBorder,
-                              enabledBorder: grayBorder,
-                              focusedBorder: descriptionValid
-                                  ? greenBorder
-                                  : grayBorder,
-                              errorBorder: redBorder,
-                              focusedErrorBorder: redBorder,
-                              errorStyle: const TextStyle(
-                                color: AppColors.error,
+                          const SizedBox(height: 16),
+                          // Location Selector
+                          Center(
+                            child: Container(
+                              constraints: const BoxConstraints(maxWidth: 400),
+                              child: Semantics(
+                                label: 'Location Selector',
+                                child: Consumer(
+                                  builder: (context, ref, _) {
+                                    final locationsAsync = ref.watch(
+                                      activeLocationsProvider,
+                                    );
+                                    return locationsAsync.when(
+                                      data: (locations) => LocationSelector(
+                                        locations: locations,
+                                        selectedLocationId:
+                                            formState.locationId,
+                                        selectedLocationName:
+                                            formState.locationName,
+                                        onLocationSelected: (id, name) {
+                                          formProvider.setLocation(id, name);
+                                          setState(() => _locationError = null);
+                                        },
+                                        onNewLocationAdded: (name) async {
+                                          final service = ref.read(
+                                            locationApiServiceProvider,
+                                          );
+                                          final newId = await service
+                                              .createLocation(name);
+                                          // Invalidate the provider so the dropdown refreshes
+                                          ref.invalidate(
+                                            activeLocationsProvider,
+                                          );
+                                          formProvider.setLocation(newId, name);
+                                          setState(() => _locationError = null);
+                                          return newId;
+                                        },
+                                        errorText: _locationError,
+                                        textStyle: const TextStyle(
+                                          color: Color(0xFF252525),
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      loading: () =>
+                                          const CircularProgressIndicator(),
+                                      error: (e, _) => Text('Error: $e'),
+                                    );
+                                  },
+                                ),
                               ),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                color: Color(0xFF252525),
-                              ),
-                              onChanged: (val) {
-                                formProvider.setDescription(val);
-                                setState(() => _descriptionTouched = true);
-                              },
-                              validator: (val) {
-                                if (!_descriptionTouched && !_submitted) {
-                                  return null;
-                                }
-                                return Validators.validateDescription(val);
-                              },
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Location Selector
-                        Center(
-                          child: Container(
-                            constraints: const BoxConstraints(maxWidth: 400),
-                            child: Semantics(
-                              label: 'Location Selector',
-                              child: Consumer(
-                                builder: (context, ref, _) {
-                                  final locationsAsync = ref.watch(
-                                    activeLocationsProvider,
-                                  );
-                                  return locationsAsync.when(
-                                    data: (locations) => LocationSelector(
-                                      locations: locations
-                                          .map(
-                                            (json) =>
-                                                LocationModel.fromJson(json),
-                                          )
-                                          .toList(),
-                                      selectedLocationId: formState.locationId,
-                                      selectedLocationName:
-                                          formState.locationName,
-                                      onLocationSelected: (id, name) {
-                                        formProvider.setLocation(id, name);
-                                        setState(() => _locationError = null);
-                                      },
-                                      onNewLocationAdded: (name) async {
-                                        final service = ref.read(
-                                          locationApiServiceProvider,
-                                        );
-                                        final newId = await service
-                                            .createLocation(name);
-                                        formProvider.setLocation(newId, name);
-                                        setState(() => _locationError = null);
-                                      },
-                                      errorText: _locationError,
-                                      textStyle: const TextStyle(
-                                        color: Color(0xFF252525),
-                                        fontSize: 15,
+                          const SizedBox(height: 32),
+                          // Image upload area
+                          Semantics(
+                            label: 'Image Upload Area',
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ImageInput(
+                                  onImageSelected: (path) {
+                                    formProvider.setImagePath(path);
+                                    setState(() => _imageError = null);
+                                  },
+                                ),
+                                if (_imageError != null) ...[
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 8.0,
+                                      left: 8.0,
+                                    ),
+                                    child: Text(
+                                      _imageError!,
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 13,
                                       ),
                                     ),
-                                    loading: () =>
-                                        const CircularProgressIndicator(),
-                                    error: (e, _) => Text('Error: $e'),
-                                  );
-                                },
-                              ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 32),
-                        // Image upload area
-                        Semantics(
-                          label: 'Image Upload Area',
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          const SizedBox(height: 32),
+                          // Cancel and Submit buttons
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              ImageInput(
-                                onImageSelected: (path) {
-                                  formProvider.setImagePath(path);
-                                  setState(() => _imageError = null);
-                                },
-                              ),
-                              if (_imageError != null) ...[
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 8.0,
-                                    left: 8.0,
-                                  ),
-                                  child: Text(
-                                    _imageError!,
-                                    style: const TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 13,
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: const Color(0xFF474747),
+                                    side: const BorderSide(
+                                      color: AppColors.borderGray,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(40),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 12,
                                     ),
                                   ),
+                                  onPressed: () {
+                                    ref
+                                        .read(reportFormProvider.notifier)
+                                        .reset();
+                                    Navigator.pushReplacementNamed(
+                                      context,
+                                      '/home',
+                                    );
+                                  },
+                                  child: const Text('Cancel'),
                                 ),
-                              ],
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        // Cancel and Submit buttons
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: const Color(0xFF474747),
-                                  side: const BorderSide(
-                                    color: AppColors.borderGray,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(40),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 12,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  ref.read(reportFormProvider.notifier).reset();
-                                  Navigator.pushReplacementNamed(
-                                    context,
-                                    '/home',
-                                  );
-                                },
-                                child: const Text('Cancel'),
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: CustomButton(
-                                label: 'Submit',
-                                isLoading: formState.isSubmitting,
-                                onPressed: formState.isSubmitting
-                                    ? null
-                                    : () async {
-                                        setState(() => _submitted = true);
-                                        bool valid = _formKey.currentState!
-                                            .validate();
-                                        String? locationError =
-                                            Validators.validateLocationId(
-                                              formState.locationId?.toString(),
-                                            );
-                                        String? imageError =
-                                            Validators.validateImagePath(
-                                              formState.imagePath,
-                                            );
-                                        setState(() {
-                                          _locationError = locationError;
-                                          _imageError = imageError;
-                                        });
-                                        if (valid &&
-                                            locationError == null &&
-                                            imageError == null) {
-                                          final isOnline =
-                                              await InternetStatusChecker
-                                                  .instance
-                                                  .isConnected;
-                                          if (isOnline) {
-                                            final result = await formProvider
-                                                .submit(context);
-                                            if (result != null &&
-                                                context.mounted) {
-                                              ref
-                                                  .read(
-                                                    myReportsProvider({
-                                                      'repository': repository,
-                                                      'userId': userId,
-                                                    }).notifier,
-                                                  )
-                                                  .addReport(
-                                                    ReportModel(
-                                                      id:
-                                                          result['reportId'] ??
-                                                          '',
-                                                      title: formState.title,
-                                                      description:
-                                                          formState.description,
-                                                      location:
-                                                          formState
-                                                              .locationName ??
-                                                          '',
-                                                      status: 'submitted',
-                                                      imageUrl:
-                                                          formState.imagePath,
-                                                      timestamp:
-                                                          DateTime.tryParse(
-                                                            result['timestamp']
-                                                                    ?.toString() ??
-                                                                '',
-                                                          ) ??
-                                                          DateTime.now(),
-                                                    ),
-                                                  );
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: CustomButton(
+                                  label: 'Submit',
+                                  isLoading: formState.isSubmitting,
+                                  onPressed: formState.isSubmitting
+                                      ? null
+                                      : () async {
+                                          setState(() => _submitted = true);
+                                          bool valid = _formKey.currentState!
+                                              .validate();
+                                          String? locationError =
+                                              Validators.validateLocationId(
+                                                formState.locationId
+                                                    ?.toString(),
+                                              );
+                                          String? imageError =
+                                              Validators.validateImagePath(
+                                                formState.imagePath,
+                                              );
+                                          setState(() {
+                                            _locationError = locationError;
+                                            _imageError = imageError;
+                                          });
+                                          if (valid &&
+                                              locationError == null &&
+                                              imageError == null) {
+                                            final isOnline =
+                                                await InternetStatusChecker
+                                                    .instance
+                                                    .isConnected;
+                                            if (isOnline) {
+                                              final result = await formProvider
+                                                  .submit(context);
+                                              if (result != null &&
+                                                  context.mounted) {
+                                                ref
+                                                    .read(
+                                                      myReportsProvider({
+                                                        'repository':
+                                                            repository,
+                                                        'userId': userId ?? '',
+                                                      }).notifier,
+                                                    )
+                                                    .addReport(
+                                                      ReportModel(
+                                                        id:
+                                                            result['reportId'] ??
+                                                            '',
+                                                        title: formState.title,
+                                                        description: formState
+                                                            .description,
+                                                        locationName:
+                                                            formState
+                                                                .locationName ??
+                                                            '',
+                                                        status: 'submitted',
+                                                        imageUrl:
+                                                            formState.imagePath,
+                                                        timestamp:
+                                                            DateTime.tryParse(
+                                                              result['timestamp']
+                                                                      ?.toString() ??
+                                                                  '',
+                                                            ) ??
+                                                            DateTime.now(),
+                                                      ),
+                                                    );
+                                                ref
+                                                    .read(
+                                                      reportFormProvider
+                                                          .notifier,
+                                                    )
+                                                    .reset();
+                                                final report = ReportModel(
+                                                  id: result['reportId'] ?? '',
+                                                  title: formState.title,
+                                                  description:
+                                                      formState.description,
+                                                  locationName:
+                                                      formState.locationName ??
+                                                      '',
+                                                  status: 'submitted',
+                                                  imageUrl: formState.imagePath,
+                                                  timestamp:
+                                                      DateTime.tryParse(
+                                                        result['timestamp']
+                                                                ?.toString() ??
+                                                            '',
+                                                      ) ??
+                                                      DateTime.now(),
+                                                );
+                                                Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        ReportConfirmationPage(
+                                                          report: report,
+                                                        ),
+                                                  ),
+                                                );
+                                              }
+                                            } else {
+                                              final report = ReportModel(
+                                                id: DateTime.now()
+                                                    .millisecondsSinceEpoch
+                                                    .toString(),
+                                                title: formState.title,
+                                                description:
+                                                    formState.description,
+                                                locationName:
+                                                    formState.locationName ??
+                                                    '',
+                                                status: 'submitted',
+                                                imageUrl: formState.imagePath,
+                                                timestamp: DateTime.now(),
+                                              );
+                                              await OfflineStorageService()
+                                                  .saveReport(report);
                                               ref
                                                   .read(
                                                     reportFormProvider.notifier,
                                                   )
                                                   .reset();
-                                              Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      ReportConfirmationPage(
-                                                        reportId:
-                                                            result['reportId']!,
-                                                        timestamp:
-                                                            result['timestamp']!,
-                                                        submittedTitle:
-                                                            formState.title,
-                                                        submittedDescription:
-                                                            formState
-                                                                .description,
-                                                        submittedLocation:
-                                                            formState
-                                                                .locationName ??
-                                                            '',
-                                                        submittedImageUrl:
-                                                            formState.imagePath,
-                                                      ),
-                                                ),
-                                              );
-                                            }
-                                          } else {
-                                            final report = ReportModel(
-                                              id: DateTime.now()
-                                                  .millisecondsSinceEpoch
-                                                  .toString(),
-                                              title: formState.title,
-                                              description:
-                                                  formState.description,
-                                              location:
-                                                  formState.locationName ?? '',
-                                              status: 'submitted',
-                                              imageUrl: formState.imagePath,
-                                              timestamp: DateTime.now(),
-                                            );
-                                            await OfflineStorageService()
-                                                .saveReport(report);
-                                            ref
-                                                .read(
-                                                  reportFormProvider.notifier,
-                                                )
-                                                .reset();
-                                            if (context.mounted) {
-                                              Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      CachedReportConfirmationPage(
-                                                        report: report,
-                                                      ),
-                                                ),
-                                              );
+                                              if (context.mounted) {
+                                                Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        CachedReportConfirmationPage(
+                                                          report: report,
+                                                        ),
+                                                  ),
+                                                );
+                                              }
                                             }
                                           }
-                                        }
-                                      },
-                              ),
-                            ),
-                          ],
-                        ),
-                        formState.error != null
-                            ? Padding(
-                                padding: const EdgeInsets.only(top: 12.0),
-                                child: Text(
-                                  formState.error!,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: colorScheme.error,
-                                  ),
+                                        },
                                 ),
-                              )
-                            : const SizedBox.shrink(),
-                      ],
+                              ),
+                            ],
+                          ),
+                          formState.error != null
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 12.0),
+                                  child: Text(
+                                    formState.error!,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: colorScheme.error,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        ],
+                      ),
                     ),
                   ),
                 ),

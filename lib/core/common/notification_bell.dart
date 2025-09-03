@@ -11,23 +11,33 @@ class NotificationBell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final notificationCount = ref.watch(unreadNotificationCountProvider);
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final ModalRoute<Object?>? route = ModalRoute.of(context);
-    final isHome =
-        route?.settings.name == '/' || route?.settings.name == '/home';
-    final iconColor = (isHome || isDark) ? Colors.white : Colors.black;
+    final colorScheme = theme.colorScheme;
     return Semantics(
       label: 'Notifications',
       button: true,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          IconButton(
-            icon: FaIcon(FontAwesomeIcons.bell, color: iconColor, size: 24),
-            onPressed:
-                onPressed ??
-                () => Navigator.pushNamed(context, '/notifications'),
-            tooltip: 'Notifications',
+          SizedBox(
+            width: 36,
+            height: 36,
+            child: CircleAvatar(
+              backgroundColor: colorScheme.primary,
+              radius: 18,
+              child: IconButton(
+                icon: FaIcon(
+                  FontAwesomeIcons.bell,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                onPressed:
+                    onPressed ??
+                    () => Navigator.pushNamed(context, '/notifications'),
+                tooltip: 'Notifications',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ),
           ),
           if (notificationCount > 0)
             Positioned(
