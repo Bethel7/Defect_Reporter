@@ -2,6 +2,7 @@ import '../../../core/utils/network_checker.dart';
 import 'package:defect_reporter/core/common/bottom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'report_form_provider.dart';
 import 'image_input.dart';
 import 'report_confirmation_page.dart';
@@ -16,6 +17,7 @@ import '../../../features/my_reports/presentation/my_reports_provider.dart';
 import '../../../features/report/data/report_model.dart';
 import '../../../features/report/data/report_repository_provider.dart';
 import '../../../services/offline_storage_service.dart';
+import '../../../services/location_service.dart';
 import 'location_selector.dart';
 import 'location_provider.dart';
 import '../../../core/common/notification_bell.dart';
@@ -28,6 +30,24 @@ class ReportFormPage extends ConsumerStatefulWidget {
 }
 
 class _ReportFormPageState extends ConsumerState<ReportFormPage> {
+  Position? _currentPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCurrentLocation();
+  }
+
+  Future<void> _fetchCurrentLocation() async {
+    final service = LocationService();
+    final position = await service.getCurrentLocation(context);
+    if (mounted && position != null) {
+      setState(() {
+        _currentPosition = position;
+      });
+    }
+  }
+
   final FocusNode _titleFocusNode = FocusNode();
   final FocusNode _descriptionFocusNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
@@ -38,8 +58,6 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
   String? _imageError;
 
   Future<void> _refreshForm() async {
-    // Example: reload locations or any other async data needed for the form
-    // You can expand this as needed
     ref.invalidate(activeLocationsProvider);
     // Optionally, you can also reload userIdProvider if needed:
     // ref.invalidate(userIdProvider);
@@ -392,11 +410,28 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                           if (valid &&
                                               locationError == null &&
                                               imageError == null) {
+                                            // Always fetch latest location before submit
+                                            final service = LocationService();
+                                            final position = await service
+                                                .getCurrentLocation(context);
+                                            double? latitude;
+                                            double? longitude;
+                                            if (position != null) {
+                                              latitude = position.latitude;
+                                              longitude = position.longitude;
+                                              setState(() {
+                                                _currentPosition = position;
+                                              });
+                                            } else {
+                                              latitude = null;
+                                              longitude = null;
+                                            }
                                             final isOnline =
                                                 await InternetStatusChecker
                                                     .instance
                                                     .isConnected;
                                             if (isOnline) {
+                                              // Pass context only; provider handles location
                                               final result = await formProvider
                                                   .submit(context);
                                               if (result != null &&
@@ -412,7 +447,8 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                     .addReport(
                                                       ReportModel(
                                                         id:
-                                                            result['reportId'] ??
+                                                            result['reportId']
+                                                                ?.toString() ??
                                                             '',
                                                         title: formState.title,
                                                         description: formState
@@ -431,6 +467,10 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                                   '',
                                                             ) ??
                                                             DateTime.now(),
+                                                        latitude: latitude,
+                                                        longitude: longitude,
+                                                        locationId: formState
+                                                            .locationId,
                                                       ),
                                                     );
                                                 ref
@@ -440,7 +480,10 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                     )
                                                     .reset();
                                                 final report = ReportModel(
-                                                  id: result['reportId'] ?? '',
+                                                  id:
+                                                      result['reportId']
+                                                          ?.toString() ??
+                                                      '',
                                                   title: formState.title,
                                                   description:
                                                       formState.description,
@@ -456,6 +499,10 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                             '',
                                                       ) ??
                                                       DateTime.now(),
+                                                  latitude: latitude,
+                                                  longitude: longitude,
+                                                  locationId:
+                                                      formState.locationId,
                                                 );
                                                 Navigator.pushReplacement(
                                                   context,
@@ -481,6 +528,12 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                 status: 'submitted',
                                                 imageUrl: formState.imagePath,
                                                 timestamp: DateTime.now(),
+                                                latitude:
+                                                    _currentPosition?.latitude,
+                                                longitude:
+                                                    _currentPosition?.longitude,
+                                                locationId:
+                                                    formState.locationId,
                                               );
                                               await OfflineStorageService()
                                                   .saveReport(report);

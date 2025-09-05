@@ -13,6 +13,12 @@ class NotificationPage extends ConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = colorScheme.brightness == Brightness.dark;
+
+    // Fetch notifications on first build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(notificationListProvider.notifier).fetchNotifications();
+    });
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
@@ -102,7 +108,10 @@ class NotificationPage extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(16),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(16),
-                        onTap: () {
+                        onTap: () async {
+                          await ref
+                              .read(notificationListProvider.notifier)
+                              .markAsRead(notif.id);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -131,7 +140,9 @@ class NotificationPage extends ConsumerWidget {
                                   style: theme.textTheme.bodyLarge?.copyWith(
                                     fontSize: 16,
                                     color: colorScheme.onSurface,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: notif.isRead
+                                        ? FontWeight.normal
+                                        : FontWeight.bold,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),

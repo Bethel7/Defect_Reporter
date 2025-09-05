@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../report/data/location_model.dart';
+import '../../../core/theme/input_borders.dart';
 
 class LocationSelector extends StatefulWidget {
   final List<LocationModel> locations;
@@ -79,30 +80,44 @@ class _LocationSelectorState extends State<LocationSelector> {
   @override
   Widget build(BuildContext context) {
     final inputText = _controller.text;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
+    final fieldFillColor = isDark ? colorScheme.surface : Colors.white;
+    final dropdownBgColor = isDark ? colorScheme.surfaceVariant : Colors.white;
+    final dropdownBorderColor = isDark
+        ? colorScheme.outline.withOpacity(0.4)
+        : Colors.grey.shade300;
+    final textColor = isDark ? colorScheme.onSurface : const Color(0xFF252525);
+    final labelColor = isDark
+        ? colorScheme.onSurfaceVariant
+        : const Color(0xFF717182);
+
+    // Use InputBorders.adaptive for consistency
+    final border = InputBorders.adaptive(color: Theme.of(context).dividerColor);
+    final focusedBorder = InputBorders.adaptive(color: colorScheme.primary);
+    final errorBorder = InputBorders.adaptive(
+      color: colorScheme.error,
+      isError: true,
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextFormField(
           controller: _controller,
           focusNode: _focusNode,
-          style: widget.textStyle,
+          style: widget.textStyle ?? TextStyle(color: textColor, fontSize: 15),
           decoration: InputDecoration(
             labelText: 'Location',
-            labelStyle: const TextStyle(color: Color(0xFF717182)),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.blue),
-            ),
+            labelStyle: TextStyle(color: labelColor),
+            border: border,
+            enabledBorder: border,
+            focusedBorder: focusedBorder,
+            errorBorder: errorBorder,
+            focusedErrorBorder: errorBorder,
             errorText: widget.errorText,
-            fillColor: Colors.white,
+            fillColor: fieldFillColor,
             filled: true,
             suffixIcon: _loading
                 ? const Padding(
@@ -118,15 +133,12 @@ class _LocationSelectorState extends State<LocationSelector> {
           onChanged: (val) {
             _filterLocations();
             setState(() {
-              // Show dropdown if there are matches (even if input is empty)
               _showDropdown = _filteredLocations.isNotEmpty;
-              // If user types, clear last selected location
               if (_lastSelectedLocationId != null) {
                 _lastSelectedLocationId = null;
               }
             });
           },
-          // Remove onTap logic that shows dropdown
           onFieldSubmitted: (val) async {
             final match = widget.locations.firstWhere(
               (loc) => loc.locationName.toLowerCase() == val.toLowerCase(),
@@ -167,8 +179,8 @@ class _LocationSelectorState extends State<LocationSelector> {
           Container(
             margin: const EdgeInsets.only(top: 4),
             decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: Colors.grey.shade300),
+              color: dropdownBgColor,
+              border: Border.all(color: dropdownBorderColor),
               borderRadius: BorderRadius.circular(8),
             ),
             constraints: const BoxConstraints(maxHeight: 180),
@@ -182,11 +194,13 @@ class _LocationSelectorState extends State<LocationSelector> {
                 if (matchIndex >= 0 && lowerInput.isNotEmpty) {
                   // Highlight the matching part
                   return ListTile(
+                    tileColor: dropdownBgColor,
                     title: RichText(
                       text: TextSpan(
                         style:
-                            widget.textStyle ??
-                            DefaultTextStyle.of(context).style,
+                            (widget.textStyle ??
+                                    DefaultTextStyle.of(context).style)
+                                .copyWith(color: textColor),
                         children: [
                           TextSpan(text: locName.substring(0, matchIndex)),
                           TextSpan(
@@ -194,9 +208,9 @@ class _LocationSelectorState extends State<LocationSelector> {
                               matchIndex,
                               matchIndex + lowerInput.length,
                             ),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.blue,
+                              color: colorScheme.primary,
                             ),
                           ),
                           TextSpan(
@@ -222,7 +236,14 @@ class _LocationSelectorState extends State<LocationSelector> {
                   );
                 } else {
                   return ListTile(
-                    title: Text(loc.locationName, style: widget.textStyle),
+                    tileColor: dropdownBgColor,
+                    title: Text(
+                      loc.locationName,
+                      style:
+                          (widget.textStyle ??
+                                  DefaultTextStyle.of(context).style)
+                              .copyWith(color: textColor),
+                    ),
                     onTap: () {
                       _controller.text = loc.locationName;
                       widget.onLocationSelected(

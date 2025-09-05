@@ -20,13 +20,24 @@ class NotificationToggleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final bgColor = isDark ? theme.cardColor : Colors.white;
+    final shadowColor = isDark
+        ? Colors.black.withOpacity(0.18)
+        : Colors.black.withOpacity(0.03);
+    final textColor = isDark
+        ? theme.textTheme.bodyLarge?.color ?? Colors.white
+        : AppColors.text;
+    final descColor = isDark ? Colors.white70 : Colors.black54;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: bgColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: shadowColor,
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -47,7 +58,7 @@ class NotificationToggleTile extends StatelessWidget {
                     label,
                     style: TextStyles.bodyLarge.copyWith(
                       fontWeight: FontWeight.w500,
-                      color: AppColors.text,
+                      color: textColor,
                     ),
                   ),
                 ),
@@ -62,7 +73,7 @@ class NotificationToggleTile extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 description!,
-                style: TextStyle(fontSize: 13, color: Colors.black54),
+                style: TextStyle(fontSize: 13, color: descColor),
               ),
             ],
           ],
