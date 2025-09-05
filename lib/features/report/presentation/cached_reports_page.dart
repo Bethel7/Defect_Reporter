@@ -3,7 +3,7 @@ import '../../../core/common/bottom_app_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../services/offline_storage_service.dart';
 import '../../../features/report/data/report_model.dart';
-import '../../my_reports/presentation/report_detail_page.dart';
+import 'local_report_detail_page.dart';
 
 class CachedReportsPage extends StatefulWidget {
   const CachedReportsPage({super.key});
@@ -117,7 +117,7 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ReportDetailPage(reportId: report.id),
+                          builder: (_) => LocalReportDetailPage(report: report),
                         ),
                       );
                     },
@@ -161,7 +161,9 @@ class _CachedReportsPageState extends State<CachedReportsPage> {
                                     vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: theme.colorScheme.surfaceContainerHighest,
+                                    color: theme
+                                        .colorScheme
+                                        .surfaceContainerHighest,
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: Text(

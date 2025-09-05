@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/custom_button.dart';
 
-import '../../../features/my_reports/presentation/report_detail_page.dart';
+import 'local_report_detail_page.dart';
 import '../../../features/report/data/report_model.dart';
 
 class CachedReportConfirmationPage extends StatelessWidget {
@@ -54,15 +54,17 @@ class CachedReportConfirmationPage extends StatelessWidget {
               Text(
                 'Report Saved Offline',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                  color: theme.colorScheme.onSurface,
-                ) ?? TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                  color: theme.colorScheme.onSurface,
-                ),
+                style:
+                    theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                      color: theme.colorScheme.onSurface,
+                    ) ??
+                    TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                      color: theme.colorScheme.onSurface,
+                    ),
               ),
               const SizedBox(height: 8),
               Text(
@@ -85,7 +87,8 @@ class CachedReportConfirmationPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => ReportDetailPage(reportId: report.id),
+                            builder: (_) =>
+                                LocalReportDetailPage(report: report),
                           ),
                         );
                       },
@@ -96,7 +99,8 @@ class CachedReportConfirmationPage extends StatelessWidget {
                     width: 120,
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: theme.colorScheme.onSurface.withOpacity(0.7),
+                        foregroundColor: theme.colorScheme.onSurface
+                            .withOpacity(0.7),
                         side: BorderSide(color: theme.dividerColor),
                         padding: const EdgeInsets.symmetric(
                           vertical: 14,

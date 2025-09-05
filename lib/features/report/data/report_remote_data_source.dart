@@ -114,7 +114,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
     try {
       final response = await _dio.get('/api/reports/my-reports/$id');
       if (response.statusCode == 200) {
-        final data = response.data['report'];
+        final data = response.data['Data'] ?? response.data['data'] ?? response.data[''];
         return ReportModel.fromJson(data);
       } else {
         throw Exception(response.data['Message'] ?? 'Failed to fetch report');

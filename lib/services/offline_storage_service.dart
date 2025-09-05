@@ -1,7 +1,31 @@
 import 'package:hive/hive.dart';
 import '../features/report/data/report_model.dart';
+import '../features/report/data/report_remote_data_source.dart';
 
 class OfflineStorageService {
+  /// Syncs all offline reports to the backend using submitMultipleReports.
+  /// Clears the cache if successful. Returns true if sync succeeded, false otherwise.
+  Future<bool> syncOfflineReports(
+    ReportRemoteDataSource remoteDataSource,
+  ) async {
+    final reports = await getOfflineReports();
+    if (reports.isEmpty) return true;
+    try {
+      final ids = await remoteDataSource.submitMultipleReports(reports);
+      if (ids.length == reports.length) {
+        await clearOfflineReports();
+        return true;
+      } else {
+        // Partial success, do not clear cache
+        return false;
+      }
+    } catch (e) {
+      // Submission failed, keep cache
+      print('Sync failed: $e');
+      return false;
+    }
+  }
+
   static const String _boxName = 'offline_reports';
 
   Future<Box<ReportModel>> _getBox() async {
