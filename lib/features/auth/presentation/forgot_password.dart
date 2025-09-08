@@ -117,7 +117,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
     final colorScheme = theme.colorScheme;
     final isDark = colorScheme.brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         elevation: 0,
@@ -161,14 +161,20 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                 children: [
                   Semantics(
                     label: 'Reset password instructions',
-                    child: const Text(
+                    child: Text(
                       'Enter your email to reset your password.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style:
+                          theme.textTheme.bodyLarge?.copyWith(
+                            fontSize: 16,
+                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.w500,
+                          ) ??
+                          TextStyle(
+                            fontSize: 16,
+                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.w500,
+                          ),
                     ),
                   ),
                   const SizedBox(height: 32),

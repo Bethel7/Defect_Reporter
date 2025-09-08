@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 
 enum FilterDropdownAlignment { left, center, right }
 
@@ -31,6 +31,10 @@ class _FilterDropdownState extends State<FilterDropdown> {
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final Size size = renderBox.size;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final myColors = theme.extension<MyColors>();
+    final isDark = colorScheme.brightness == Brightness.dark;
 
     // Make dropdown 1.3x the field width for better visibility
     final double dropdownWidth = size.width * 1.3;
@@ -41,57 +45,88 @@ class _FilterDropdownState extends State<FilterDropdown> {
       left = offset.dx + size.width - dropdownWidth;
     }
 
+    // Always use a dark background in dark mode, fallback to theme surface if needed
+    Color dropdownBg = isDark
+        ? (myColors?.background ?? colorScheme.surface)
+        : (myColors?.background ?? Colors.white);
+    // Always use white text in dark mode for readability
+    Color dropdownText = isDark
+        ? Colors.white
+        : (myColors?.text ?? Colors.black);
+    Color selectedTileColor = isDark
+        ? colorScheme.primary.withOpacity(0.18)
+        : Colors.grey[200]!;
+
     _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        left: left,
-        top: offset.dy + size.height + 2,
-        width: dropdownWidth,
-        child: CompositedTransformFollower(
-          link: _layerLink,
-          showWhenUnlinked: false,
-          offset: Offset(0, 0),
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              constraints: BoxConstraints(
-                minWidth: dropdownWidth,
-                maxWidth: dropdownWidth,
-                maxHeight: 300,
-              ),
-              child: ListView(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                children: widget.items.map((item) {
-                  final isSelected = item == widget.value;
-                  return ListTile(
-                    title: Text(item, style: const TextStyle(fontSize: 15)),
-                    selected: isSelected,
-                    selectedTileColor: Colors.grey[200],
-                    shape: RoundedRectangleBorder(
+      builder: (context) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: _removeDropdown,
+        child: Stack(
+          children: [
+            Positioned(
+              left: left,
+              top: offset.dy + size.height + 2,
+              width: dropdownWidth,
+              child: CompositedTransformFollower(
+                link: _layerLink,
+                showWhenUnlinked: false,
+                offset: Offset(0, 0),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: dropdownBg,
                       borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(isDark ? 0.18 : 0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    onTap: () {
-                      _removeDropdown();
-                      if (item != widget.value) {
-                        widget.onChanged(item);
-                      }
-                    },
-                  );
-                }).toList(),
+                    constraints: BoxConstraints(
+                      minWidth: dropdownWidth,
+                      maxWidth: dropdownWidth,
+                      maxHeight: 300,
+                    ),
+                    child: ListView(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      children: widget.items.map((item) {
+                        final isSelected = item == widget.value;
+                        return ListTile(
+                          title: Text(
+                            item,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: isSelected
+                                  ? colorScheme.primary
+                                  : dropdownText,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                          selected: isSelected,
+                          selectedTileColor: selectedTileColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          onTap: () {
+                            _removeDropdown();
+                            if (item != widget.value) {
+                              widget.onChanged(item);
+                            }
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -111,6 +146,20 @@ class _FilterDropdownState extends State<FilterDropdown> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final myColors = theme.extension<MyColors>();
+    final isDark = colorScheme.brightness == Brightness.dark;
+    Color labelColor = isDark
+        ? (myColors?.text ?? Colors.white)
+        : (myColors?.primaryDark ?? Colors.black);
+    Color valueColor = isDark
+        ? (myColors?.text ?? Colors.white)
+        : (myColors?.text ?? Colors.black);
+    Color borderColor = isDark
+        ? (myColors?.primaryDark ?? colorScheme.primary)
+        : (myColors?.primary ?? colorScheme.primary);
+
     return CompositedTransformTarget(
       link: _layerLink,
       child: GestureDetector(
@@ -124,8 +173,25 @@ class _FilterDropdownState extends State<FilterDropdown> {
         child: InputDecorator(
           decoration: InputDecoration(
             labelText: widget.label,
-            labelStyle: TextStyle(color: AppColors.text),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
+            labelStyle: TextStyle(
+              color: labelColor,
+              fontWeight: FontWeight.w600,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: borderColor, width: 1.2),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(
+                color: borderColor.withOpacity(0.7),
+                width: 1.2,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: borderColor, width: 1.5),
+            ),
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
@@ -139,10 +205,10 @@ class _FilterDropdownState extends State<FilterDropdown> {
                 child: Text(
                   widget.value,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13),
+                  style: TextStyle(fontSize: 13, color: valueColor),
                 ),
               ),
-              const Icon(Icons.arrow_drop_down),
+              Icon(Icons.arrow_drop_down, color: valueColor),
             ],
           ),
         ),

@@ -52,16 +52,16 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
     });
     try {
       final repository = ref.read(reportRepositoryProvider);
-        final userId = await ref.read(userIdProvider.future);
-        print('Flutter userId: $userId (${userId.runtimeType})');
-        await ref
-            .read(
-              myReportsProvider({
-                'repository': repository,
-                'userId': userId,
-              }).notifier,
-            )
-            .refreshReports();
+      final userId = await ref.read(userIdProvider.future);
+      print('Flutter userId: $userId (${userId.runtimeType})');
+      await ref
+          .read(
+            myReportsProvider({
+              'repository': repository,
+              'userId': userId,
+            }).notifier,
+          )
+          .refreshReports();
       await _loadLocations();
       setState(() {
         _isLoading = false;
@@ -114,7 +114,6 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
 
     return userIdAsync.when(
       data: (userId) {
-        // Print userId and type for debug
         print('Flutter userId (build): $userId (${userId.runtimeType})');
         return locationsAsync.when(
           data: (locations) {
@@ -166,7 +165,11 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                       color: isDark ? Colors.white : Colors.black,
                     ),
                     tooltip: 'Back',
-                    onPressed: () => Navigator.of(context).maybePop(),
+                    onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/home',
+                      (route) => false,
+                    ),
                   ),
                 ),
                 title: Semantics(
@@ -230,7 +233,9 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                             textField: true,
                             child: Container(
                               decoration: BoxDecoration(
-                                color: colorScheme.primary.withOpacity(0.08),
+                                color: isDark
+                                    ? colorScheme.surface
+                                    : colorScheme.primary.withOpacity(0.08),
                                 borderRadius: BorderRadius.circular(24),
                               ),
                               child: TextField(
@@ -320,6 +325,7 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                                           const SizedBox(height: 12),
                                           Text(
                                             'No reports found.',
+                                            textAlign: TextAlign.center,
                                             style:
                                                 theme.textTheme.bodyLarge
                                                     ?.copyWith(
@@ -338,6 +344,7 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                                           const SizedBox(height: 8),
                                           Text(
                                             'Try adjusting your filters or create a new report.',
+                                            textAlign: TextAlign.center,
                                             style:
                                                 theme.textTheme.bodyMedium
                                                     ?.copyWith(
@@ -479,7 +486,7 @@ class _MyReportsPageState extends ConsumerState<MyReportsPage> {
                                                   MaterialPageRoute(
                                                     builder: (_) =>
                                                         ReportDetailPage(
-                                                          reportId: report.id,
+                                                          report: report,
                                                         ),
                                                   ),
                                                 );

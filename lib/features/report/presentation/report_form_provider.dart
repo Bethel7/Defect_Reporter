@@ -7,12 +7,13 @@ import '../../report/data/report_remote_data_source.dart';
 import '../../report/data/report_model.dart';
 import '../../../core/utils/validators.dart';
 
-final createLocation = Provider<LocationApiService>((ref) => LocationApiService());
+final createLocation = Provider<LocationApiService>(
+  (ref) => LocationApiService(),
+);
 
 final reportFormProvider =
     StateNotifierProvider<ReportFormNotifier, ReportFormState>(
-      (ref) =>
-          ReportFormNotifier(locationApiService: ref.read(createLocation)),
+      (ref) => ReportFormNotifier(locationApiService: ref.read(createLocation)),
     );
 
 class ReportFormNotifier extends StateNotifier<ReportFormState> {
@@ -88,7 +89,7 @@ class ReportFormNotifier extends StateNotifier<ReportFormState> {
 
       // Prepare ReportModel for submission
       final report = ReportModel(
-        id: '',
+        localId: UniqueKey().toString(),
         title: state.title,
         description: state.description,
         status: 'Submitted',

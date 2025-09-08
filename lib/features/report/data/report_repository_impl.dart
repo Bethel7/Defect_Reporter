@@ -45,27 +45,22 @@ class ReportRepositoryImpl implements ReportRepository {
   @override
   Future<int> syncOfflineReports() async {
     final cachedReports = await offlineStorageService.getOfflineReports();
-    if (cachedReports.isEmpty) return 0;
+    // Only sync reports with a valid localId
+    final reportsToSync = cachedReports
+        .where((r) => r.localId != null && r.localId!.isNotEmpty)
+        .toList();
+    if (reportsToSync.isEmpty) return 0;
     try {
       // Use the unified endpoint for batch submission
-      final ids = await remoteDataSource.submitReports(cachedReports);
-      // Only remove reports that were successfully sent (matched by id)
-      final failed = <ReportModel>[];
-      for (final report in cachedReports) {
-        if (!ids.contains(report.id)) {
-          failed.add(report);
-        }
-      }
-      if (failed.isEmpty) {
-        await offlineStorageService.clearOfflineReports();
-      } else {
-        await offlineStorageService.replaceAllReports(failed);
-      }
+      final ids = await remoteDataSource.submitReports(reportsToSync);
+      // Remove all reports that were submitted (by localId)
+      await offlineStorageService.removeReportsByLocalIds(
+        reportsToSync.map((r) => r.localId!).toList(),
+      );
       return ids.length;
     } catch (e, st) {
       // Log error for failed sync
       print('Failed to sync offline reports: $e\n$st');
-      // Keep all reports in offline storage
       return 0;
     }
   }

@@ -50,14 +50,7 @@ class MyReportsNotifier extends StateNotifier<MyReportsState> {
     }
   }
 
-  /// Fetch a report by ID from the loaded state. Returns null if not found.
-  Future<ReportModel?> fetchReportById(String id) async {
-    try {
-      return state.reports.firstWhere((r) => r.id == id);
-    } catch (_) {
-      return null;
-    }
-  }
+  // Removed fetchReportById: not needed, always pass full ReportModel object to detail pages.
 
   void addReport(ReportModel report) {
     state = state.copyWith(reports: [...state.reports, report]);

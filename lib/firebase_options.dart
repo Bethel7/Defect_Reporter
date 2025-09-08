@@ -17,13 +17,19 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -47,29 +53,10 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCuBy-Bh8iNFUl81DcTuhndP_8_mbTXCJg',
-    appId: '1:1003455371096:android:82c4af94eb172e0c77772d',
-    messagingSenderId: '1003455371096',
-    projectId: 'defectreporter-f8615',
-    storageBucket: 'defectreporter-f8615.firebasestorage.app',
+    apiKey: 'AIzaSyDiQ6qDVFk0xHvEfazTPUe1NxXIGEJ-BoE',
+    appId: '1:1007372358302:android:e12c88958137a3503f218f',
+    messagingSenderId: '1007372358302',
+    projectId: 'defectreportersystem',
+    storageBucket: 'defectreportersystem.firebasestorage.app',
   );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyC8pzz4b1N2ObFvwHtpgiwrcXWly1o_hl8',
-    appId: '1:1003455371096:ios:c35f562a1578cf8077772d',
-    messagingSenderId: '1003455371096',
-    projectId: 'defectreporter-f8615',
-    storageBucket: 'defectreporter-f8615.firebasestorage.app',
-    iosBundleId: 'com.example.defectReporter',
-  );
-
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCYugQn2CW_D2zj1GXXuY7Rim5JniuFXa4',
-    appId: '1:1003455371096:web:c117fe91fddb0b9e77772d',
-    messagingSenderId: '1003455371096',
-    projectId: 'defectreporter-f8615',
-    authDomain: 'defectreporter-f8615.firebaseapp.com',
-    storageBucket: 'defectreporter-f8615.firebasestorage.app',
-  );
-
 }

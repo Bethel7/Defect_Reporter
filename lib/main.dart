@@ -92,7 +92,6 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
     // Initialize push notification service
     PushNotificationService().initialize(ref);
 
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Defect Reporter',
@@ -134,7 +133,8 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
           case '/report-detail':
             final report = settings.arguments as ReportModel;
             return MaterialPageRoute(
-              builder: (_) => ReportDetailPage(reportId: report.id),
+              builder: (_) =>
+                  ReportDetailPage(report: report),
             );
           case '/reset-password':
             return MaterialPageRoute(builder: (_) => const ResetPasswordPage());

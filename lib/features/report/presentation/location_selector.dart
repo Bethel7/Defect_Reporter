@@ -89,9 +89,7 @@ class _LocationSelectorState extends State<LocationSelector> {
         ? colorScheme.outline.withOpacity(0.4)
         : Colors.grey.shade300;
     final textColor = isDark ? colorScheme.onSurface : const Color(0xFF252525);
-    final labelColor = isDark
-        ? colorScheme.onSurfaceVariant
-        : const Color(0xFF717182);
+    final labelColor = isDark ? colorScheme.onSurface : const Color(0xFF717182);
 
     // Use InputBorders.adaptive for consistency
     final border = InputBorders.adaptive(color: Theme.of(context).dividerColor);

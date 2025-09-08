@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyC8pzz4b1N2ObFvwHtpgiwrcXWly1o_hl8</string>
+	<string>AIzaSyBC3It3MvtB1KcPopI-H4J5wnuJ9f1glsQ</string>
 	<key>GCM_SENDER_ID</key>
-	<string>1003455371096</string>
+	<string>1007372358302</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.ethiopianairlines.defectReporter</string>
 	<key>PROJECT_ID</key>
-	<string>defectreporter-f8615</string>
+	<string>defectreportersystem</string>
 	<key>STORAGE_BUCKET</key>
-	<string>defectreporter-f8615.firebasestorage.app</string>
+	<string>defectreportersystem.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1003455371096:ios:cf2730dfaa2d865877772d</string>
+	<string>1:1007372358302:ios:9c7aa2424927d18a3f218f</string>
 </dict>
 </plist>

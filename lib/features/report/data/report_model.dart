@@ -8,28 +8,39 @@ const String statusResolved = 'Resolved';
 @HiveType(typeId: 0)
 class ReportModel {
   @HiveField(0)
-  final String id;
+  final String? localId;
   @HiveField(1)
   final String title;
+
   @HiveField(2)
   final String description;
+
   @HiveField(3)
   final String status;
+
   @HiveField(4)
   final String imageUrl;
+
   @HiveField(5)
   final DateTime timestamp;
+
   @HiveField(6)
   final double? latitude;
+
   @HiveField(7)
   final double? longitude;
+
   @HiveField(8)
   final String? locationName;
+
   @HiveField(9)
   final int? locationId;
 
+  // Nullable reportId for backend reference (not used in Hive)
+  final String? reportId;
+
   ReportModel({
-    required this.id,
+    this.localId,
     required this.title,
     required this.description,
     required this.status,
@@ -39,72 +50,66 @@ class ReportModel {
     this.longitude,
     this.locationName,
     this.locationId,
+    this.reportId,
   });
 
-  factory ReportModel.fromJson(Map<String, dynamic> json) => ReportModel(
-    id:
-        json['id'] as String? ??
-        json['reportID']?.toString() ??
-        json['ReportID']?.toString() ??
-        '',
-    title: json['title'] as String? ?? json['Title'] ?? '',
-    description: json['description'] as String? ?? json['Description'] ?? '',
-    // Accept both nested and root-level locationName
-    locationName:
-        (json['location']?['locationName'] as String?) ??
-        json['LocationName'] as String? ??
-        json['locationName'] as String? ??
-        '',
-    // Accept both nested and root-level status
-    status:
-        (json['status']?['statusName'] as String?) ??
-        json['Status'] as String? ??
-        json['statusName'] as String? ??
-        '',
-    imageUrl:
-        json['imageUrl'] as String? ??
-        json['ImageUrl'] ??
-        json['imagePath'] ??
-        json['ImagePath'] ??
-        '',
-    timestamp:
-        DateTime.tryParse(json['timestamp'] ?? json['Timestamp'] ?? '') ??
-        DateTime.now(),
-    latitude:
-        (json['latitude'] as num?)?.toDouble() ??
-        (json['Latitude'] as num?)?.toDouble(),
-    longitude:
-        (json['longitude'] as num?)?.toDouble() ??
-        (json['Longitude'] as num?)?.toDouble(),
-    locationId:
-        json['locationId'] as int? ??
-        json['LocationID'] as int? ??
-        (json['locationID'] is String
-            ? int.tryParse(json['locationID'])
-            : json['locationID'] as int?) ??
-        null,
-  );
+  factory ReportModel.fromJson(Map<String, dynamic> json) {
+    String? localId;
+    if (json.containsKey('localId')) {
+      final val = json['localId'];
+      if (val is String && val.isNotEmpty) {
+        localId = val;
+      } else {
+        localId = null;
+      }
+    }
+    return ReportModel(
+      localId: localId,
+      title: json['title'] ?? json['Title'] ?? '',
+      description: json['description'] ?? json['Description'] ?? '',
+      locationName:
+          json['location']?['locationName'] ??
+          json['LocationName'] ??
+          json['locationName'],
+      status:
+          (json['status']?['statusName']) ??
+          json['Status'] ??
+          json['statusName'] ??
+          '',
+      imageUrl:
+          json['ImagePath'] ??
+          json['imageUrl'] ??
+          json['ImageUrl'] ??
+          json['imagePath'] ??
+          '',
+      timestamp: DateTime.now(),
+      latitude: (json['Latitude'] as num?)?.toDouble(),
+      longitude: (json['Longitude'] as num?)?.toDouble(),
+      locationId: json['locationId'] as int?,
+      reportId: json['ReportID']?.toString() ?? json['reportID']?.toString(),
+    );
+  }
 
-  Map<String, dynamic> toJson() => {
-    // 'reportID': id, // Uncomment if backend expects reportID
-    'title': title,
-    'description': description,
-    'location': locationName != null ? {'locationName': locationName} : null,
-    'locationId': locationId,
-    'status': status.isNotEmpty
-        ? {'statusName': status}
-        : {'statusName': 'Open'},
-    'imagePath': imageUrl, // Use 'imagePath' if backend expects this
-    'timestamp': timestamp.toIso8601String(),
-    'latitude': latitude,
-    'longitude': longitude,
-  };
+  Map<String, dynamic> toJson() {
+    return {
+      if (localId != null && localId!.isNotEmpty) 'localId': localId,
+      'title': title,
+      'description': description,
+      'locationName': locationName,
+      'locationId': locationId,
+      'status': status,
+      'imagePath': imageUrl,
+      'timestamp': timestamp.toIso8601String(),
+      'latitude': latitude,
+      'longitude': longitude,
+      if (reportId != null) 'reportId': reportId,
+    };
+  }
 
   ReportModel copyWith({
-    String? id,
+    String? localId,
     String? title,
     String? description,
-    String? location,
     String? status,
     String? imageUrl,
     DateTime? timestamp,
@@ -112,18 +117,20 @@ class ReportModel {
     double? longitude,
     String? locationName,
     int? locationId,
+    String? reportId,
   }) {
     return ReportModel(
-      id: id ?? this.id,
+      localId: localId ?? this.localId,
       title: title ?? this.title,
       description: description ?? this.description,
-      locationName: location ?? this.locationName,
       status: status ?? this.status,
       imageUrl: imageUrl ?? this.imageUrl,
       timestamp: timestamp ?? this.timestamp,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
+      locationName: locationName ?? this.locationName,
       locationId: locationId ?? this.locationId,
+      reportId: reportId ?? this.reportId,
     );
   }
 }

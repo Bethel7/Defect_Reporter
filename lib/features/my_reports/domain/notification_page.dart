@@ -20,7 +20,7 @@ class NotificationPage extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         elevation: 0,

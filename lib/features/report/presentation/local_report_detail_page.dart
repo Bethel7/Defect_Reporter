@@ -55,12 +55,6 @@ class LocalReportDetailPage extends StatelessWidget {
             ),
             Text(report.description, style: theme.textTheme.bodyMedium),
             const SizedBox(height: 8),
-            if (report.latitude != null && report.longitude != null)
-              Text(
-                'Coordinates: ${report.latitude}, ${report.longitude}',
-                style: theme.textTheme.bodyMedium,
-              ),
-            const SizedBox(height: 8),
             Text(
               'Saved: ${report.timestamp}',
               style: theme.textTheme.bodySmall?.copyWith(

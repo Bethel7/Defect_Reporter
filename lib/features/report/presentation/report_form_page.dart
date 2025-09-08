@@ -358,10 +358,22 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                               Expanded(
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: const Color(0xFF474747),
-                                    side: const BorderSide(
-                                      color: AppColors.borderGray,
+                                    backgroundColor:
+                                        colorScheme.brightness ==
+                                            Brightness.dark
+                                        ? colorScheme.surface
+                                        : Colors.white,
+                                    foregroundColor:
+                                        colorScheme.brightness ==
+                                            Brightness.dark
+                                        ? colorScheme.onSurface
+                                        : const Color(0xFF474747),
+                                    side: BorderSide(
+                                      color:
+                                          colorScheme.brightness ==
+                                              Brightness.dark
+                                          ? colorScheme.outline.withOpacity(0.4)
+                                          : AppColors.borderGray,
                                     ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(40),
@@ -436,89 +448,83 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                   .submit(context);
                                               if (result != null &&
                                                   context.mounted) {
-                                                ref
-                                                    .read(
-                                                      myReportsProvider({
-                                                        'repository':
-                                                            repository,
-                                                        'userId': userId ?? '',
-                                                      }).notifier,
-                                                    )
-                                                    .addReport(
-                                                      ReportModel(
-                                                        id:
-                                                            result['reportId']
-                                                                ?.toString() ??
-                                                            '',
-                                                        title: formState.title,
-                                                        description: formState
-                                                            .description,
-                                                        locationName:
-                                                            formState
-                                                                .locationName ??
-                                                            '',
-                                                        status: 'submitted',
-                                                        imageUrl:
-                                                            formState.imagePath,
-                                                        timestamp:
-                                                            DateTime.tryParse(
-                                                              result['timestamp']
-                                                                      ?.toString() ??
-                                                                  '',
-                                                            ) ??
-                                                            DateTime.now(),
-                                                        latitude: latitude,
-                                                        longitude: longitude,
-                                                        locationId: formState
-                                                            .locationId,
-                                                      ),
-                                                    );
+                                                final reportId =
+                                                    result['reportId']
+                                                        ?.toString();
+                                                ReportModel? serverReport;
+                                                if (reportId != null &&
+                                                    reportId.isNotEmpty) {
+                                                  try {
+                                                    final remoteDataSource =
+                                                        ref.read(
+                                                              reportRepositoryProvider,
+                                                            )
+                                                            as dynamic;
+                                                    serverReport =
+                                                        await remoteDataSource
+                                                            .remoteDataSource
+                                                            .getMyReportById(
+                                                              reportId,
+                                                            );
+                                                  } catch (e) {
+                                                    // fallback to local data if fetch fails
+                                                    serverReport = null;
+                                                  }
+                                                }
                                                 ref
                                                     .read(
                                                       reportFormProvider
                                                           .notifier,
                                                     )
                                                     .reset();
-                                                final report = ReportModel(
-                                                  id:
-                                                      result['reportId']
-                                                          ?.toString() ??
-                                                      '',
-                                                  title: formState.title,
-                                                  description:
-                                                      formState.description,
-                                                  locationName:
-                                                      formState.locationName ??
-                                                      '',
-                                                  status: 'submitted',
-                                                  imageUrl: formState.imagePath,
-                                                  timestamp:
-                                                      DateTime.tryParse(
-                                                        result['timestamp']
-                                                                ?.toString() ??
-                                                            '',
-                                                      ) ??
-                                                      DateTime.now(),
-                                                  latitude: latitude,
-                                                  longitude: longitude,
-                                                  locationId:
-                                                      formState.locationId,
-                                                );
                                                 Navigator.pushReplacement(
                                                   context,
                                                   MaterialPageRoute(
-                                                    builder: (_) =>
-                                                        ReportConfirmationPage(
-                                                          report: report,
-                                                        ),
+                                                    builder: (_) => ReportConfirmationPage(
+                                                      report:
+                                                          serverReport ??
+                                                          ReportModel(
+                                                            localId: DateTime.now()
+                                                                .millisecondsSinceEpoch
+                                                                .toString(),
+                                                            title:
+                                                                formState.title,
+                                                            description:
+                                                                formState
+                                                                    .description,
+                                                            locationName:
+                                                                formState
+                                                                    .locationName ??
+                                                                '',
+                                                            status: 'submitted',
+                                                            imageUrl: formState
+                                                                .imagePath,
+                                                            timestamp:
+                                                                DateTime.tryParse(
+                                                                  result['timestamp']
+                                                                          ?.toString() ??
+                                                                      '',
+                                                                ) ??
+                                                                DateTime.now(),
+                                                            latitude: latitude,
+                                                            longitude:
+                                                                longitude,
+                                                            locationId:
+                                                                formState
+                                                                    .locationId,
+                                                          ),
+                                                    ),
                                                   ),
                                                 );
                                               }
                                             } else {
+                                              // For offline/cached reports, use localId only
+                                              final localId = DateTime.now()
+                                                  .millisecondsSinceEpoch
+                                                  .toString();
                                               final report = ReportModel(
-                                                id: DateTime.now()
-                                                    .millisecondsSinceEpoch
-                                                    .toString(),
+                                                localId: localId,
+
                                                 title: formState.title,
                                                 description:
                                                     formState.description,

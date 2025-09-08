@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../widgets/custom_button.dart';
 
 import 'local_report_detail_page.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../features/report/data/report_model.dart';
 
 class CachedReportConfirmationPage extends StatelessWidget {
@@ -14,7 +15,7 @@ class CachedReportConfirmationPage extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Center(
         child: Container(
           margin: const EdgeInsets.all(24),
@@ -43,8 +44,8 @@ class CachedReportConfirmationPage extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: Icon(
-                    Icons.cloud_off,
+                  child: FaIcon(
+                    FontAwesomeIcons.cloud,
                     color: theme.colorScheme.primary,
                     size: 40,
                   ),

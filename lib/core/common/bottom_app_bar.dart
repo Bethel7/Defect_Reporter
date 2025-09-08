@@ -8,6 +8,9 @@ class MainBottomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const double iconSize = 28;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
 
     String? currentRoute = ModalRoute.of(context)?.settings.name;
     // Fallback for MaterialPageRoute
@@ -28,15 +31,11 @@ class MainBottomAppBar extends StatelessWidget {
     }) {
       return Container(
         decoration: BoxDecoration(
-          color: AppColors.primary,
+          color: isDark ? colorScheme.surfaceVariant : colorScheme.primary,
           borderRadius: BorderRadius.circular(16),
         ),
         child: IconButton(
-          icon: Icon(
-            icon,
-            size: iconSize,
-            color: Colors.white, 
-          ),
+          icon: Icon(icon, size: iconSize, color: Colors.white),
           onPressed: () {
             Navigator.pushReplacementNamed(context, route);
           },
@@ -51,10 +50,12 @@ class MainBottomAppBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.background,
+            color: isDark ? colorScheme.surfaceVariant : colorScheme.surface,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: isDark
+                    ? Colors.black.withOpacity(0.32)
+                    : Colors.black.withOpacity(0.08),
                 blurRadius: 32,
                 spreadRadius: 2,
                 offset: const Offset(0, 12),

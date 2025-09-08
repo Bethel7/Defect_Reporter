@@ -10,7 +10,7 @@ void main() {
   group('MyReportsNotifier', () {
     late MockReportRepository mockRepository;
     late MyReportsNotifier notifier;
-    const userId = 'user-123';
+    const int userId = 123;
 
     setUp(() {
       mockRepository = MockReportRepository();
@@ -26,10 +26,9 @@ void main() {
     test('loadReports sets reports on success', () async {
       final reports = [
         ReportModel(
-          id: '1',
           title: 'A',
           description: 'B',
-          location: 'C',
+          locationName: 'C',
           status: 'submitted',
           imageUrl: '',
           timestamp: DateTime.now(),
@@ -38,7 +37,10 @@ void main() {
       when(
         () => mockRepository.getMyReports(userId),
       ).thenAnswer((_) async => reports);
-      await notifier.loadReports();
+      final future = notifier.loadReports();
+      // Should be loading while awaiting
+      expect(notifier.state.isLoading, isTrue);
+      await future;
       expect(notifier.state.reports, reports);
       expect(notifier.state.isLoading, isFalse);
       expect(notifier.state.error, isNull);
@@ -48,7 +50,9 @@ void main() {
       when(
         () => mockRepository.getMyReports(userId),
       ).thenThrow(Exception('fail'));
-      await notifier.loadReports();
+      final future = notifier.loadReports();
+      expect(notifier.state.isLoading, isTrue);
+      await future;
       expect(notifier.state.isLoading, isFalse);
       expect(notifier.state.error, isNotNull);
       // Check for user-friendly error (not just raw Exception)
@@ -61,16 +65,50 @@ void main() {
 
     test('addReport adds a report', () {
       final report = ReportModel(
-        id: '2',
         title: 'T',
         description: 'D',
-        location: 'L',
+        locationName: 'L',
         status: 'submitted',
         imageUrl: '',
         timestamp: DateTime.now(),
       );
+      final initialReports = List<ReportModel>.from(notifier.state.reports);
       notifier.addReport(report);
       expect(notifier.state.reports, contains(report));
+      // Ensure original list is not mutated
+      expect(notifier.state.reports.length, initialReports.length + 1);
+    });
+
+    test('refreshReports calls loadReports and updates state', () async {
+      final reports = [
+        ReportModel(
+          title: 'R',
+          description: 'Desc',
+          locationName: 'Loc',
+          status: 'resolved',
+          imageUrl: '',
+          timestamp: DateTime.now(),
+        ),
+      ];
+      when(
+        () => mockRepository.getMyReports(userId),
+      ).thenAnswer((_) async => reports);
+      final future = notifier.refreshReports();
+      expect(notifier.state.isLoading, isTrue);
+      await future;
+      expect(notifier.state.reports, reports);
+      expect(notifier.state.isLoading, isFalse);
+      expect(notifier.state.error, isNull);
+    });
+
+    test('loadReports handles empty reports', () async {
+      when(
+        () => mockRepository.getMyReports(userId),
+      ).thenAnswer((_) async => []);
+      await notifier.loadReports();
+      expect(notifier.state.reports, isEmpty);
+      expect(notifier.state.isLoading, isFalse);
+      expect(notifier.state.error, isNull);
     });
   });
 }

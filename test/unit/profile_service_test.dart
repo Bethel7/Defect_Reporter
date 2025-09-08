@@ -30,7 +30,7 @@ void main() {
           'fullName': 'Test User',
           'employeeID': 'EMP1',
           'email': 'test@example.com',
-          'role': 'user',
+          'role': 'employee',
           'isActive': true,
           'createdAt': DateTime.now().toIso8601String(),
         });

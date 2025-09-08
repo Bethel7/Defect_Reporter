@@ -27,7 +27,7 @@ class _ReportConfirmationPageState
         return false;
       },
       child: Scaffold(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: Center(
           child: Container(
             margin: const EdgeInsets.all(24),
@@ -97,14 +97,6 @@ class _ReportConfirmationPageState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Report ID: ${report.id}',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
                         const SizedBox(height: 8),
                         Text(
                           'Timestamp: ${report.timestamp}',
@@ -128,8 +120,8 @@ class _ReportConfirmationPageState
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  ReportDetailPage(reportId: report.id),
+                              builder: (_) => ReportDetailPage(  report: report,
+                              ),
                             ),
                           );
                         },
