@@ -465,15 +465,11 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                     result['reportId']
                                                         ?.toString();
                                                 ReportModel? serverReport;
-                                                // Refresh My Reports from backend so the list updates
-                                                // final repository = ref.read(
-                                                //   reportRepositoryProvider,
-                                                // );
-                                                // final userId = await ref.read(
-                                                //   userIdProvider.future,
-                                                // );
+                                               
                                                 await ref.refresh(
                                                   myReportsAsyncProvider,
+                                              //await OfflineStorageService().clearOfflineReports();
+
                                                 );
                                                 if (reportId != null &&
                                                     reportId.isNotEmpty) {

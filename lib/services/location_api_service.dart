@@ -47,24 +47,20 @@ class LocationApiService {
         '/api/location/CreateLocation',
         data: {'LocationName': locationName.trim()},
       );
-      // Print for debugging
+      
       print(
         'CreateLocation response: status=${response.statusCode}, data=${response.data}',
       );
       if (response.statusCode == 201 || response.statusCode == 200) {
-        final id =
-            response.data['LocationID'] ??
-            response.data['locationId'] ??
-            response.data['id'];
+        final id = response.data['locationId'];
+
         if (id == null) {
           throw Exception('Location created but no ID returned.');
         }
         return int.tryParse(id.toString()) ??
             (throw Exception('Invalid location ID format.'));
       } else {
-        final msg =
-            response.data['Message'] ??
-            response.data['message'] ??
+        final msg = response.data['message'] ??
             'Failed to create location';
         throw Exception(msg);
       }

@@ -45,6 +45,12 @@ class LocalNotificationService {
         }
       },
     );
+    // Request notification permissions for iOS
+    await _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
   }
 
   Future<void> showNotification({

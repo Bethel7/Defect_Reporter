@@ -68,7 +68,7 @@ class AuthService {
     try {
       await _dio.post(
         '/api/auth/reset-password',
-        data: {'code': code, 'newPassword': newPassword},
+        data: {'code': code, 'newPassword': newPassword , 'confirmNewPassword': confirmNewPassword},
       );
     } on DioException catch (e) {
       throw handleDioError(e);
