@@ -22,8 +22,8 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   Future<void> _restoreSession() async {
     await ref.read(loginProvider.notifier).restoreUserSession(ref);
+     if (!mounted) return;
     final user = ref.read(currentUserProvider);
-    if (!mounted) return;
     setState(() {
       _hasSession = user != null;
     });

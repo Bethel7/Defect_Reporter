@@ -71,13 +71,15 @@ class PushNotificationService {
 
   Future<void> enablePushNotifications() async {
     _enabled = true;
-    // re-request permissions or subscribe to topics here
     print('Push notifications enabled');
+    // Optionally subscribe to topics
+    await _messaging.subscribeToTopic("all");
   }
 
   Future<void> disablePushNotifications() async {
     _enabled = false;
-    // unsubscribe from topics or revoke permissions here
+    // Unsubscribe from topics
+    await _messaging.unsubscribeFromTopic("all");
     print('Push notifications disabled');
   }
 }

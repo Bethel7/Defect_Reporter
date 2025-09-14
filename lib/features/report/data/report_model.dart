@@ -63,6 +63,24 @@ class ReportModel {
         localId = null;
       }
     }
+    // Get image path from possible keys
+    String imagePath =
+        json['ImagePath'] ??
+        json['imageUrl'] ??
+        json['ImageUrl'] ??
+        json['imagePath'] ??
+        '';
+    // Prepend baseUrl if imagePath is a relative path
+    const String baseUrl = 'http://svdcbas02:8212';
+    String fullImageUrl = imagePath;
+    if (imagePath.isNotEmpty && !imagePath.startsWith('http')) {
+      // Remove any leading slash to avoid double slash
+      if (imagePath.startsWith('/')) {
+        fullImageUrl = baseUrl + imagePath;
+      } else {
+        fullImageUrl = baseUrl + '/' + imagePath;
+      }
+    }
     return ReportModel(
       localId: localId,
       title: json['title'] ?? json['Title'] ?? '',
@@ -76,12 +94,7 @@ class ReportModel {
           json['Status'] ??
           json['statusName'] ??
           '',
-      imageUrl:
-          json['ImagePath'] ??
-          json['imageUrl'] ??
-          json['ImageUrl'] ??
-          json['imagePath'] ??
-          '',
+      imageUrl: fullImageUrl,
       timestamp: DateTime.now(),
       latitude: (json['Latitude'] as num?)?.toDouble(),
       longitude: (json['Longitude'] as num?)?.toDouble(),

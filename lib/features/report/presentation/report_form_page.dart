@@ -14,6 +14,7 @@ import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../core/common/profile_popup_menu.dart';
 import '../../../features/my_reports/presentation/my_reports_provider.dart';
+import '../../../features/report/data/report_remote_data_source.dart';
 import '../../../features/report/data/report_model.dart';
 import '../../../features/report/data/report_repository_provider.dart';
 import '../../../services/offline_storage_service.dart';
@@ -69,7 +70,7 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
     final formProvider = ref.watch(reportFormProvider.notifier);
     final formState = ref.watch(reportFormProvider);
 
-    final repository = ref.watch(reportRepositoryProvider);
+    // final repository = ref.watch(reportRepositoryProvider);
     final userIdAsync = ref.watch(userIdProvider);
 
     final theme = Theme.of(context);
@@ -404,6 +405,18 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                       ? null
                                       : () async {
                                           setState(() => _submitted = true);
+                                          if ((formState.locationId == null || formState.locationId == -1) &&
+                                                formState.locationName != null &&
+                                                formState.locationName!.trim().isNotEmpty) {
+                                              try {
+                                                final locationService = ref.read(locationApiServiceProvider);
+                                                final newId = await locationService.createLocation(formState.locationName!.trim());
+                                                formProvider.setLocation(newId, formState.locationName!.trim());
+                                              } catch (e) {
+                                                setState(() => _locationError = 'Failed to create location: $e');
+                                                return;
+                                              }
+                                            }
                                           bool valid = _formKey.currentState!
                                               .validate();
                                           String? locationError =
@@ -452,17 +465,23 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
                                                     result['reportId']
                                                         ?.toString();
                                                 ReportModel? serverReport;
+                                                // Refresh My Reports from backend so the list updates
+                                                // final repository = ref.read(
+                                                //   reportRepositoryProvider,
+                                                // );
+                                                // final userId = await ref.read(
+                                                //   userIdProvider.future,
+                                                // );
+                                                await ref.refresh(
+                                                  myReportsAsyncProvider,
+                                                );
                                                 if (reportId != null &&
                                                     reportId.isNotEmpty) {
                                                   try {
                                                     final remoteDataSource =
-                                                        ref.read(
-                                                              reportRepositoryProvider,
-                                                            )
-                                                            as dynamic;
+                                                        ReportRemoteDataSourceImpl();
                                                     serverReport =
                                                         await remoteDataSource
-                                                            .remoteDataSource
                                                             .getMyReportById(
                                                               reportId,
                                                             );

@@ -6,16 +6,6 @@ import '../features/my_reports/data/notification_model.dart';
 
 class LocalNotificationService {
   bool _enabled = true;
-  Future<void> enableNotifications() async {
-    _enabled = true;
-  }
-
-  Future<void> disableNotifications() async {
-    _enabled = false;
-    // Cancel all scheduled notifications
-    await _flutterLocalNotificationsPlugin.cancelAll();
-  }
-
   static final LocalNotificationService _instance =
       LocalNotificationService._internal();
   factory LocalNotificationService() => _instance;
@@ -27,7 +17,17 @@ class LocalNotificationService {
   BuildContext? _navContext;
   WidgetRef? _ref;
 
+  Future<void> enableNotifications() async {
+    _enabled = true;
+  }
+
+  Future<void> disableNotifications() async {
+    _enabled = false;
+    await _flutterLocalNotificationsPlugin.cancelAll();
+  }
+
   Future<void> initialize(BuildContext context, [WidgetRef? ref]) async {
+    if (!_enabled) return;
     _navContext = context;
     _ref = ref;
     const AndroidInitializationSettings androidInit =
@@ -40,7 +40,6 @@ class LocalNotificationService {
     await _flutterLocalNotificationsPlugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        // Handle notification tap: navigate to notifications page
         if (_navContext != null) {
           Navigator.of(_navContext!).pushNamed('/notifications');
         }
@@ -54,6 +53,7 @@ class LocalNotificationService {
     int id = 0,
     WidgetRef? ref,
   }) async {
+    if (!_enabled) return;
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
           'default_channel',
@@ -68,10 +68,8 @@ class LocalNotificationService {
       android: androidDetails,
       iOS: iosDetails,
     );
-    if (!_enabled) return;
     await _flutterLocalNotificationsPlugin.show(id, title, body, details);
 
-    // Add to in-app notification list
     final notification = NotificationModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,

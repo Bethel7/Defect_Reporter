@@ -1,7 +1,11 @@
+import 'package:defect_reporter/features/auth/presentation/login_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../report/data/report_model.dart';
 import '../../report/domain/report_repository.dart';
+import '../../../features/report/data/report_repository_provider.dart';
 
+/// State for user's reports
 class MyReportsState {
   final List<ReportModel> reports;
   final bool isLoading;
@@ -22,25 +26,30 @@ class MyReportsState {
   }
 }
 
+/// Notifier to manage reports
 class MyReportsNotifier extends StateNotifier<MyReportsState> {
   final ReportRepository _repository;
-  final int userId;
+  final int id;
 
-  MyReportsNotifier(this._repository, this.userId)
+  MyReportsNotifier(this._repository, this.id)
     : super(MyReportsState(reports: [])) {
-    assert(userId != null, 'userId must not be null');
-    print(
-      '[MyReportsNotifier] Constructed with userId: $userId (type: ${userId.runtimeType})',
-    );
+    loadReports(); // Automatically load reports when notifier is created
   }
 
   Future<void> loadReports() async {
-    print(
-      '[MyReportsNotifier] loadReports called with userId: $userId (type: ${userId.runtimeType})',
-    );
+    if (id == 0) {
+      state = state.copyWith(
+        reports: [],
+        isLoading: false,
+        error: 'Invalid user ID',
+      );
+      return;
+    }
+
     state = state.copyWith(isLoading: true, error: null);
+
     try {
-      final reports = await _repository.getMyReports(userId);
+      final reports = await _repository.getMyReports(id);
       state = state.copyWith(reports: reports, isLoading: false);
     } catch (e) {
       state = state.copyWith(
@@ -49,8 +58,6 @@ class MyReportsNotifier extends StateNotifier<MyReportsState> {
       );
     }
   }
-
-  // Removed fetchReportById: not needed, always pass full ReportModel object to detail pages.
 
   void addReport(ReportModel report) {
     state = state.copyWith(reports: [...state.reports, report]);
@@ -61,16 +68,30 @@ class MyReportsNotifier extends StateNotifier<MyReportsState> {
   }
 }
 
-// Usage: pass repository and userId when creating the provider
-final myReportsProvider =
-    StateNotifierProvider.family<
-      MyReportsNotifier,
-      MyReportsState,
-      Map<String, dynamic>
-    >((ref, args) {
-      final repository = args['repository'] as ReportRepository;
-      final userId = args['userId'] as int;
-      final notifier = MyReportsNotifier(repository, userId);
-      notifier.loadReports();
-      return notifier;
-    });
+/// Provider to read userId from secure storage
+final currentUserIdProvider = Provider<int>((ref) {
+  final user = ref.watch(currentUserProvider);
+  return user?.id ?? 0;
+});
+
+   final myReportsAsyncProvider = FutureProvider<List<ReportModel>>((ref) async {
+  final repository = ref.read(reportRepositoryProvider);
+  final userId = ref.watch(currentUserIdProvider);
+
+  if (userId == 0) {
+    debugPrint('[myReportsAsyncProvider] Invalid userId, returning empty list');
+    return [];
+  }
+
+  try {
+    final reports = await repository.getMyReports(userId);
+    debugPrint(
+      '[myReportsAsyncProvider] Successfully fetched ${reports.length} reports for userId $userId',
+    );
+    return reports;
+  } catch (e, st) {
+    debugPrint('[myReportsAsyncProvider] Error fetching reports: $e');
+    debugPrintStack(stackTrace: st);
+    return [];
+  }
+});

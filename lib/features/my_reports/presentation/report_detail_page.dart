@@ -6,9 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/common/profile_popup_menu.dart';
 import '../../report/data/report_model.dart';
 import '../../../core/theme/input_borders.dart';
-import 'my_reports_provider.dart';
 import '../../../core/utils/report_utils.dart';
-import '../../report/data/report_repository_provider.dart';
 
 class ReportDetailPage extends ConsumerWidget {
   final ReportModel report;

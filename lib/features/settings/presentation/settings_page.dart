@@ -1,4 +1,4 @@
-import '../../../services/auth_service.dart';
+import 'package:defect_reporter/features/auth/presentation/login_provider.dart';
 import '../../profile/profile_provider.dart';
 import 'package:flutter/material.dart';
 import '../../../core/theme/theme_mode_provider.dart';
@@ -25,7 +25,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget build(BuildContext context) {
     final profileAsync = ref.watch(profileProvider);
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -263,8 +262,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 label: 'Logout',
                 onTap: () async {
                   try {
-                    final authService = AuthService();
-                    await authService.logout();
+                    await ref.read(loginProvider.notifier).logout(ref);
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Logout failed: ${e.toString()}')),

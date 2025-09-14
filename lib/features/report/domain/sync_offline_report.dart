@@ -1,4 +1,3 @@
-import '../data/report_repository_provider.dart';
 import '../domain/report_repository.dart';
 import '../../../core/utils/network_checker.dart';
 import '../../../core/utils/helpers.dart';
@@ -45,17 +44,7 @@ class OfflineSyncManager {
                   'Your $syncedCount offline report${syncedCount > 1 ? 's' : ''} have been submitted successfully.',
             );
             // Refresh My Reports provider after sync
-            // You must provide repository and userId to myReportsProvider
-            final repository = ref.read(reportRepositoryProvider);
-            final userId = ref.read(userIdProvider);
-            ref
-                .read(
-                  myReportsProvider({
-                    'repository': repository,
-                    'userId': userId,
-                  }).notifier,
-                )
-                .refreshReports();
+            await ref.refresh(myReportsAsyncProvider.future);
           }
         } catch (e) {
           // show error when sync fails

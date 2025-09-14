@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../features/report/data/report_model.dart';
 import '../../../features/my_reports/presentation/report_detail_page.dart';
+import '../../../features/report/data/report_remote_data_source.dart';
+
 
 class ReportConfirmationPage extends ConsumerStatefulWidget {
   final ReportModel report;
@@ -116,7 +118,14 @@ class _ReportConfirmationPageState
                       width: 160,
                       child: CustomButton(
                         label: 'View Report',
-                        onPressed: () {
+                        onPressed: () async {
+                          ReportModel? backendReport;
+                          try {
+                            final remoteDataSource = ReportRemoteDataSourceImpl();
+                            backendReport = await remoteDataSource.getMyReportById(report.reportId!);
+                          } catch (e) {
+                            backendReport = null; 
+                          }
                           Navigator.push(
                             context,
                             MaterialPageRoute(

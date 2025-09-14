@@ -19,6 +19,7 @@ class AuthService {
         data: {'employeeId': employeeId, 'password': password},
       );
       final data = response.data;
+      debugPrint('[AuthService.login] response data: $data');
 
       return UserModel.fromJson(data);
     } on DioException catch (e) {
@@ -34,30 +35,36 @@ class AuthService {
     }
   }
 
-  Future<String> forgotPassword(String email) async {
+   Future<String> forgotPassword(String email) async {
     try {
       final response = await _dio.post(
         '/api/auth/forgot-password',
         data: {'email': email},
       );
+      
       // Try to extract a message from the backend response
-      if (response.data != null &&
-          response.data is Map &&
-          response.data['message'] != null) {
-        return response.data['message'] as String;
+      if (response.data != null && response.data is Map) {
+        final data = response.data as Map;
+        final message = data['message'] ?? data['Message'];
+        if (message != null) {
+          return message.toString();
+        }
       }
+      
       // Fallback: if status code is 200/201/204, assume success
       if ([200, 201, 204].contains(response.statusCode)) {
         return 'Password reset link sent!';
       }
+      
       // Otherwise, treat as error
       throw Exception('Failed to send reset link.');
+      
     } on DioException catch (e) {
       throw handleDioError(e);
     }
   }
 
-  Future<void> resetPassword(String code, String newPassword) async {
+  Future<void> resetPassword(String code, String newPassword, String confirmNewPassword) async {
     try {
       await _dio.post(
         '/api/auth/reset-password',

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../features/auth/presentation/login_provider.dart';
-import '../../../services/auth_service.dart';
+
 
 class ProfilePopupMenu extends ConsumerWidget {
   final void Function(int)? onSelected;
@@ -28,8 +28,7 @@ class ProfilePopupMenu extends ConsumerWidget {
               Navigator.pushNamed(context, '/settings');
             } else if (value == 2) {
               try {
-                final authService = AuthService();
-                await authService.logout();
+                await ref.read(loginProvider.notifier).logout(ref);
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

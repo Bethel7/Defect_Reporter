@@ -75,14 +75,14 @@ Future<bool?> showChangePasswordSheet(BuildContext context) async {
                             vertical: 32,
                             horizontal: 24,
                           ),
-                          child: NotificationListener<DraggableScrollableNotification>(
-                            onNotification: (notification) {
-                              if (notification.extent <=
-                                  notification.minExtent + 0.01) {
-                                disposeControllers();
-                              }
-                              return false;
-                            },
+                          // child: NotificationListener<DraggableScrollableNotification>(
+                          //   onNotification: (notification) {
+                          //     if (notification.extent <=
+                          //         notification.minExtent + 0.01) {
+                          //       disposeControllers();
+                          //     }
+                              //return false;
+                            // },
                             child: SingleChildScrollView(
                               controller: scrollController,
                               child: Form(
@@ -219,7 +219,6 @@ Future<bool?> showChangePasswordSheet(BuildContext context) async {
                                                             .text,
                                                       );
                                                   if (context.mounted) {
-                                                    disposeControllers();
                                                     Navigator.pop(
                                                       context,
                                                       true,
@@ -261,7 +260,7 @@ Future<bool?> showChangePasswordSheet(BuildContext context) async {
                               ),
                             ),
                           ),
-                        ),
+                        
                       );
                     },
                   ),

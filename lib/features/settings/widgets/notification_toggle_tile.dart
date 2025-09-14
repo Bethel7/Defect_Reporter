@@ -6,7 +6,7 @@ class NotificationToggleTile extends StatelessWidget {
   final String label;
   final IconData icon;
   final bool value;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool>? onChanged;
   final String? description;
 
   const NotificationToggleTile({

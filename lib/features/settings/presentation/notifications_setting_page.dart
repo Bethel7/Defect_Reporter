@@ -5,6 +5,7 @@ import '../widgets/notification_toggle_tile.dart';
 import '../../../services/local_notification_service.dart';
 import '../../../services/push_notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class NotificationsSettingPage extends ConsumerStatefulWidget {
   const NotificationsSettingPage({super.key});
@@ -19,11 +20,31 @@ class _NotificationsSettingPageState
   bool _pushNotificationsEnabled = true;
   bool _localNotificationsEnabled = true;
   bool _loadingPrefs = true;
+  bool _enabled = true;
 
   @override
   void initState() {
     super.initState();
     _loadPrefs();
+    _checkNotificationPermission();
+  }
+
+  Future<void> _checkNotificationPermission() async {
+    try {
+      final settings = await FirebaseMessaging.instance.requestPermission();
+      if (settings.authorizationStatus == AuthorizationStatus.denied ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        setState(() => _enabled = false);
+        await _setPushNotificationsEnabled(false);
+        await _setLocalNotificationsEnabled(false);
+      } else {
+        setState(() => _enabled = true);
+      }
+    } catch (e) {
+      setState(() => _enabled = false);
+      await _setPushNotificationsEnabled(false);
+      await _setLocalNotificationsEnabled(false);
+    }
   }
 
   Future<void> _loadPrefs() async {
@@ -111,7 +132,9 @@ class _NotificationsSettingPageState
                     icon: FontAwesomeIcons.bell,
                     label: 'Push Notifications',
                     value: _pushNotificationsEnabled,
-                    onChanged: _setPushNotificationsEnabled,
+                    onChanged: _enabled
+                        ? (val) =>  _setPushNotificationsEnabled(val)  
+                        : null,
                     description:
                         'Receive updates and alerts from Ethiopian Airlines.',
                   ),
@@ -120,7 +143,9 @@ class _NotificationsSettingPageState
                     icon: FontAwesomeIcons.clock,
                     label: 'Local Notifications',
                     value: _localNotificationsEnabled,
-                    onChanged: _setLocalNotificationsEnabled,
+                    onChanged: _enabled
+                        ? (val) => _setLocalNotificationsEnabled(val)
+                        : null,
                     description: 'Get offline alerts on your device.',
                   ),
                 ],

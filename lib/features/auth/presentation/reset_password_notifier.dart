@@ -39,10 +39,14 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
   String? validateConfirmPassword(String? value, String password) =>
       Validators.validateConfirmPassword(value, password);
 
-  Future<void> resetPassword(String code, String newPassword) async {
+  Future<void> resetPassword(
+    String code,
+    String newPassword,
+    String confirmNewPassword,
+  ) async {
     state = state.copyWith(isLoading: true, error: null, success: false);
     try {
-      await _authService.resetPassword(code, newPassword);
+      await _authService.resetPassword(code, newPassword, confirmNewPassword);
       state = state.copyWith(isLoading: false, success: true);
     } catch (e) {
       state = state.copyWith(

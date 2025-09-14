@@ -29,9 +29,9 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
-  Future<List<ReportModel>> getMyReports(int userId) async {
+  Future<List<ReportModel>> getMyReports(int id) async {
     try {
-      final remoteReports = await remoteDataSource.getMyReports(userId);
+      final remoteReports = await remoteDataSource.getMyReports(id);
       final offlineReports = await offlineStorageService.getOfflineReports();
       // Merge: show offline (pending) reports first, then remote
       return [...offlineReports, ...remoteReports];

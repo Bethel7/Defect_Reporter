@@ -9,9 +9,6 @@ abstract class AuthRemoteDataSource {
   /// Returns Either<Failure, void> for error handling
   Future<Either<Failure, void>> logout();
 
-  // /// Optional: Refreshes the auth token if supported
-  // Future<Either<Failure, String>> refreshToken();
-
-  ///  Checks if the session is still valid
+    ///  Checks if the session is still valid
   Future<Either<Failure, bool>> checkSession();
 }

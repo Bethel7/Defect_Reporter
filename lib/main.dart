@@ -1,3 +1,5 @@
+import 'package:defect_reporter/features/auth/presentation/login_provider.dart';
+
 import 'widgets/offline_snackbar.dart';
 import 'dart:async';
 import 'features/report/domain/sync_offline_report.dart';
@@ -25,6 +27,7 @@ import 'features/report/data/report_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'services/push_notification_service.dart';
 import 'services/local_notification_service.dart';
@@ -46,6 +49,8 @@ Future<void> main() async {
   Hive.registerAdapter(ReportModelAdapter());
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+
   runApp(const ProviderScope(child: DefectReporterApp()));
 }
 
@@ -62,28 +67,51 @@ class _DefectReporterAppState extends ConsumerState<DefectReporterApp> {
   late final SyncOfflineReports _syncOfflineReports;
   late OfflineSyncManager _offlineSyncManager;
 
-  @override
-  void initState() {
-    super.initState();
-    // Initialize repository and sync use case
-    _repository = ReportRepositoryImpl(
-      remoteDataSource: ReportRemoteDataSourceImpl(),
-      offlineStorageService: OfflineStorageService(),
-    );
-    _syncOfflineReports = SyncOfflineReports(_repository);
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // Initialize repository and sync use case
+  //   _repository = ReportRepositoryImpl(
+  //     remoteDataSource: ReportRemoteDataSourceImpl(),
+  //     offlineStorageService: OfflineStorageService(),
+  //   );
+  //   _syncOfflineReports = SyncOfflineReports(_repository);
+
+  //   // Initialize local notifications
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     LocalNotificationService().initialize(context, ref);
+  //     // Start global offline sync manager with ref
+  //     _offlineSyncManager = OfflineSyncManager(_syncOfflineReports, ref);
+  //     _offlineSyncManager.start();
+  //   });
+  // }
+ @override
+void initState() {
+  super.initState();
+
+  // Restore logged-in user from secure storage
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    final loginNotifier = ref.read(loginProvider.notifier);
+    await loginNotifier.restoreUserSession(ref);
 
     // Initialize local notifications
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      LocalNotificationService().initialize(context, ref);
-      // Start global offline sync manager with ref
-      _offlineSyncManager = OfflineSyncManager(_syncOfflineReports, ref);
-      _offlineSyncManager.start();
-    });
-  }
+    LocalNotificationService().initialize(context, ref);
+
+    // Start global offline sync manager with ref
+    _offlineSyncManager = OfflineSyncManager(_syncOfflineReports, ref);
+    _offlineSyncManager.start();
+  });
+
+  // Initialize repository and sync use case
+  _repository = ReportRepositoryImpl(
+    remoteDataSource: ReportRemoteDataSourceImpl(),
+    offlineStorageService: OfflineStorageService(),
+  );
+  _syncOfflineReports = SyncOfflineReports(_repository);
+}
 
   @override
   void dispose() {
-    // No connectivity subscription to cancel; manager handles its own listeners
     super.dispose();
   }
 

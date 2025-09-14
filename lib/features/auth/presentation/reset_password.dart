@@ -1,3 +1,4 @@
+import 'package:defect_reporter/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/input_borders.dart';
@@ -30,15 +31,20 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
     if (_formKey.currentState!.validate()) {
       await ref
           .read(resetPasswordProvider.notifier)
-          .resetPassword(_codeController.text, _newPasswordController.text);
+          .resetPassword( _codeController.text, _newPasswordController.text, _confirmPasswordController.text);
       final state = ref.read(resetPasswordProvider);
       if (state.success && mounted) {
         final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        final isDark = colorScheme.brightness == Brightness.dark;
+        // Use OfflineSnackbar color for consistency
+        final snackBarColor = AppColors.neutralDark;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Password reset successfully!'),
-            backgroundColor: theme.colorScheme.primary,
+            backgroundColor: snackBarColor,
             behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
           ),
         );
         Navigator.of(context).pop();
@@ -50,19 +56,42 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final resetState = ref.watch(resetPasswordProvider);
-    // final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
     final borderGray = theme.dividerColor;
-    final borderSuccess = theme.colorScheme.secondary;
-    final borderError = theme.colorScheme.error;
+    final borderSuccess = colorScheme.secondary;
+    final borderError = colorScheme.error;
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor:
-            theme.appBarTheme.backgroundColor ?? theme.colorScheme.surface,
-        title: Text(
-          'Reset Password',
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: theme.colorScheme.onSurface,
+        backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : Colors.black,
+          ),
+          onPressed: () => Navigator.pop(context),
+          tooltip: 'Back',
+        ),
+        title: Semantics(
+          header: true,
+          child: Text(
+            'Reset Password',
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: isDark ? Colors.white : Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+            ),
+          ),
+        ),
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            color: (isDark ? Colors.white : Colors.black).withOpacity(0.07),
+            height: 1,
           ),
         ),
       ),

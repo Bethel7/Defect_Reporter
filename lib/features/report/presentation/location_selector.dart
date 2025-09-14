@@ -45,17 +45,19 @@ class _LocationSelectorState extends State<LocationSelector> {
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         setState(() {
-          // If input is empty, show all locations
-          _filteredLocations = _controller.text.isEmpty
-              ? widget.locations
-              : widget.locations
-                    .where(
-                      (loc) => loc.locationName.toLowerCase().contains(
-                        _controller.text.toLowerCase(),
-                      ),
-                    )
-                    .toList();
-          _showDropdown = _filteredLocations.isNotEmpty;
+          // Only show dropdown if user has started typing
+          if (_controller.text.isNotEmpty) {
+            _filteredLocations = widget.locations
+                .where(
+                  (loc) => loc.locationName.toLowerCase().contains(
+                    _controller.text.toLowerCase(),
+                  ),
+                )
+                .toList();
+            _showDropdown = _filteredLocations.isNotEmpty;
+          } else {
+            _showDropdown = false;
+          }
         });
       } else {
         setState(() {
@@ -74,6 +76,9 @@ class _LocationSelectorState extends State<LocationSelector> {
             ),
           )
           .toList();
+      // Only show dropdown if user has started typing
+      _showDropdown =
+          _controller.text.isNotEmpty && _filteredLocations.isNotEmpty;
     });
   }
 

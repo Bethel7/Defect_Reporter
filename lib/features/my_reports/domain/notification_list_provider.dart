@@ -1,3 +1,4 @@
+import 'package:defect_reporter/features/my_reports/domain/notification_hive_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/notification_model.dart';
 import 'package:dio/dio.dart';
@@ -12,46 +13,69 @@ class NotificationListNotifier extends StateNotifier<List<NotificationModel>> {
     : _dio = dio,
       super([]);
 
-  /// Fetch notifications from backend
+  /// Fetch notifications from backend and store in Hive
   Future<void> fetchNotifications({bool unreadOnly = false}) async {
     final response = await _dio.get(
-      '/api/notifications/user/$userId',
+      '/api/Notifications/user/$userId',
       queryParameters: {'unreadOnly': unreadOnly},
     );
-    final data = response.data['Data'] as List?;
-    if (data != null) {
-      final notifications = data
+    final data = response.data['data'];
+    List<NotificationModel> backendNotifications = [];
+    if (data is List) {
+      backendNotifications = data
           .map((json) => NotificationModel.fromJson(json))
           .toList();
-      state = notifications;
     }
+    // Save backend notifications to Hive
+    final hiveService = NotificationHiveService();
+    await hiveService.saveNotifications(backendNotifications);
+    // Merge with local/push notifications
+    final localNotifications = await hiveService.getNotifications();
+    // Remove duplicates by id
+    final allNotifications = <String, NotificationModel>{};
+    for (var n in [...backendNotifications, ...localNotifications, ...state]) {
+      allNotifications[n.id] = n;
+    }
+    state = allNotifications.values.toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
   /// Mark a notification as read in backend and update state
   Future<void> markAsRead(String id) async {
-    await _dio.post('/api/notifications/$id/read');
+    await _dio.post('/api/Notifications/$id/read');
     state = [
       for (final notif in state)
         if (notif.id == id) notif.copyWith(isRead: true) else notif,
     ];
   }
 
-  /// Mark all notifications as read in backend and update state
-  Future<void> markAllAsRead() async {
-    await _dio.post('/api/notifications/user/$userId/read-all');
-    state = [for (final notif in state) notif.copyWith(isRead: true)];
-  }
+  // /// Mark all notifications as read in backend and update state
+  // Future<void> markAllAsRead() async {
+  //   await _dio.post('/api/Notifications/user/$userId/read-all');
+  //   state = [for (final notif in state) notif.copyWith(isRead: true)];
+  // }
 
-  /// Get unread count from backend
+  /// Get unread count from backend and local notifications
   Future<int> getUnreadCount() async {
     final response = await _dio.get(
-      '/api/notifications/user/$userId/unread-count',
+      '/api/Notifications/user/$userId/unread-count',
     );
-    return response.data['UnreadCount'] as int? ?? 0;
+    final backendCount = response.data['unreadCount'];
+    int backendUnread = 0;
+    if (backendCount is int) backendUnread = backendCount;
+    if (backendCount is String) backendUnread = int.tryParse(backendCount) ?? 0;
+    // Add local/push notifications unread count
+    final hiveService = NotificationHiveService();
+    final localNotifications = await hiveService.getNotifications();
+    final localUnread = localNotifications.where((n) => !n.isRead).length;
+    return backendUnread + localUnread;
   }
 
-  /// Add a notification locally (for push/local notifications)
-  void add(NotificationModel notification) {
+  /// Add a notification locally
+  void add(NotificationModel notification) async {
+    final hiveService = NotificationHiveService();
+    final current = await hiveService.getNotifications();
+    await hiveService.saveNotifications([notification, ...current]);
     state = [notification, ...state];
   }
 
@@ -74,7 +98,7 @@ final dioProvider = Provider<Dio>((ref) {
 
 final userIdProvider = Provider<int>((ref) {
   final user = ref.watch(currentUserProvider);
-  return user?.userId ?? 0;
+  return user?.id ?? 0;
 });
 
 final notificationListProvider =

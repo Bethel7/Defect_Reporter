@@ -13,26 +13,30 @@ class NotificationDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(notificationListProvider.notifier).markAsRead(notification.id);
     });
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor:
-            theme.appBarTheme.backgroundColor ?? colorScheme.surface,
+        backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface, size: 22),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : Colors.black,
+            size: 22,
+          ),
           onPressed: () => Navigator.pop(context),
           tooltip: 'Back',
         ),
         title: Text(
           'Notification Detail',
           style: theme.textTheme.titleLarge?.copyWith(
-            color: colorScheme.onSurface,
+            color: isDark ? Colors.white : Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -41,7 +45,7 @@ class NotificationDetailPage extends ConsumerWidget {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: colorScheme.onSurface.withOpacity(0.07),
+            color: (isDark ? Colors.white : Colors.black).withOpacity(0.07),
             height: 1,
           ),
         ),
@@ -136,10 +140,14 @@ class NotificationDetailPage extends ConsumerWidget {
                           size: 18,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          'Related Report ID: ${notification.reportId}',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurface.withOpacity(0.6),
+                        Expanded(
+                          child: Text(
+                            'Related Report ID: ${notification.reportId}',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurface.withOpacity(0.6),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -154,12 +162,16 @@ class NotificationDetailPage extends ConsumerWidget {
                         size: 18,
                       ),
                       const SizedBox(width: 8),
-                      Text(
+                      Expanded(
+                     child:  Text(
                         'Received: '
                         '${DateFormat.yMMMEd().add_jm().format(notification.timestamp)}',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurface.withOpacity(0.6),
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       ),
                     ],
                   ),

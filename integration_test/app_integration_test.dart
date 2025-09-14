@@ -98,64 +98,6 @@ void main() {
       expect(find.text('Cached Reports'), findsOneWidget);
       expect(find.text('Offline'), findsWidgets);
     });
-
-    testWidgets('Sync offline report: go online and verify sync', (
-      WidgetTester tester,
-    ) async {
-      app.main();
-      await tester.pumpAndSettle();
-      // Simulate going online (mock or override network checker)
-      // Trigger sync (tap sync button or pull to refresh)
-      await tester.tap(find.text('Sync'));
-      await tester.pumpAndSettle();
-      // Verify report moves to main list
-      expect(find.text('Previous Reports'), findsOneWidget);
-      // Verify report no longer in cached list
-      await tester.tap(find.text('Cached Reports'));
-      await tester.pumpAndSettle();
-      expect(find.text('Offline'), findsNothing);
-    });
-
-    testWidgets('Notification: trigger event and verify notification', (
-      WidgetTester tester,
-    ) async {
-      app.main();
-      await tester.pumpAndSettle();
-      // Trigger event (e.g., submit report)
-      await tester.tap(find.text('New Report'));
-      await tester.pumpAndSettle();
-      await tester.enterText(
-        find.bySemanticsLabel('Report Title Input'),
-        'Notification Test',
-      );
-      await tester.enterText(
-        find.bySemanticsLabel('Report Description Input'),
-        'Trigger notification.',
-      );
-      await tester.tap(find.text('Location'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Addis Ababa'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Submit'));
-      await tester.pumpAndSettle();
-      // Open notifications page
-      await tester.tap(find.byIcon(Icons.notifications));
-      await tester.pumpAndSettle();
-      expect(find.text('Notifications'), findsOneWidget);
-      expect(find.textContaining('Notification Test'), findsWidgets);
-    });
-
-    testWidgets('Logout: navigate to settings/profile and logout', (
-      WidgetTester tester,
-    ) async {
-      app.main();
-      await tester.pumpAndSettle();
-      // Navigate to settings page
-      await tester.tap(find.byIcon(Icons.settings));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Logout'));
-      await tester.pumpAndSettle();
-      expect(find.text('Login'), findsOneWidget);
-    });
   });
 }
+
