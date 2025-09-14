@@ -4,15 +4,15 @@ The Defect Reporter App is a mobile application built with Flutter that enables 
 
 ✨ Key Features
 
-Submit defect reports with title, description, location, and images.
+→  Submit defect reports with title, description, location, and images.
 
-Offline mode with cached submissions that sync once online.
+→  Offline mode with cached submissions that sync once online.
 
-AI-powered classification (severity and department tagging).
+→  AI-powered classification (severity and department tagging).
 
-Real-time push notifications and report status tracking.
+→  Real-time push notifications and report status tracking.
 
-Secure authentication and role-based access.
+→  Secure authentication and role-based access.
 
 🛠 Tech Stack
 
@@ -22,4 +22,4 @@ Backend: .NET Core API with SQL Server
 
 Database: SQL Server
 
-Cloud/Services: Firebase (FCM), Azure OpenAI (AI classification – optional)
+Cloud/Services: Firebase (FCM)
